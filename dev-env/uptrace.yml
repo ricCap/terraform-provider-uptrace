@@ -1,0 +1,110 @@
+##
+## Uptrace configuration file.
+## See https://uptrace.dev/get/config.html for details.
+##
+
+listen:
+  # OTLP/gRPC API for sending traces and metrics
+  grpc:
+    addr: ':4317'
+
+  # OTLP/HTTP API for sending traces and metrics
+  http:
+    addr: ':4318'
+
+ch:
+  # ClickHouse connection string
+  # https://github.com/ClickHouse/clickhouse-go#dsn
+  addr: clickhouse:9000
+  user: uptrace
+  password: uptrace
+  database: uptrace
+
+  # Maximum query duration
+  max_execution_time: 30s
+
+pg:
+  # PostgreSQL connection string
+  # https://pkg.go.dev/github.com/jackc/pgx/v5/pgxpool#ParseConfig
+  addr: postgres:5432
+  user: uptrace
+  password: uptrace
+  database: uptrace
+
+redis:
+  # Redis connection string
+  # https://redis.uptrace.dev/guide/go-redis.html#connecting-to-redis-server
+  addr: redis:6379
+
+auth:
+  # Anonymous users configuration. When enabled, creates an anonymous project.
+  anonymous:
+    enabled: true
+
+  # User accounts
+  users:
+    - username: uptrace@localhost
+      password: SomeRandomPassword
+
+# Secret key for signing JWT tokens
+secret_key: please-change-this-secret-key-to-something-random
+
+projects:
+  # Project ID is a unique identifier for the project
+  - id: 1
+    # Project name
+    name: Test Project
+    # Token for sending data to this project (for OTLP endpoints)
+    token: project1_secret_token
+    # Whether pinned attributes should be auto-created
+    pinned_attrs:
+      - service_name
+      - host_name
+      - deployment_environment
+    # Group spans by these attributes (in addition to service and host)
+    group_by_env: false
+    group_funcs_by_service: false
+
+# Site settings
+site:
+  # Publicly accessible base URL, e.g. https://uptrace.mydomain.com
+  # Can be used in emails or other public URLs
+  addr: 'http://localhost:14318'
+
+# SMTP settings for sending emails
+smtp:
+  enabled: false
+  host: mailpit
+  port: 1025
+  username: uptrace@localhost
+  password: uptrace
+  from: 'uptrace@localhost'
+
+# Alertmanager client configuration
+# Used to send alerts to external Alertmanager
+alertmanager:
+  enabled: false
+
+# Metrics configuration
+metrics:
+  # Delete metrics data after this period
+  # Default: 0 (disabled)
+  delete_after: 0
+
+# Tracing configuration
+tracing:
+  # Delete traces data after this period
+  # Default: 0 (disabled)
+  delete_after: 0
+
+# Logs configuration
+logs:
+  # Delete logs data after this period
+  # Default: 0 (disabled)
+  delete_after: 0
+
+# Configure built-in instrumentations
+instrumentations:
+  # Enable/disable runtime instrumentation
+  runtime:
+    enabled: true

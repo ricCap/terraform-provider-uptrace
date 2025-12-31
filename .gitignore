@@ -54,3 +54,10 @@ docs/
 # Testing
 .test/
 terraform-provider-uptrace.log
+
+# Dev environment
+dev-env/.terraform/
+dev-env/terraform-test/.terraform/
+dev-env/terraform-test/terraform.tfvars
+dev-env/terraform-test/*.tfstate
+dev-env/terraform-test/*.tfstate.backup

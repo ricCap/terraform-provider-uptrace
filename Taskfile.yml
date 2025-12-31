@@ -144,3 +144,72 @@ tasks:
       - task: generate
       - task: build
       - echo "Development environment ready!"
+
+  dev:up:
+    desc: Start local Uptrace instance for testing
+    dir: dev-env
+    cmds:
+      - docker compose up -d
+      - echo "Waiting for Uptrace to be ready..."
+      - |
+        for i in {1..60}; do
+          if docker compose logs uptrace 2>&1 | grep -q "Listening on :4317"; then
+            echo "✅ Uptrace is ready!"
+            echo ""
+            echo "📊 Web UI:        http://localhost:14318"
+            echo "   Email:         uptrace@localhost"
+            echo "   Password:      SomeRandomPassword"
+            echo ""
+            echo "Next steps:"
+            echo "1. Login and create an API token"
+            echo "2. Copy dev-env/terraform-test/terraform.tfvars.example to terraform.tfvars"
+            echo "3. Add your token to terraform.tfvars"
+            echo "4. Run: task dev:test"
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "❌ Uptrace failed to start"
+        exit 1
+
+  dev:down:
+    desc: Stop local Uptrace instance
+    dir: dev-env
+    cmds:
+      - docker compose down
+
+  dev:reset:
+    desc: Reset local Uptrace instance (removes all data)
+    dir: dev-env
+    cmds:
+      - docker compose down -v
+      - echo "All data removed. Run 'task dev:up' to start fresh."
+
+  dev:logs:
+    desc: Show Uptrace logs
+    dir: dev-env
+    cmds:
+      - docker compose logs -f uptrace
+
+  dev:test:
+    desc: Test provider against local Uptrace
+    dir: dev-env/terraform-test
+    deps: [install]
+    cmds:
+      - terraform init -upgrade
+      - terraform plan
+      - echo ""
+      - echo "Review the plan above. To apply, run:"
+      - echo "  cd dev-env/terraform-test && terraform apply"
+
+  dev:install-local:
+    desc: Install provider locally for testing
+    deps: [build]
+    vars:
+      VERSION: '0.1.0'
+      OS: '{{OS}}'
+      ARCH: '{{ARCH}}'
+    cmds:
+      - mkdir -p ~/.terraform.d/plugins/registry.terraform.io/riccap/uptrace/{{.VERSION}}/{{.OS}}_{{.ARCH}}
+      - cp {{.BINARY_NAME}} ~/.terraform.d/plugins/registry.terraform.io/riccap/uptrace/{{.VERSION}}/{{.OS}}_{{.ARCH}}/
+      - echo "Provider installed to ~/.terraform.d/plugins/registry.terraform.io/riccap/uptrace/{{.VERSION}}/{{.OS}}_{{.ARCH}}/"

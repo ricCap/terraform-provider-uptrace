@@ -1,0 +1,50 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'internal/provider/**'
+      - 'examples/**'
+      - 'templates/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate:
+    name: Generate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+
+      - name: Generate code
+        run: task generate
+
+      - name: Generate documentation
+        run: task docs
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'docs: update provider documentation'
+          title: 'Update provider documentation'
+          body: |
+            Automated documentation update.
+
+            This PR updates the provider documentation based on changes to the provider code.
+          branch: docs/auto-update
+          delete-branch: true
+          labels: documentation

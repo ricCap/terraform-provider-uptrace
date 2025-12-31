@@ -1,0 +1,464 @@
+openapi: 3.0.3
+
+info:
+  title: Uptrace Monitors API
+  description: |
+    REST API for managing Uptrace metric and error monitors.
+    This API allows you to create, update, retrieve, and delete monitors programmatically.
+  version: 1.0.0
+  contact:
+    name: Uptrace
+    url: https://uptrace.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api2.uptrace.dev/internal/v1
+    description: Uptrace Production API
+  - url: http://localhost:14318/internal/v1
+    description: Local Uptrace Instance
+
+security:
+  - bearerAuth: []
+
+paths:
+  /projects/{projectId}/monitors:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+
+    get:
+      summary: List monitors
+      description: Retrieve all monitors for a project
+      operationId: listMonitors
+      tags:
+        - Monitors
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - monitors
+                properties:
+                  monitors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Monitor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create monitor
+      description: Create a new monitor for a project
+      operationId: createMonitor
+      tags:
+        - Monitors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitorInput'
+      responses:
+        '201':
+          description: Monitor created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - monitor
+                properties:
+                  monitor:
+                    $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /projects/{projectId}/monitors/{monitorId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/MonitorId'
+
+    get:
+      summary: Get monitor
+      description: Retrieve a specific monitor by ID
+      operationId: getMonitor
+      tags:
+        - Monitors
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - monitor
+                properties:
+                  monitor:
+                    $ref: '#/components/schemas/Monitor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update monitor
+      description: Update an existing monitor
+      operationId: updateMonitor
+      tags:
+        - Monitors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MonitorInput'
+      responses:
+        '200':
+          description: Monitor updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - monitor
+                properties:
+                  monitor:
+                    $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete monitor
+      description: Delete a monitor by ID
+      operationId: deleteMonitor
+      tags:
+        - Monitors
+      responses:
+        '204':
+          description: Monitor deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: User authentication token from Uptrace
+
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      description: Uptrace project ID
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+
+    MonitorId:
+      name: monitorId
+      in: path
+      required: true
+      description: Monitor ID
+      schema:
+        type: string
+
+  schemas:
+    Monitor:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - state
+        - params
+      properties:
+        id:
+          type: string
+          description: Monitor unique identifier
+          example: "mon_abc123"
+        name:
+          type: string
+          description: Monitor name
+          minLength: 1
+          maxLength: 255
+          example: "High CPU Usage"
+        type:
+          $ref: '#/components/schemas/MonitorType'
+        state:
+          type: string
+          enum: [open, firing, paused]
+          description: Current monitor state
+          example: "open"
+        notifyEveryoneByEmail:
+          type: boolean
+          description: Whether to notify all project members by email
+          default: false
+        teamIds:
+          type: array
+          description: List of team IDs to notify
+          items:
+            type: integer
+            format: int64
+          default: []
+        channelIds:
+          type: array
+          description: List of notification channel IDs
+          items:
+            type: integer
+            format: int64
+          default: []
+        repeatInterval:
+          $ref: '#/components/schemas/RepeatInterval'
+        params:
+          oneOf:
+            - $ref: '#/components/schemas/MetricMonitorParams'
+            - $ref: '#/components/schemas/ErrorMonitorParams'
+        createdAt:
+          type: string
+          format: date-time
+          description: Monitor creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Monitor last update timestamp
+
+    MonitorInput:
+      type: object
+      required:
+        - name
+        - type
+        - params
+      properties:
+        name:
+          type: string
+          description: Monitor name
+          minLength: 1
+          maxLength: 255
+          example: "High CPU Usage"
+        type:
+          $ref: '#/components/schemas/MonitorType'
+        notifyEveryoneByEmail:
+          type: boolean
+          description: Whether to notify all project members by email
+          default: false
+        teamIds:
+          type: array
+          description: List of team IDs to notify
+          items:
+            type: integer
+            format: int64
+          default: []
+        channelIds:
+          type: array
+          description: List of notification channel IDs
+          items:
+            type: integer
+            format: int64
+          default: []
+        repeatInterval:
+          $ref: '#/components/schemas/RepeatInterval'
+        params:
+          oneOf:
+            - $ref: '#/components/schemas/MetricMonitorParams'
+            - $ref: '#/components/schemas/ErrorMonitorParams'
+
+    MonitorType:
+      type: string
+      enum: [metric, error]
+      description: Type of monitor
+      example: "metric"
+
+    RepeatInterval:
+      type: object
+      properties:
+        strategy:
+          type: string
+          enum: [default, custom]
+          default: "default"
+          description: Repeat interval strategy
+        interval:
+          type: integer
+          format: int64
+          description: Custom interval in seconds (only for custom strategy)
+          minimum: 60
+      example:
+        strategy: "default"
+
+    MetricMonitorParams:
+      type: object
+      required:
+        - metrics
+        - query
+        - column
+      properties:
+        metrics:
+          type: array
+          description: List of metrics to monitor
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/MetricDefinition'
+        query:
+          type: string
+          description: UQL (Uptrace Query Language) query for metric evaluation
+          minLength: 1
+          example: "avg(cpu_usage) > 90"
+        column:
+          type: string
+          description: Column name to evaluate in the query result
+          minLength: 1
+          example: "cpu_usage"
+        minAllowedValue:
+          type: number
+          format: double
+          description: Minimum allowed value for the metric
+          example: 0
+        maxAllowedValue:
+          type: number
+          format: double
+          description: Maximum allowed value for the metric
+          example: 100
+        groupingInterval:
+          type: number
+          format: double
+          description: Grouping interval in milliseconds
+          minimum: 0
+          example: 60000
+        checkNumPoint:
+          type: integer
+          description: Number of consecutive points that must breach threshold
+          minimum: 1
+          default: 1
+          example: 3
+        nullsMode:
+          type: string
+          enum: [allow, forbid, convert]
+          default: "allow"
+          description: How to handle null values
+        timeOffset:
+          type: number
+          format: double
+          description: Time offset in milliseconds
+          example: 0
+
+    ErrorMonitorParams:
+      type: object
+      required:
+        - metrics
+      properties:
+        metrics:
+          type: array
+          description: List of error metrics to monitor
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/MetricDefinition'
+        query:
+          type: string
+          description: Optional filter query for errors
+          example: "severity:ERROR AND service:api"
+
+    MetricDefinition:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Metric name
+          minLength: 1
+          example: "system.cpu.utilization"
+        alias:
+          type: string
+          description: Optional alias for the metric
+          example: "cpu_usage"
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "invalid_request"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid monitor configuration"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized - invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

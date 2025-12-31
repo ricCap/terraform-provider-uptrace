@@ -1,0 +1,146 @@
+version: '3'
+
+vars:
+  BINARY_NAME: terraform-provider-uptrace
+  GOBIN: '{{.ROOT_DIR}}/bin'
+
+env:
+  CGO_ENABLED: "0"
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+
+  deps:
+    desc: Install development dependencies
+    cmds:
+      - go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
+      - go mod download
+
+  generate:
+    desc: Generate code from OpenAPI spec
+    deps: [deps]
+    sources:
+      - api/openapi.yaml
+      - oapi-codegen.yaml
+    generates:
+      - internal/client/generated/*.go
+    cmds:
+      - mkdir -p internal/client/generated
+      - oapi-codegen -config oapi-codegen.yaml api/openapi.yaml
+
+  build:
+    desc: Build the provider binary
+    deps: [generate]
+    sources:
+      - '**/*.go'
+      - go.mod
+      - go.sum
+    generates:
+      - '{{.BINARY_NAME}}'
+    cmds:
+      - go build -o {{.BINARY_NAME}} -ldflags="-s -w" .
+
+  install:
+    desc: Install provider to local Terraform plugins directory
+    deps: [build]
+    vars:
+      VERSION: '0.1.0'
+      OS: '{{OS}}'
+      ARCH: '{{ARCH}}'
+      PLUGIN_DIR: '~/.terraform.d/plugins/registry.terraform.io/riccap/uptrace/{{.VERSION}}/{{.OS}}_{{.ARCH}}'
+    cmds:
+      - mkdir -p {{.PLUGIN_DIR}}
+      - cp {{.BINARY_NAME}} {{.PLUGIN_DIR}}/
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test -v -cover -race ./...
+
+  test:coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+      - go tool cover -html=coverage.txt -o coverage.html
+      - echo "Coverage report generated at coverage.html"
+
+  testacc:
+    desc: Run acceptance tests
+    env:
+      TF_ACC: "1"
+    cmds:
+      - |
+        if [ -z "$UPTRACE_ENDPOINT" ] || [ -z "$UPTRACE_TOKEN" ]; then
+          echo "Error: UPTRACE_ENDPOINT and UPTRACE_TOKEN must be set"
+          exit 1
+        fi
+      - go test -v -cover -timeout 30m ./...
+
+  lint:
+    desc: Run linters
+    deps: [generate]
+    cmds:
+      - golangci-lint run --timeout 5m
+
+  lint:fix:
+    desc: Run linters and auto-fix issues
+    deps: [generate]
+    cmds:
+      - golangci-lint run --fix --timeout 5m
+
+  fmt:
+    desc: Format code
+    cmds:
+      - gofmt -s -w .
+      - go mod tidy
+
+  docs:
+    desc: Generate provider documentation
+    deps: [build]
+    cmds:
+      - tfplugindocs generate --provider-name uptrace
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -f {{.BINARY_NAME}}
+      - rm -f coverage.txt coverage.html
+      - rm -rf dist/
+      - rm -rf .test/
+
+  clean:all:
+    desc: Clean all generated files including client code
+    deps: [clean]
+    cmds:
+      - rm -rf internal/client/generated/
+
+  validate:
+    desc: Run all validation checks
+    deps: [generate]
+    cmds:
+      - task: fmt
+      - task: lint
+      - task: test
+
+  release:
+    desc: Create a new release (dry-run)
+    cmds:
+      - goreleaser release --snapshot --clean
+
+  release:publish:
+    desc: Publish a new release
+    cmds:
+      - goreleaser release --clean
+
+  dev:setup:
+    desc: Complete development environment setup
+    cmds:
+      - task: deps
+      - task: generate
+      - task: build
+      - echo "Development environment ready!"

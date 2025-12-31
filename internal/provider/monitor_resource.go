@@ -218,14 +218,33 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 		return
 	}
 
-	// TODO: Convert plan to MonitorInput and call client.CreateMonitor
-	// For now, this is a placeholder
 	tflog.Info(ctx, "Creating monitor", map[string]any{"name": plan.Name.ValueString()})
 
-	resp.Diagnostics.AddError(
-		"Not Implemented",
-		"Monitor resource creation is not yet fully implemented. This is a work in progress.",
-	)
+	// Convert plan to API input
+	input := planToMonitorInput(ctx, plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Create monitor via API
+	monitor, err := r.client.CreateMonitor(ctx, input)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Creating Monitor",
+			fmt.Sprintf("Could not create monitor: %s", err.Error()),
+		)
+		return
+	}
+
+	// Convert API response to state
+	monitorToState(ctx, monitor, &plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Save state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	tflog.Info(ctx, "Created monitor", map[string]any{"id": plan.ID.ValueString()})
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -238,11 +257,24 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	tflog.Info(ctx, "Reading monitor", map[string]any{"id": state.ID.ValueString()})
 
-	// TODO: Call client.GetMonitor and update state
-	resp.Diagnostics.AddError(
-		"Not Implemented",
-		"Monitor resource read is not yet fully implemented. This is a work in progress.",
-	)
+	// Get monitor from API
+	monitor, err := r.client.GetMonitor(ctx, state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading Monitor",
+			fmt.Sprintf("Could not read monitor ID %s: %s", state.ID.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	// Convert API response to state
+	monitorToState(ctx, monitor, &state, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Save updated state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
@@ -255,11 +287,31 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	tflog.Info(ctx, "Updating monitor", map[string]any{"id": plan.ID.ValueString()})
 
-	// TODO: Convert plan to MonitorInput and call client.UpdateMonitor
-	resp.Diagnostics.AddError(
-		"Not Implemented",
-		"Monitor resource update is not yet fully implemented. This is a work in progress.",
-	)
+	// Convert plan to API input
+	input := planToMonitorInput(ctx, plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Update monitor via API
+	monitor, err := r.client.UpdateMonitor(ctx, plan.ID.ValueString(), input)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Updating Monitor",
+			fmt.Sprintf("Could not update monitor ID %s: %s", plan.ID.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	// Convert API response to state
+	monitorToState(ctx, monitor, &plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Save updated state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
+	tflog.Info(ctx, "Updated monitor", map[string]any{"id": plan.ID.ValueString()})
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
@@ -272,11 +324,17 @@ func (r *MonitorResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 	tflog.Info(ctx, "Deleting monitor", map[string]any{"id": state.ID.ValueString()})
 
-	// TODO: Call client.DeleteMonitor
-	resp.Diagnostics.AddError(
-		"Not Implemented",
-		"Monitor resource deletion is not yet fully implemented. This is a work in progress.",
-	)
+	// Delete monitor via API
+	err := r.client.DeleteMonitor(ctx, state.ID.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Deleting Monitor",
+			fmt.Sprintf("Could not delete monitor ID %s: %s", state.ID.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	tflog.Info(ctx, "Deleted monitor", map[string]any{"id": state.ID.ValueString()})
 }
 
 // ImportState imports an existing resource into Terraform.

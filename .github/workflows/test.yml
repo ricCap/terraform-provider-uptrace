@@ -65,6 +65,55 @@ jobs:
           flags: unittests
           fail_ci_if_error: false
 
+  acceptance-tests:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+
+      - name: Start Docker Compose
+        run: |
+          cd dev-env
+          docker compose up -d
+
+      - name: Wait for Uptrace
+        run: |
+          timeout 120 bash -c 'until curl -f http://localhost:14318/internal/v1/projects/1/monitors -H "Authorization: Bearer user1_secret_token" 2>/dev/null; do sleep 2; done'
+
+      - name: Generate code
+        run: task generate
+
+      - name: Run acceptance tests
+        env:
+          TF_ACC: "1"
+          UPTRACE_ENDPOINT: "http://localhost:14318/internal/v1"
+          UPTRACE_TOKEN: "user1_secret_token"
+          UPTRACE_PROJECT_ID: "1"
+        run: go test -v -timeout 30m ./internal/provider -run TestAcc
+
+      - name: Docker Compose logs on failure
+        if: failure()
+        run: |
+          cd dev-env
+          docker compose logs
+
+      - name: Cleanup
+        if: always()
+        run: |
+          cd dev-env
+          docker compose down -v
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

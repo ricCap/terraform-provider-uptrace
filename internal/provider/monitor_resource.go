@@ -44,8 +44,8 @@ type MonitorResourceModel struct {
 	Type                  types.String `tfsdk:"type"`
 	State                 types.String `tfsdk:"state"`
 	NotifyEveryoneByEmail types.Bool   `tfsdk:"notify_everyone_by_email"`
-	TeamIds               types.List   `tfsdk:"team_ids"`
-	ChannelIds            types.List   `tfsdk:"channel_ids"`
+	TeamIDs               types.List   `tfsdk:"team_ids"`
+	ChannelIDs            types.List   `tfsdk:"channel_ids"`
 	RepeatInterval        types.Object `tfsdk:"repeat_interval"`
 	Params                types.Object `tfsdk:"params"`
 	CreatedAt             types.String `tfsdk:"created_at"`

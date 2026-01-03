@@ -43,7 +43,7 @@ func New(cfg Config) (*Client, error) {
 	endpoint := strings.TrimSuffix(cfg.Endpoint, "/")
 
 	// Create request editor to add authentication header
-	authEditor := func(ctx context.Context, req *http.Request) error {
+	authEditor := func(_ context.Context, req *http.Request) error {
 		req.Header.Set("Authorization", "Bearer "+cfg.Token)
 		return nil
 	}

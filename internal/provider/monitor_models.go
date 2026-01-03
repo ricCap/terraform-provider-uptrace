@@ -12,13 +12,13 @@ import (
 	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"
 )
 
-// RepeatIntervalModel represents the repeat interval configuration
+// RepeatIntervalModel represents the repeat interval configuration.
 type RepeatIntervalModel struct {
 	Strategy types.String `tfsdk:"strategy"`
 	Interval types.Int64  `tfsdk:"interval"`
 }
 
-// MonitorParamsModel represents monitor parameters
+// MonitorParamsModel represents monitor parameters.
 type MonitorParamsModel struct {
 	Metrics          types.List    `tfsdk:"metrics"`
 	Query            types.String  `tfsdk:"query"`
@@ -31,13 +31,13 @@ type MonitorParamsModel struct {
 	TimeOffset       types.Float64 `tfsdk:"time_offset"`
 }
 
-// MetricDefinitionModel represents a metric definition
+// MetricDefinitionModel represents a metric definition.
 type MetricDefinitionModel struct {
 	Name  types.String `tfsdk:"name"`
 	Alias types.String `tfsdk:"alias"`
 }
 
-// planToMonitorInput converts a Terraform plan to an API MonitorInput
+// planToMonitorInput converts a Terraform plan to an API MonitorInput.
 func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *diag.Diagnostics) generated.MonitorInput {
 	input := generated.MonitorInput{
 		Name: plan.Name.ValueString(),
@@ -51,28 +51,20 @@ func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *d
 	}
 
 	// Convert team IDs
-	if !plan.TeamIds.IsNull() && !plan.TeamIds.IsUnknown() {
-		var teamIds []int64
-		diags.Append(plan.TeamIds.ElementsAs(ctx, &teamIds, false)...)
+	if !plan.TeamIDs.IsNull() && !plan.TeamIDs.IsUnknown() {
+		var teamIDs []int64
+		diags.Append(plan.TeamIDs.ElementsAs(ctx, &teamIDs, false)...)
 		if !diags.HasError() {
-			apiTeamIds := make([]int64, len(teamIds))
-			for i, id := range teamIds {
-				apiTeamIds[i] = id
-			}
-			input.TeamIds = &apiTeamIds
+			input.TeamIds = &teamIDs
 		}
 	}
 
 	// Convert channel IDs
-	if !plan.ChannelIds.IsNull() && !plan.ChannelIds.IsUnknown() {
-		var channelIds []int64
-		diags.Append(plan.ChannelIds.ElementsAs(ctx, &channelIds, false)...)
+	if !plan.ChannelIDs.IsNull() && !plan.ChannelIDs.IsUnknown() {
+		var channelIDs []int64
+		diags.Append(plan.ChannelIDs.ElementsAs(ctx, &channelIDs, false)...)
 		if !diags.HasError() {
-			apiChannelIds := make([]int64, len(channelIds))
-			for i, id := range channelIds {
-				apiChannelIds[i] = id
-			}
-			input.ChannelIds = &apiChannelIds
+			input.ChannelIds = &channelIDs
 		}
 	}
 
@@ -110,27 +102,38 @@ func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *d
 	return input
 }
 
-// convertToMetricParams converts params to MetricMonitorParams
+// convertMetricsToAPI converts Terraform metric definitions to API format.
+func convertMetricsToAPI(ctx context.Context, params MonitorParamsModel, diags *diag.Diagnostics) []generated.MetricDefinition {
+	if params.Metrics.IsNull() || params.Metrics.IsUnknown() {
+		return nil
+	}
+
+	var metrics []MetricDefinitionModel
+	diags.Append(params.Metrics.ElementsAs(ctx, &metrics, false)...)
+	if diags.HasError() {
+		return nil
+	}
+
+	apiMetrics := make([]generated.MetricDefinition, len(metrics))
+	for i, m := range metrics {
+		apiMetrics[i] = generated.MetricDefinition{
+			Name: m.Name.ValueString(),
+		}
+		if !m.Alias.IsNull() {
+			alias := m.Alias.ValueString()
+			apiMetrics[i].Alias = &alias
+		}
+	}
+	return apiMetrics
+}
+
+// convertToMetricParams converts params to MetricMonitorParams.
 func convertToMetricParams(ctx context.Context, params MonitorParamsModel, result *generated.MonitorInput_Params, diags *diag.Diagnostics) {
 	metricParams := generated.MetricMonitorParams{}
 
 	// Convert metrics
-	if !params.Metrics.IsNull() && !params.Metrics.IsUnknown() {
-		var metrics []MetricDefinitionModel
-		diags.Append(params.Metrics.ElementsAs(ctx, &metrics, false)...)
-		if !diags.HasError() {
-			apiMetrics := make([]generated.MetricDefinition, len(metrics))
-			for i, m := range metrics {
-				apiMetrics[i] = generated.MetricDefinition{
-					Name: m.Name.ValueString(),
-				}
-				if !m.Alias.IsNull() {
-					alias := m.Alias.ValueString()
-					apiMetrics[i].Alias = &alias
-				}
-			}
-			metricParams.Metrics = apiMetrics
-		}
+	if apiMetrics := convertMetricsToAPI(ctx, params, diags); apiMetrics != nil {
+		metricParams.Metrics = apiMetrics
 	}
 
 	if !params.Query.IsNull() {
@@ -176,27 +179,13 @@ func convertToMetricParams(ctx context.Context, params MonitorParamsModel, resul
 	}
 }
 
-// convertToErrorParams converts params to ErrorMonitorParams
+// convertToErrorParams converts params to ErrorMonitorParams.
 func convertToErrorParams(ctx context.Context, params MonitorParamsModel, result *generated.MonitorInput_Params, diags *diag.Diagnostics) {
 	errorParams := generated.ErrorMonitorParams{}
 
 	// Convert metrics
-	if !params.Metrics.IsNull() && !params.Metrics.IsUnknown() {
-		var metrics []MetricDefinitionModel
-		diags.Append(params.Metrics.ElementsAs(ctx, &metrics, false)...)
-		if !diags.HasError() {
-			apiMetrics := make([]generated.MetricDefinition, len(metrics))
-			for i, m := range metrics {
-				apiMetrics[i] = generated.MetricDefinition{
-					Name: m.Name.ValueString(),
-				}
-				if !m.Alias.IsNull() {
-					alias := m.Alias.ValueString()
-					apiMetrics[i].Alias = &alias
-				}
-			}
-			errorParams.Metrics = apiMetrics
-		}
+	if apiMetrics := convertMetricsToAPI(ctx, params, diags); apiMetrics != nil {
+		errorParams.Metrics = apiMetrics
 	}
 
 	if !params.Query.IsNull() {
@@ -209,7 +198,7 @@ func convertToErrorParams(ctx context.Context, params MonitorParamsModel, result
 	}
 }
 
-// monitorToState converts an API Monitor to Terraform state
+// monitorToState converts an API Monitor to Terraform state.
 func monitorToState(ctx context.Context, monitor *generated.Monitor, state *MonitorResourceModel, diags *diag.Diagnostics) {
 	state.ID = types.StringValue(fmt.Sprintf("%d", monitor.Id))
 	state.Name = types.StringValue(monitor.Name)
@@ -225,24 +214,24 @@ func monitorToState(ctx context.Context, monitor *generated.Monitor, state *Moni
 
 	// Convert team IDs
 	if monitor.TeamIds != nil && len(*monitor.TeamIds) > 0 {
-		teamIds := make([]attr.Value, len(*monitor.TeamIds))
+		teamIDs := make([]attr.Value, len(*monitor.TeamIds))
 		for i, id := range *monitor.TeamIds {
-			teamIds[i] = types.Int64Value(id)
+			teamIDs[i] = types.Int64Value(id)
 		}
-		state.TeamIds = types.ListValueMust(types.Int64Type, teamIds)
+		state.TeamIDs = types.ListValueMust(types.Int64Type, teamIDs)
 	} else {
-		state.TeamIds = types.ListValueMust(types.Int64Type, []attr.Value{})
+		state.TeamIDs = types.ListValueMust(types.Int64Type, []attr.Value{})
 	}
 
 	// Convert channel IDs
 	if monitor.ChannelIds != nil && len(*monitor.ChannelIds) > 0 {
-		channelIds := make([]attr.Value, len(*monitor.ChannelIds))
+		channelIDs := make([]attr.Value, len(*monitor.ChannelIds))
 		for i, id := range *monitor.ChannelIds {
-			channelIds[i] = types.Int64Value(id)
+			channelIDs[i] = types.Int64Value(id)
 		}
-		state.ChannelIds = types.ListValueMust(types.Int64Type, channelIds)
+		state.ChannelIDs = types.ListValueMust(types.Int64Type, channelIDs)
 	} else {
-		state.ChannelIds = types.ListValueMust(types.Int64Type, []attr.Value{})
+		state.ChannelIDs = types.ListValueMust(types.Int64Type, []attr.Value{})
 	}
 
 	// Convert repeat interval
@@ -278,18 +267,18 @@ func monitorToState(ctx context.Context, monitor *generated.Monitor, state *Moni
 	}
 }
 
-// convertParamsToState converts API params to Terraform state
-func convertParamsToState(ctx context.Context, monitor *generated.Monitor, state *MonitorResourceModel, diags *diag.Diagnostics) {
+// convertParamsToState converts API params to Terraform state.
+func convertParamsToState(_ context.Context, monitor *generated.Monitor, state *MonitorResourceModel, diags *diag.Diagnostics) {
 	paramsAttrs := map[string]attr.Value{
-		"metrics":            types.ListNull(types.ObjectType{AttrTypes: map[string]attr.Type{"name": types.StringType, "alias": types.StringType}}),
-		"query":              types.StringNull(),
-		"column":             types.StringNull(),
-		"min_allowed_value":  types.Float64Null(),
-		"max_allowed_value":  types.Float64Null(),
-		"grouping_interval":  types.Float64Null(),
-		"check_num_point":    types.Int64Null(),
-		"nulls_mode":         types.StringNull(),
-		"time_offset":        types.Float64Null(),
+		"metrics":           types.ListNull(types.ObjectType{AttrTypes: map[string]attr.Type{"name": types.StringType, "alias": types.StringType}}),
+		"query":             types.StringNull(),
+		"column":            types.StringNull(),
+		"min_allowed_value": types.Float64Null(),
+		"max_allowed_value": types.Float64Null(),
+		"grouping_interval": types.Float64Null(),
+		"check_num_point":   types.Int64Null(),
+		"nulls_mode":        types.StringNull(),
+		"time_offset":       types.Float64Null(),
 	}
 
 	if monitor.Type == generated.MonitorTypeMetric {
@@ -310,21 +299,21 @@ func convertParamsToState(ctx context.Context, monitor *generated.Monitor, state
 
 	state.Params = types.ObjectValueMust(
 		map[string]attr.Type{
-			"metrics":            types.ListType{ElemType: types.ObjectType{AttrTypes: map[string]attr.Type{"name": types.StringType, "alias": types.StringType}}},
-			"query":              types.StringType,
-			"column":             types.StringType,
-			"min_allowed_value":  types.Float64Type,
-			"max_allowed_value":  types.Float64Type,
-			"grouping_interval":  types.Float64Type,
-			"check_num_point":    types.Int64Type,
-			"nulls_mode":         types.StringType,
-			"time_offset":        types.Float64Type,
+			"metrics":           types.ListType{ElemType: types.ObjectType{AttrTypes: map[string]attr.Type{"name": types.StringType, "alias": types.StringType}}},
+			"query":             types.StringType,
+			"column":            types.StringType,
+			"min_allowed_value": types.Float64Type,
+			"max_allowed_value": types.Float64Type,
+			"grouping_interval": types.Float64Type,
+			"check_num_point":   types.Int64Type,
+			"nulls_mode":        types.StringType,
+			"time_offset":       types.Float64Type,
 		},
 		paramsAttrs,
 	)
 }
 
-// convertMetricParamsToAttrs converts metric params to attribute map
+// convertMetricParamsToAttrs converts metric params to attribute map.
 func convertMetricParamsToAttrs(params generated.MetricMonitorParams, attrs map[string]attr.Value) {
 	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}
 
@@ -369,7 +358,7 @@ func convertMetricParamsToAttrs(params generated.MetricMonitorParams, attrs map[
 	}
 }
 
-// convertErrorParamsToAttrs converts error params to attribute map
+// convertErrorParamsToAttrs converts error params to attribute map.
 func convertErrorParamsToAttrs(params generated.ErrorMonitorParams, attrs map[string]attr.Value) {
 	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}
 

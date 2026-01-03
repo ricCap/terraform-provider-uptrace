@@ -33,13 +33,13 @@ type UptraceProviderModel struct {
 }
 
 // Metadata returns the provider type name.
-func (p *UptraceProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
+func (p *UptraceProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
 	resp.TypeName = "uptrace"
 	resp.Version = p.version
 }
 
 // Schema defines the provider-level schema for configuration data.
-func (p *UptraceProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
+func (p *UptraceProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Interact with Uptrace API to manage monitors and alerts.",
 		Attributes: map[string]schema.Attribute{
@@ -158,12 +158,12 @@ func (p *UptraceProvider) Configure(ctx context.Context, req provider.ConfigureR
 }
 
 // DataSources defines the data sources implemented in the provider.
-func (p *UptraceProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
+func (p *UptraceProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{}
 }
 
 // Resources defines the resources implemented in the provider.
-func (p *UptraceProvider) Resources(ctx context.Context) []func() resource.Resource {
+func (p *UptraceProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewMonitorResource,
 	}

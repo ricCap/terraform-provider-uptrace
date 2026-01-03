@@ -71,8 +71,8 @@ func GetErrorMonitorInput(name string) generated.MonitorInput {
 // GetMetricMonitorWithAllFields returns a fully populated metric monitor
 func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 	notifyEmail := true
-	teamIds := []int64{1}
-	channelIds := []int64{10}
+	teamIDs := []int64{1}
+	channelIDs := []int64{10}
 	minValue := float64(0)
 	maxValue := float64(90)
 	groupingInterval := float64(60000)
@@ -107,8 +107,8 @@ func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 		Name:                  name,
 		Type:                  generated.MonitorTypeMetric,
 		NotifyEveryoneByEmail: &notifyEmail,
-		TeamIds:               &teamIds,
-		ChannelIds:            &channelIds,
+		TeamIds:               &teamIDs,
+		ChannelIds:            &channelIDs,
 		RepeatInterval: &generated.RepeatInterval{
 			Strategy: &strategy,
 		},

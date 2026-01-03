@@ -60,7 +60,7 @@ func RandomTestName(prefix string) string {
 }
 
 // WaitForMonitorState polls until monitor reaches expected state.
-func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID string, expectedState string, timeout time.Duration) error {
+func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID, expectedState string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()

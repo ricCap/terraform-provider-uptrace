@@ -37,6 +37,44 @@ type MetricDefinitionModel struct {
 	Alias types.String `tfsdk:"alias"`
 }
 
+// convertRepeatInterval converts RepeatInterval from Terraform to API format.
+func convertRepeatInterval(ctx context.Context, plan MonitorResourceModel, diags *diag.Diagnostics) *generated.RepeatInterval {
+	if plan.RepeatInterval.IsNull() || plan.RepeatInterval.IsUnknown() {
+		return nil
+	}
+
+	var repeatInterval RepeatIntervalModel
+	diags.Append(plan.RepeatInterval.As(ctx, &repeatInterval, basetypes.ObjectAsOptions{})...)
+	if diags.HasError() {
+		return nil
+	}
+
+	ri := generated.RepeatInterval{}
+	if !repeatInterval.Strategy.IsNull() {
+		strategy := generated.RepeatIntervalStrategy(repeatInterval.Strategy.ValueString())
+		ri.Strategy = &strategy
+	}
+	if !repeatInterval.Interval.IsNull() {
+		interval := repeatInterval.Interval.ValueInt64()
+		ri.Interval = &interval
+	}
+	return &ri
+}
+
+// convertIDList converts a Terraform list of IDs to a slice of int64.
+func convertIDList(ctx context.Context, list types.List, diags *diag.Diagnostics) *[]int64 {
+	if list.IsNull() || list.IsUnknown() {
+		return nil
+	}
+
+	var ids []int64
+	diags.Append(list.ElementsAs(ctx, &ids, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return &ids
+}
+
 // planToMonitorInput converts a Terraform plan to an API MonitorInput.
 func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *diag.Diagnostics) generated.MonitorInput {
 	input := generated.MonitorInput{
@@ -50,41 +88,12 @@ func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *d
 		input.NotifyEveryoneByEmail = &notifyEmail
 	}
 
-	// Convert team IDs
-	if !plan.TeamIDs.IsNull() && !plan.TeamIDs.IsUnknown() {
-		var teamIDs []int64
-		diags.Append(plan.TeamIDs.ElementsAs(ctx, &teamIDs, false)...)
-		if !diags.HasError() {
-			input.TeamIds = &teamIDs
-		}
-	}
-
-	// Convert channel IDs
-	if !plan.ChannelIDs.IsNull() && !plan.ChannelIDs.IsUnknown() {
-		var channelIDs []int64
-		diags.Append(plan.ChannelIDs.ElementsAs(ctx, &channelIDs, false)...)
-		if !diags.HasError() {
-			input.ChannelIds = &channelIDs
-		}
-	}
+	// Convert IDs
+	input.TeamIds = convertIDList(ctx, plan.TeamIDs, diags)
+	input.ChannelIds = convertIDList(ctx, plan.ChannelIDs, diags)
 
 	// Convert repeat interval
-	if !plan.RepeatInterval.IsNull() && !plan.RepeatInterval.IsUnknown() {
-		var repeatInterval RepeatIntervalModel
-		diags.Append(plan.RepeatInterval.As(ctx, &repeatInterval, basetypes.ObjectAsOptions{})...)
-		if !diags.HasError() {
-			ri := generated.RepeatInterval{}
-			if !repeatInterval.Strategy.IsNull() {
-				strategy := generated.RepeatIntervalStrategy(repeatInterval.Strategy.ValueString())
-				ri.Strategy = &strategy
-			}
-			if !repeatInterval.Interval.IsNull() {
-				interval := repeatInterval.Interval.ValueInt64()
-				ri.Interval = &interval
-			}
-			input.RepeatInterval = &ri
-		}
-	}
+	input.RepeatInterval = convertRepeatInterval(ctx, plan, diags)
 
 	// Convert params based on monitor type
 	if !plan.Params.IsNull() && !plan.Params.IsUnknown() {
@@ -103,6 +112,7 @@ func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *d
 }
 
 // convertMetricsToAPI converts Terraform metric definitions to API format.
+//nolint:gocritic // Params passed by value to avoid pointer complexity in conversion
 func convertMetricsToAPI(ctx context.Context, params MonitorParamsModel, diags *diag.Diagnostics) []generated.MetricDefinition {
 	if params.Metrics.IsNull() || params.Metrics.IsUnknown() {
 		return nil
@@ -128,6 +138,7 @@ func convertMetricsToAPI(ctx context.Context, params MonitorParamsModel, diags *
 }
 
 // convertToMetricParams converts params to MetricMonitorParams.
+//nolint:gocritic // Params passed by value to avoid pointer complexity in conversion
 func convertToMetricParams(ctx context.Context, params MonitorParamsModel, result *generated.MonitorInput_Params, diags *diag.Diagnostics) {
 	metricParams := generated.MetricMonitorParams{}
 
@@ -180,6 +191,7 @@ func convertToMetricParams(ctx context.Context, params MonitorParamsModel, resul
 }
 
 // convertToErrorParams converts params to ErrorMonitorParams.
+//nolint:gocritic // Params passed by value to avoid pointer complexity in conversion
 func convertToErrorParams(ctx context.Context, params MonitorParamsModel, result *generated.MonitorInput_Params, diags *diag.Diagnostics) {
 	errorParams := generated.ErrorMonitorParams{}
 
@@ -314,6 +326,7 @@ func convertParamsToState(_ context.Context, monitor *generated.Monitor, state *
 }
 
 // convertMetricParamsToAttrs converts metric params to attribute map.
+//nolint:gocritic // Generated params type passed by value to match oapi-codegen patterns
 func convertMetricParamsToAttrs(params generated.MetricMonitorParams, attrs map[string]attr.Value) {
 	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}
 

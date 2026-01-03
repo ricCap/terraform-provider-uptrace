@@ -15,6 +15,7 @@ func GetMetricMonitorInput(name string) generated.MonitorInput {
 	alias := "$cpu"
 
 	var params generated.MonitorInput_Params
+	//nolint:errcheck // Test fixture: error handling not required
 	_ = params.FromMetricMonitorParams(generated.MetricMonitorParams{
 		Metrics: []generated.MetricDefinition{
 			{
@@ -48,6 +49,7 @@ func GetErrorMonitorInput(name string) generated.MonitorInput {
 	alias := "$logs"
 
 	var params generated.MonitorInput_Params
+	//nolint:errcheck // Test fixture: error handling not required
 	_ = params.FromErrorMonitorParams(generated.ErrorMonitorParams{
 		Metrics: []generated.MetricDefinition{
 			{
@@ -86,6 +88,7 @@ func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 	strategy := generated.RepeatIntervalStrategyDefault
 
 	var params generated.MonitorInput_Params
+	//nolint:errcheck // Test fixture: error handling not required
 	_ = params.FromMetricMonitorParams(generated.MetricMonitorParams{
 		Metrics: []generated.MetricDefinition{
 			{

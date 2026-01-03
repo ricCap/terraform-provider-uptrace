@@ -11,7 +11,7 @@ import (
 	"github.com/riccap/tofu-uptrace-provider/internal/client"
 )
 
-// PreCheck validates that required environment variables are set for acceptance tests
+// PreCheck validates that required environment variables are set for acceptance tests.
 func PreCheck(t *testing.T) {
 	t.Helper()
 
@@ -32,7 +32,7 @@ func PreCheck(t *testing.T) {
 	}
 }
 
-// GetTestProviderConfig returns HCL provider configuration for tests
+// GetTestProviderConfig returns HCL provider configuration for tests.
 func GetTestProviderConfig() string {
 	return `
 provider "uptrace" {
@@ -43,23 +43,24 @@ provider "uptrace" {
 `
 }
 
-// RandomString generates a random string for unique resource names
+// RandomString generates a random string for unique resource names.
 func RandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, length)
 	for i := range b {
+		//nolint:gosec // G404: Use of weak random generator is acceptable for test resource names
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
 }
 
-// RandomTestName generates a random name with a prefix for test resources
+// RandomTestName generates a random name with a prefix for test resources.
 func RandomTestName(prefix string) string {
 	return fmt.Sprintf("%s-%s", prefix, RandomString(8))
 }
 
-// WaitForMonitorState polls until monitor reaches expected state
-func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID string, expectedState string, timeout time.Duration) error {
+// WaitForMonitorState polls until monitor reaches expected state.
+func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID, expectedState string, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
@@ -86,7 +87,7 @@ func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID s
 	}
 }
 
-// GetTestClient creates a client for testing using environment variables
+// GetTestClient creates a client for testing using environment variables.
 func GetTestClient() *client.Client {
 	endpoint := os.Getenv("UPTRACE_ENDPOINT")
 	token := os.Getenv("UPTRACE_TOKEN")

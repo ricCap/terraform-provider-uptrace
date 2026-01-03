@@ -43,7 +43,7 @@ func New(cfg Config) (*Client, error) {
 	endpoint := strings.TrimSuffix(cfg.Endpoint, "/")
 
 	// Create request editor to add authentication header
-	authEditor := func(ctx context.Context, req *http.Request) error {
+	authEditor := func(_ context.Context, req *http.Request) error {
 		req.Header.Set("Authorization", "Bearer "+cfg.Token)
 		return nil
 	}
@@ -105,6 +105,8 @@ func (c *Client) GetMonitor(ctx context.Context, monitorID string) (*generated.M
 }
 
 // CreateMonitor creates a new monitor.
+//
+//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
 func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput) (*generated.Monitor, error) {
 	resp, err := c.client.CreateMonitorWithResponse(ctx, c.projectID, input)
 	if err != nil {
@@ -128,6 +130,8 @@ func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput
 }
 
 // UpdateMonitor updates an existing monitor.
+//
+//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
 func (c *Client) UpdateMonitor(ctx context.Context, monitorID string, input generated.MonitorInput) (*generated.Monitor, error) {
 	resp, err := c.client.UpdateMonitorWithResponse(ctx, c.projectID, monitorID, input)
 	if err != nil {

@@ -4,6 +4,8 @@ run:
   modules-download-mode: readonly
 
 linters:
+  disable:
+    - unparam         # Test helper signature consistency
   enable:
     - errcheck
     - gosimple
@@ -24,7 +26,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - gci
     - gochecknoinits
     - goconst
@@ -49,7 +50,6 @@ linters:
     - thelper
     - tparallel
     - unconvert
-    - unparam
     - wastedassign
     - whitespace
 
@@ -60,6 +60,8 @@ linters-settings:
 
   govet:
     enable-all: true
+    disable:
+      - fieldalignment  # Struct field ordering optimization - no functional impact
 
   gocyclo:
     min-complexity: 15
@@ -76,6 +78,12 @@ linters-settings:
 
   goimports:
     local-prefixes: github.com/riccap/tofu-uptrace-provider
+
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/riccap/tofu-uptrace-provider)
 
   gocritic:
     enabled-tags:

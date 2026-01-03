@@ -10,7 +10,7 @@ import (
 	"github.com/riccap/tofu-uptrace-provider/internal/provider"
 )
 
-// version is set during the release process via ldflags
+// version is set during the release process via ldflags.
 var version = "dev"
 
 func main() {

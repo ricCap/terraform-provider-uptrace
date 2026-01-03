@@ -4,7 +4,7 @@ import (
 	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"
 )
 
-// GetMetricMonitorInput returns a basic metric monitor input for testing
+// GetMetricMonitorInput returns a basic metric monitor input for testing.
 func GetMetricMonitorInput(name string) generated.MonitorInput {
 	notifyEmail := false
 	maxValue := float64(80)
@@ -15,6 +15,7 @@ func GetMetricMonitorInput(name string) generated.MonitorInput {
 	alias := "$cpu"
 
 	var params generated.MonitorInput_Params
+	//nolint:errcheck // Test fixture: error handling not required
 	_ = params.FromMetricMonitorParams(generated.MetricMonitorParams{
 		Metrics: []generated.MetricDefinition{
 			{
@@ -39,7 +40,7 @@ func GetMetricMonitorInput(name string) generated.MonitorInput {
 	}
 }
 
-// GetErrorMonitorInput returns a basic error monitor input for testing
+// GetErrorMonitorInput returns a basic error monitor input for testing.
 func GetErrorMonitorInput(name string) generated.MonitorInput {
 	notifyEmail := false
 	query := "sum($logs) | where span.event_name exists"
@@ -48,6 +49,7 @@ func GetErrorMonitorInput(name string) generated.MonitorInput {
 	alias := "$logs"
 
 	var params generated.MonitorInput_Params
+	//nolint:errcheck // Test fixture: error handling not required
 	_ = params.FromErrorMonitorParams(generated.ErrorMonitorParams{
 		Metrics: []generated.MetricDefinition{
 			{
@@ -68,11 +70,11 @@ func GetErrorMonitorInput(name string) generated.MonitorInput {
 	}
 }
 
-// GetMetricMonitorWithAllFields returns a fully populated metric monitor
+// GetMetricMonitorWithAllFields returns a fully populated metric monitor.
 func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 	notifyEmail := true
-	teamIds := []int64{1}
-	channelIds := []int64{10}
+	teamIDs := []int64{1}
+	channelIDs := []int64{10}
 	minValue := float64(0)
 	maxValue := float64(90)
 	groupingInterval := float64(60000)
@@ -86,6 +88,7 @@ func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 	strategy := generated.RepeatIntervalStrategyDefault
 
 	var params generated.MonitorInput_Params
+	//nolint:errcheck // Test fixture: error handling not required
 	_ = params.FromMetricMonitorParams(generated.MetricMonitorParams{
 		Metrics: []generated.MetricDefinition{
 			{
@@ -107,8 +110,8 @@ func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 		Name:                  name,
 		Type:                  generated.MonitorTypeMetric,
 		NotifyEveryoneByEmail: &notifyEmail,
-		TeamIds:               &teamIds,
-		ChannelIds:            &channelIds,
+		TeamIds:               &teamIDs,
+		ChannelIds:            &channelIDs,
 		RepeatInterval: &generated.RepeatInterval{
 			Strategy: &strategy,
 		},

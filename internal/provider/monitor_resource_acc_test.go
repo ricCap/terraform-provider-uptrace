@@ -13,6 +13,7 @@ import (
 	"github.com/riccap/tofu-uptrace-provider/internal/acctest"
 )
 
+//nolint:gochecknoinits // Required for initializing test provider factories
 func init() {
 	// Initialize provider factories to avoid import cycle
 	acctest.TestAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
@@ -31,7 +32,7 @@ func TestAccMonitorResource_MetricBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccMonitorResourceConfig_MetricBasic(monitorName),
+				Config: testAccMonitorResourceConfigMetricBasic(monitorName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckMonitorExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", monitorName),
@@ -51,7 +52,7 @@ func TestAccMonitorResource_MetricBasic(t *testing.T) {
 			},
 			// Update testing
 			{
-				Config: testAccMonitorResourceConfig_MetricBasic(monitorName + "-updated"),
+				Config: testAccMonitorResourceConfigMetricBasic(monitorName + "-updated"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckMonitorExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", monitorName+"-updated"),
@@ -71,7 +72,7 @@ func TestAccMonitorResource_ErrorBasic(t *testing.T) {
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitorResourceConfig_ErrorBasic(monitorName),
+				Config: testAccMonitorResourceConfigErrorBasic(monitorName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckMonitorExists(resourceName),
 					resource.TestCheckResourceAttr(resourceName, "name", monitorName),
@@ -94,7 +95,7 @@ func TestAccMonitorResource_Disappears(t *testing.T) {
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitorResourceConfig_MetricBasic(monitorName),
+				Config: testAccMonitorResourceConfigMetricBasic(monitorName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMonitorExists(resourceName),
 					testAccCheckMonitorDisappears(resourceName),
@@ -159,7 +160,7 @@ func testAccCheckMonitorDisappears(resourceName string) resource.TestCheckFunc {
 
 // Configuration helpers
 
-func testAccMonitorResourceConfig_MetricBasic(name string) string {
+func testAccMonitorResourceConfigMetricBasic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -184,7 +185,7 @@ resource "uptrace_monitor" "test" {
 `, acctest.GetTestProviderConfig(), name)
 }
 
-func testAccMonitorResourceConfig_ErrorBasic(name string) string {
+func testAccMonitorResourceConfigErrorBasic(name string) string {
 	return fmt.Sprintf(`
 %s
 

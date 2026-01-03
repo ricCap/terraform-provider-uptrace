@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/riccap/tofu-uptrace-provider/discussions
+    about: Ask questions or discuss ideas with the community
+  - name: Uptrace Documentation
+    url: https://uptrace.dev/
+    about: Official Uptrace documentation and guides

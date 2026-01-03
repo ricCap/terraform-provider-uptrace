@@ -1,0 +1,79 @@
+name: Feature Request
+description: Suggest a new resource or data source
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! Please fill out the information below.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - Resource
+        - Data Source
+        - Enhancement
+        - Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the feature you'd like to see
+      placeholder: |
+        A clear and concise description of what you want to happen.
+
+        Example: Add support for managing Uptrace notification channels so I can configure Slack/PagerDuty alerts.
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example Usage
+      description: Show how this would be used in Terraform/OpenTofu configuration
+      placeholder: |
+        resource "uptrace_notification_channel" "slack" {
+          name = "Engineering Alerts"
+          type = "slack"
+
+          slack_config = {
+            webhook_url = var.slack_webhook
+            channel     = "#alerts"
+          }
+        }
+      render: hcl
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Use Case / Rationale
+      description: Why is this feature important? What problem does it solve?
+      placeholder: |
+        Explain the business value or technical need for this feature.
+
+        Example: Currently I have to manually configure notification channels in the Uptrace UI. This feature would allow me to manage all monitoring configuration as code.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: |
+        What other approaches have you tried?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or references
+      placeholder: |
+        - Links to Uptrace API documentation
+        - Screenshots from Uptrace UI
+        - Related issues or PRs

@@ -1,0 +1,24 @@
+name: Auto-assign to Project
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  add-to-project:
+    name: Add issue/PR to project board
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add to project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          # Change this to your actual project URL once created
+          # Format: https://github.com/users/riccap/projects/1
+          project-url: https://github.com/users/ricCap/projects/4
+          github-token: ${{ secrets.GITHUB_TOKEN }}

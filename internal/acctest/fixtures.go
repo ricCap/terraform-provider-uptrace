@@ -4,7 +4,7 @@ import (
 	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"
 )
 
-// GetMetricMonitorInput returns a basic metric monitor input for testing
+// GetMetricMonitorInput returns a basic metric monitor input for testing.
 func GetMetricMonitorInput(name string) generated.MonitorInput {
 	notifyEmail := false
 	maxValue := float64(80)
@@ -40,7 +40,7 @@ func GetMetricMonitorInput(name string) generated.MonitorInput {
 	}
 }
 
-// GetErrorMonitorInput returns a basic error monitor input for testing
+// GetErrorMonitorInput returns a basic error monitor input for testing.
 func GetErrorMonitorInput(name string) generated.MonitorInput {
 	notifyEmail := false
 	query := "sum($logs) | where span.event_name exists"
@@ -70,7 +70,7 @@ func GetErrorMonitorInput(name string) generated.MonitorInput {
 	}
 }
 
-// GetMetricMonitorWithAllFields returns a fully populated metric monitor
+// GetMetricMonitorWithAllFields returns a fully populated metric monitor.
 func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 	notifyEmail := true
 	teamIDs := []int64{1}

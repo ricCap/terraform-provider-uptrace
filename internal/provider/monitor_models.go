@@ -38,6 +38,8 @@ type MetricDefinitionModel struct {
 }
 
 // convertRepeatInterval converts RepeatInterval from Terraform to API format.
+//
+//nolint:gocritic // Plan passed by value to keep function signatures consistent
 func convertRepeatInterval(ctx context.Context, plan MonitorResourceModel, diags *diag.Diagnostics) *generated.RepeatInterval {
 	if plan.RepeatInterval.IsNull() || plan.RepeatInterval.IsUnknown() {
 		return nil
@@ -76,6 +78,8 @@ func convertIDList(ctx context.Context, list types.List, diags *diag.Diagnostics
 }
 
 // planToMonitorInput converts a Terraform plan to an API MonitorInput.
+//
+//nolint:gocritic // Plan passed by value to keep function signatures consistent
 func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *diag.Diagnostics) generated.MonitorInput {
 	input := generated.MonitorInput{
 		Name: plan.Name.ValueString(),
@@ -112,6 +116,7 @@ func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *d
 }
 
 // convertMetricsToAPI converts Terraform metric definitions to API format.
+//
 //nolint:gocritic // Params passed by value to avoid pointer complexity in conversion
 func convertMetricsToAPI(ctx context.Context, params MonitorParamsModel, diags *diag.Diagnostics) []generated.MetricDefinition {
 	if params.Metrics.IsNull() || params.Metrics.IsUnknown() {
@@ -138,6 +143,7 @@ func convertMetricsToAPI(ctx context.Context, params MonitorParamsModel, diags *
 }
 
 // convertToMetricParams converts params to MetricMonitorParams.
+//
 //nolint:gocritic // Params passed by value to avoid pointer complexity in conversion
 func convertToMetricParams(ctx context.Context, params MonitorParamsModel, result *generated.MonitorInput_Params, diags *diag.Diagnostics) {
 	metricParams := generated.MetricMonitorParams{}
@@ -191,6 +197,7 @@ func convertToMetricParams(ctx context.Context, params MonitorParamsModel, resul
 }
 
 // convertToErrorParams converts params to ErrorMonitorParams.
+//
 //nolint:gocritic // Params passed by value to avoid pointer complexity in conversion
 func convertToErrorParams(ctx context.Context, params MonitorParamsModel, result *generated.MonitorInput_Params, diags *diag.Diagnostics) {
 	errorParams := generated.ErrorMonitorParams{}
@@ -326,6 +333,7 @@ func convertParamsToState(_ context.Context, monitor *generated.Monitor, state *
 }
 
 // convertMetricParamsToAttrs converts metric params to attribute map.
+//
 //nolint:gocritic // Generated params type passed by value to match oapi-codegen patterns
 func convertMetricParamsToAttrs(params generated.MetricMonitorParams, attrs map[string]attr.Value) {
 	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}

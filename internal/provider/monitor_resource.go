@@ -213,6 +213,8 @@ func (r *MonitorResource) Configure(_ context.Context, req resource.ConfigureReq
 }
 
 // Create creates the resource and sets the initial Terraform state.
+//
+//nolint:gocritic // Request type defined by Terraform Plugin Framework interface
 func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan MonitorResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -250,6 +252,8 @@ func (r *MonitorResource) Create(ctx context.Context, req resource.CreateRequest
 }
 
 // Read refreshes the Terraform state with the latest data.
+//
+//nolint:gocritic // Request type defined by Terraform Plugin Framework interface
 func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state MonitorResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -287,6 +291,8 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 }
 
 // Update updates the resource and sets the updated Terraform state on success.
+//
+//nolint:gocritic // Request type defined by Terraform Plugin Framework interface
 func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan MonitorResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -324,6 +330,8 @@ func (r *MonitorResource) Update(ctx context.Context, req resource.UpdateRequest
 }
 
 // Delete deletes the resource and removes the Terraform state on success.
+//
+//nolint:gocritic // Request type defined by Terraform Plugin Framework interface
 func (r *MonitorResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state MonitorResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)

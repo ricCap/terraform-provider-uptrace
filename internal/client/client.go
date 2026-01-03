@@ -105,6 +105,7 @@ func (c *Client) GetMonitor(ctx context.Context, monitorID string) (*generated.M
 }
 
 // CreateMonitor creates a new monitor.
+//
 //nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
 func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput) (*generated.Monitor, error) {
 	resp, err := c.client.CreateMonitorWithResponse(ctx, c.projectID, input)
@@ -129,6 +130,7 @@ func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput
 }
 
 // UpdateMonitor updates an existing monitor.
+//
 //nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
 func (c *Client) UpdateMonitor(ctx context.Context, monitorID string, input generated.MonitorInput) (*generated.Monitor, error) {
 	resp, err := c.client.UpdateMonitorWithResponse(ctx, c.projectID, monitorID, input)

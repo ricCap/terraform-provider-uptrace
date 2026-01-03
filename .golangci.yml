@@ -5,7 +5,6 @@ run:
 
 linters:
   disable:
-    - fieldalignment  # Struct optimization - no functional impact
     - unparam         # Test helper signature consistency
   enable:
     - errcheck
@@ -27,7 +26,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - gci
     - gochecknoinits
     - goconst
@@ -52,7 +50,6 @@ linters:
     - thelper
     - tparallel
     - unconvert
-    - unparam
     - wastedassign
     - whitespace
 
@@ -63,6 +60,8 @@ linters-settings:
 
   govet:
     enable-all: true
+    disable:
+      - fieldalignment  # Struct field ordering optimization - no functional impact
 
   gocyclo:
     min-complexity: 15

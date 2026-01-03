@@ -8,32 +8,34 @@ import (
 func GetMetricMonitorInput(name string) generated.MonitorInput {
 	notifyEmail := false
 	maxValue := float64(80)
-	checkNumPoint := int64(2)
-	nullsMode := "allow"
+	checkNumPoint := int(2)
+	nullsMode := generated.MetricMonitorParamsNullsModeAllow
 
 	metricName := "system.cpu.utilization"
 	alias := "$cpu"
 
+	var params generated.MonitorInput_Params
+	_ = params.FromMetricMonitorParams(generated.MetricMonitorParams{
+		Metrics: []generated.MetricDefinition{
+			{
+				Name:  metricName,
+				Alias: &alias,
+			},
+		},
+		Query:           "avg($cpu) > 80",
+		Column:          "value",
+		MaxAllowedValue: &maxValue,
+		CheckNumPoint:   &checkNumPoint,
+		NullsMode:       &nullsMode,
+	})
+
 	return generated.MonitorInput{
-		Name: name,
-		Type: generated.MonitorTypeMetric,
+		Name:                  name,
+		Type:                  generated.MonitorTypeMetric,
 		NotifyEveryoneByEmail: &notifyEmail,
 		TeamIds:               &[]int64{},
 		ChannelIds:            &[]int64{},
-		Params: generated.MonitorInput_Params{
-			union: generated.MetricMonitorParams{
-				Metrics: []generated.MetricDefinition{
-					{
-						Name:  metricName,
-						Alias: &alias,
-					},
-				},
-				Query:            "avg($cpu) > 80",
-				MaxAllowedValue:  &maxValue,
-				CheckNumPoint:    &checkNumPoint,
-				NullsMode:        &nullsMode,
-			},
-		},
+		Params:                params,
 	}
 }
 
@@ -45,23 +47,24 @@ func GetErrorMonitorInput(name string) generated.MonitorInput {
 	metricName := "uptrace_tracing_events"
 	alias := "$logs"
 
+	var params generated.MonitorInput_Params
+	_ = params.FromErrorMonitorParams(generated.ErrorMonitorParams{
+		Metrics: []generated.MetricDefinition{
+			{
+				Name:  metricName,
+				Alias: &alias,
+			},
+		},
+		Query: &query,
+	})
+
 	return generated.MonitorInput{
-		Name: name,
-		Type: generated.MonitorTypeError,
+		Name:                  name,
+		Type:                  generated.MonitorTypeError,
 		NotifyEveryoneByEmail: &notifyEmail,
 		TeamIds:               &[]int64{},
 		ChannelIds:            &[]int64{},
-		Params: generated.MonitorInput_Params{
-			union: generated.ErrorMonitorParams{
-				Metrics: []generated.MetricDefinition{
-					{
-						Name:  metricName,
-						Alias: &alias,
-					},
-				},
-				Query: &query,
-			},
-		},
+		Params:                params,
 	}
 }
 
@@ -73,42 +76,42 @@ func GetMetricMonitorWithAllFields(name string) generated.MonitorInput {
 	minValue := float64(0)
 	maxValue := float64(90)
 	groupingInterval := float64(60000)
-	checkNumPoint := int64(3)
-	nullsMode := "forbid"
+	checkNumPoint := int(3)
+	nullsMode := generated.MetricMonitorParamsNullsModeForbid
 	timeOffset := float64(0)
-	column := "value"
 
 	metricName := "system.cpu.utilization"
 	alias := "$cpu"
 
-	strategy := "default"
+	strategy := generated.RepeatIntervalStrategyDefault
+
+	var params generated.MonitorInput_Params
+	_ = params.FromMetricMonitorParams(generated.MetricMonitorParams{
+		Metrics: []generated.MetricDefinition{
+			{
+				Name:  metricName,
+				Alias: &alias,
+			},
+		},
+		Query:            "avg($cpu) > 90",
+		Column:           "value",
+		MinAllowedValue:  &minValue,
+		MaxAllowedValue:  &maxValue,
+		GroupingInterval: &groupingInterval,
+		CheckNumPoint:    &checkNumPoint,
+		NullsMode:        &nullsMode,
+		TimeOffset:       &timeOffset,
+	})
 
 	return generated.MonitorInput{
-		Name: name,
-		Type: generated.MonitorTypeMetric,
+		Name:                  name,
+		Type:                  generated.MonitorTypeMetric,
 		NotifyEveryoneByEmail: &notifyEmail,
 		TeamIds:               &teamIds,
 		ChannelIds:            &channelIds,
 		RepeatInterval: &generated.RepeatInterval{
 			Strategy: &strategy,
 		},
-		Params: generated.MonitorInput_Params{
-			union: generated.MetricMonitorParams{
-				Metrics: []generated.MetricDefinition{
-					{
-						Name:  metricName,
-						Alias: &alias,
-					},
-				},
-				Query:             "avg($cpu) > 90",
-				Column:            &column,
-				MinAllowedValue:   &minValue,
-				MaxAllowedValue:   &maxValue,
-				GroupingInterval:  &groupingInterval,
-				CheckNumPoint:     &checkNumPoint,
-				NullsMode:         &nullsMode,
-				TimeOffset:        &timeOffset,
-			},
-		},
+		Params: params,
 	}
 }

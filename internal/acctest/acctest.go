@@ -79,7 +79,7 @@ func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID s
 				continue
 			}
 
-			if string(*monitor.State) == expectedState {
+			if string(monitor.State) == expectedState {
 				return nil
 			}
 		}

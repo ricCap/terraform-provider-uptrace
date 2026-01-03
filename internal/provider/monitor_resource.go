@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -162,6 +163,7 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					"grouping_interval": schema.Float64Attribute{
 						Description: "Grouping interval in milliseconds.",
 						Optional:    true,
+						Computed:    true,
 					},
 					"check_num_point": schema.Int64Attribute{
 						Description: "Number of consecutive points that must breach threshold.",
@@ -260,6 +262,13 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 	// Get monitor from API
 	monitor, err := r.client.GetMonitor(ctx, state.ID.ValueString())
 	if err != nil {
+		// If the monitor doesn't exist (404), remove from state
+		if strings.Contains(err.Error(), "not found") {
+			tflog.Info(ctx, "Monitor not found, removing from state", map[string]any{"id": state.ID.ValueString()})
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Error Reading Monitor",
 			fmt.Sprintf("Could not read monitor ID %s: %s", state.ID.ValueString(), err.Error()),
@@ -327,6 +336,12 @@ func (r *MonitorResource) Delete(ctx context.Context, req resource.DeleteRequest
 	// Delete monitor via API
 	err := r.client.DeleteMonitor(ctx, state.ID.ValueString())
 	if err != nil {
+		// If the monitor doesn't exist (404), treat as already deleted
+		if strings.Contains(err.Error(), "not found") {
+			tflog.Info(ctx, "Monitor already deleted", map[string]any{"id": state.ID.ValueString()})
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"Error Deleting Monitor",
 			fmt.Sprintf("Could not delete monitor ID %s: %s", state.ID.ValueString(), err.Error()),

@@ -1,9 +1,7 @@
-# Copy this file to terraform.tfvars and fill in your token
+# Copy this file to terraform.tfvars
 #
-# To get a token:
-# 1. Access http://localhost:14318
-# 2. Login with uptrace@localhost / SomeRandomPassword
-# 3. Go to Settings -> Your Profile
-# 4. Create a new token
+# The token below is pre-configured in the local Uptrace instance
+# Email: admin@uptrace.local
+# Password: SomeRandomPassword
 
-uptrace_token = "your-user-token-here"
+uptrace_token = "user1_secret_token"

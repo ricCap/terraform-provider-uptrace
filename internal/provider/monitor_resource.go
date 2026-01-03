@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -145,10 +144,12 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					"query": schema.StringAttribute{
 						Description: "UQL query for metric evaluation or error filtering.",
 						Optional:    true,
+						Computed:    true,
 					},
 					"column": schema.StringAttribute{
 						Description: "Column name to evaluate (metric monitors only).",
 						Optional:    true,
+						Computed:    true,
 					},
 					"min_allowed_value": schema.Float64Attribute{
 						Description: "Minimum allowed value for the metric.",
@@ -166,17 +167,16 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Description: "Number of consecutive points that must breach threshold.",
 						Optional:    true,
 						Computed:    true,
-						Default:     int64default.StaticInt64(1),
 					},
 					"nulls_mode": schema.StringAttribute{
 						Description: "How to handle null values: 'allow', 'forbid', or 'convert'.",
 						Optional:    true,
 						Computed:    true,
-						Default:     stringdefault.StaticString("allow"),
 					},
 					"time_offset": schema.Float64Attribute{
 						Description: "Time offset in milliseconds.",
 						Optional:    true,
+						Computed:    true,
 					},
 				},
 			},

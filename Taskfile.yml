@@ -16,7 +16,7 @@ tasks:
   deps:
     desc: Install development dependencies
     cmds:
-      - go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest
+      - go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
       - go install github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest
       - go mod download
@@ -153,18 +153,18 @@ tasks:
       - echo "Waiting for Uptrace to be ready..."
       - |
         for i in {1..60}; do
-          if docker compose logs uptrace 2>&1 | grep -q "Listening on :4317"; then
+          if docker compose logs uptrace 2>&1 | grep -q "serving GRPC"; then
             echo "✅ Uptrace is ready!"
             echo ""
             echo "📊 Web UI:        http://localhost:14318"
-            echo "   Email:         uptrace@localhost"
+            echo "   Email:         admin@uptrace.local"
             echo "   Password:      SomeRandomPassword"
+            echo "   API Token:     user1_secret_token (for provider testing)"
             echo ""
             echo "Next steps:"
-            echo "1. Login and create an API token"
-            echo "2. Copy dev-env/terraform-test/terraform.tfvars.example to terraform.tfvars"
-            echo "3. Add your token to terraform.tfvars"
-            echo "4. Run: task dev:test"
+            echo "1. Copy dev-env/terraform-test/terraform.tfvars.example to terraform.tfvars"
+            echo "2. Add the token above to terraform.tfvars"
+            echo "3. Run: task dev:test"
             exit 0
           fi
           sleep 2
@@ -196,11 +196,11 @@ tasks:
     dir: dev-env/terraform-test
     deps: [install]
     cmds:
-      - terraform init -upgrade
-      - terraform plan
+      - tofu init -upgrade
+      - tofu plan
       - echo ""
       - echo "Review the plan above. To apply, run:"
-      - echo "  cd dev-env/terraform-test && terraform apply"
+      - echo "  cd dev-env/terraform-test && tofu apply"
 
   dev:install-local:
     desc: Install provider locally for testing

@@ -111,15 +111,20 @@ func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput
 		return nil, fmt.Errorf("failed to create monitor: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusCreated {
+	// Uptrace API returns 200 for successful creation
+	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusCreated {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
-	if resp.JSON201 == nil {
-		return nil, fmt.Errorf("unexpected empty response")
+	// Try 200 first (most common), then 201
+	if resp.JSON200 != nil {
+		return &resp.JSON200.Monitor, nil
+	}
+	if resp.JSON201 != nil {
+		return &resp.JSON201.Monitor, nil
 	}
 
-	return &resp.JSON201.Monitor, nil
+	return nil, fmt.Errorf("unexpected empty response")
 }
 
 // UpdateMonitor updates an existing monitor.
@@ -147,7 +152,8 @@ func (c *Client) DeleteMonitor(ctx context.Context, monitorID string) error {
 		return fmt.Errorf("failed to delete monitor: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusNoContent {
+	// Uptrace API returns 200 for successful deletion
+	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusNoContent {
 		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 

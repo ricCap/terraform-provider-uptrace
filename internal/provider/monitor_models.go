@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -210,7 +211,7 @@ func convertToErrorParams(ctx context.Context, params MonitorParamsModel, result
 
 // monitorToState converts an API Monitor to Terraform state
 func monitorToState(ctx context.Context, monitor *generated.Monitor, state *MonitorResourceModel, diags *diag.Diagnostics) {
-	state.ID = types.StringValue(monitor.Id)
+	state.ID = types.StringValue(fmt.Sprintf("%d", monitor.Id))
 	state.Name = types.StringValue(monitor.Name)
 	state.Type = types.StringValue(string(monitor.Type))
 	state.State = types.StringValue(string(monitor.State))
@@ -268,12 +269,12 @@ func monitorToState(ctx context.Context, monitor *generated.Monitor, state *Moni
 	// Convert params - always present
 	convertParamsToState(ctx, monitor, state, diags)
 
-	// Convert timestamps
+	// Convert timestamps (Unix milliseconds)
 	if monitor.CreatedAt != nil {
-		state.CreatedAt = types.StringValue(monitor.CreatedAt.String())
+		state.CreatedAt = types.StringValue(fmt.Sprintf("%.0f", *monitor.CreatedAt))
 	}
 	if monitor.UpdatedAt != nil {
-		state.UpdatedAt = types.StringValue(monitor.UpdatedAt.String())
+		state.UpdatedAt = types.StringValue(fmt.Sprintf("%.0f", *monitor.UpdatedAt))
 	}
 }
 

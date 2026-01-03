@@ -11,33 +11,27 @@ This directory contains a Docker Compose setup for running Uptrace locally to te
 
    This will start all services and wait for Uptrace to be ready.
 
-2. **Access the Uptrace UI:**
+2. **Access the Uptrace UI (optional):**
    - URL: http://localhost:14318
-   - Email: `uptrace@localhost`
+   - Email: `admin@uptrace.local`
    - Password: `SomeRandomPassword`
 
-3. **Get your API token:**
-   - Log in to the UI
-   - Go to Settings → Users → Your Profile
-   - Click "Create token" or use an existing one
-   - Copy the token
-
-4. **Configure Terraform test:**
+3. **Configure OpenTofu test:**
    ```bash
    cp dev-env/terraform-test/terraform.tfvars.example dev-env/terraform-test/terraform.tfvars
-   # Edit terraform.tfvars and add your token
+   # The API token is already set to: user1_secret_token
    ```
 
-5. **Test the provider:**
+4. **Test the provider:**
    ```bash
    task dev:install-local  # Build and install provider locally
-   task dev:test           # Run terraform plan
+   task dev:test           # Run tofu plan
    ```
 
-6. **Apply the test configuration:**
+5. **Apply the test configuration:**
    ```bash
    cd dev-env/terraform-test
-   terraform apply
+   tofu apply
    ```
 
 ## Available Tasks
@@ -66,6 +60,8 @@ From the project root, you can run:
 - **Project ID**: 1
 - **Project Name**: Test Project
 - **Project Token**: project1_secret_token (for OTLP ingestion)
+- **API Endpoint**: http://localhost:14318/internal/v1
+- **User API Token**: user1_secret_token (for Terraform provider)
 
 ## Stopping the Environment
 

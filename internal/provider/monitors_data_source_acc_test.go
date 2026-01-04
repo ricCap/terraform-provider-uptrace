@@ -205,10 +205,10 @@ resource "uptrace_monitor" "error1" {
 
   params = {
     metrics = [{
-      name  = "error.count"
-      alias = "$errors"
+      name  = "uptrace_tracing_events"
+      alias = "$logs"
     }]
-    query = "count($errors) > 0"
+    query = "sum($logs) | where span.event_name exists"
   }
 }
 
@@ -318,10 +318,10 @@ resource "uptrace_monitor" "error_cpu" {
 
   params = {
     metrics = [{
-      name  = "error.count"
-      alias = "$errors"
+      name  = "uptrace_tracing_events"
+      alias = "$logs"
     }]
-    query = "count($errors) > 0"
+    query = "sum($logs) | where span.event_name exists"
   }
 }
 

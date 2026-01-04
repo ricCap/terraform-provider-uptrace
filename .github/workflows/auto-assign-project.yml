@@ -1,5 +1,19 @@
 name: Auto-assign to Project
 
+# This workflow automatically adds new issues and PRs to the project board.
+#
+# IMPORTANT: User-level GitHub Projects require a Personal Access Token (PAT).
+# The default GITHUB_TOKEN doesn't have permissions for user-level projects.
+#
+# To fix:
+# 1. Create a PAT with 'project' and 'repo' scopes at https://github.com/settings/tokens
+# 2. Add it as a repository secret named PROJECT_TOKEN
+# 3. Update github-token below to: ${{ secrets.PROJECT_TOKEN }}
+#
+# Alternative: Manually add items using:
+#   gh auth refresh -s project
+#   gh project item-add 4 --owner ricCap --url <issue-url>
+
 on:
   issues:
     types: [opened]
@@ -18,7 +32,7 @@ jobs:
       - name: Add to project
         uses: actions/add-to-project@v0.5.0
         with:
-          # Change this to your actual project URL once created
-          # Format: https://github.com/users/riccap/projects/1
           project-url: https://github.com/users/ricCap/projects/4
+          # Using GITHUB_TOKEN - works for org projects but fails for user projects
+          # For user projects, create a PAT and use: ${{ secrets.PROJECT_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}

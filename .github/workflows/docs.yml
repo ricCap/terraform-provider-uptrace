@@ -1,5 +1,11 @@
 name: Documentation
 
+# This workflow automatically generates provider documentation when code changes.
+#
+# IMPORTANT: This workflow requires GitHub Actions to have permission to create PRs.
+# Enable this in: Settings → Actions → General → Workflow permissions
+# ✓ Check "Allow GitHub Actions to create and approve pull requests"
+
 on:
   push:
     branches:

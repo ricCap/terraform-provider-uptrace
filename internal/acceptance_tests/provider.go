@@ -1,4 +1,4 @@
-package acctest
+package acceptancetests
 
 import (
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"

@@ -7,17 +7,17 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/acctest"
+	acceptancetests "github.com/riccap/tofu-uptrace-provider/internal/acceptance_tests"
 )
 
 func TestAccMonitorDataSource_Basic(t *testing.T) {
 	resourceName := "uptrace_monitor.test"
 	dataSourceName := "data.uptrace_monitor.test"
-	monitorName := acctest.RandomTestName("tf-acc-ds-basic")
+	monitorName := acceptancetests.RandomTestName("tf-acc-ds-basic")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorDataSourceConfigBasic(monitorName),
@@ -42,11 +42,11 @@ func TestAccMonitorDataSource_Basic(t *testing.T) {
 func TestAccMonitorDataSource_AllFields(t *testing.T) {
 	resourceName := "uptrace_monitor.test"
 	dataSourceName := "data.uptrace_monitor.test"
-	monitorName := acctest.RandomTestName("tf-acc-ds-full")
+	monitorName := acceptancetests.RandomTestName("tf-acc-ds-full")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorDataSourceConfigAllFields(monitorName),
@@ -82,8 +82,8 @@ func TestAccMonitorDataSource_AllFields(t *testing.T) {
 
 func TestAccMonitorDataSource_NotFound(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccMonitorDataSourceConfigNotFound(),
@@ -115,7 +115,7 @@ resource "uptrace_monitor" "test" {
 data "uptrace_monitor" "test" {
   id = uptrace_monitor.test.id
 }
-`, acctest.GetTestProviderConfig(), name)
+`, acceptancetests.GetTestProviderConfig(), name)
 }
 
 // testAccMonitorDataSourceConfigAllFields generates a full configuration with all fields.
@@ -146,7 +146,7 @@ resource "uptrace_monitor" "test" {
 data "uptrace_monitor" "test" {
   id = uptrace_monitor.test.id
 }
-`, acctest.GetTestProviderConfig(), name)
+`, acceptancetests.GetTestProviderConfig(), name)
 }
 
 // testAccMonitorDataSourceConfigNotFound generates a configuration with non-existent ID.
@@ -157,5 +157,5 @@ func testAccMonitorDataSourceConfigNotFound() string {
 data "uptrace_monitor" "test" {
   id = "99999999"
 }
-`, acctest.GetTestProviderConfig())
+`, acceptancetests.GetTestProviderConfig())
 }

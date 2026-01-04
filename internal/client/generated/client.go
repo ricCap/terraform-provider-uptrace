@@ -50,6 +50,36 @@ const (
 	RepeatIntervalStrategyDefault RepeatIntervalStrategy = "default"
 )
 
+// Dashboard defines model for Dashboard.
+type Dashboard struct {
+	// CreatedAt Dashboard creation timestamp (Unix milliseconds)
+	CreatedAt *float64 `json:"createdAt,omitempty"`
+
+	// Id Dashboard unique identifier
+	Id int64 `json:"id"`
+
+	// Name Dashboard name
+	Name string `json:"name"`
+
+	// Pinned Whether the dashboard is pinned
+	Pinned *bool `json:"pinned,omitempty"`
+
+	// ProjectId Project ID this dashboard belongs to
+	ProjectId int64 `json:"projectId"`
+
+	// UpdatedAt Dashboard last update timestamp (Unix milliseconds)
+	UpdatedAt *float64 `json:"updatedAt,omitempty"`
+
+	// YamlUrl URL to fetch dashboard YAML representation
+	YamlUrl *string `json:"yamlUrl,omitempty"`
+}
+
+// DashboardYAMLInput defines model for DashboardYAMLInput.
+type DashboardYAMLInput struct {
+	// Yaml YAML dashboard definition
+	Yaml string `json:"yaml"`
+}
+
 // Error defines model for Error.
 type Error struct {
 	// Details Additional error details
@@ -200,6 +230,9 @@ type RepeatInterval struct {
 // RepeatIntervalStrategy Repeat interval strategy
 type RepeatIntervalStrategy string
 
+// DashboardId defines model for DashboardId.
+type DashboardId = int64
+
 // MonitorId defines model for MonitorId.
 type MonitorId = string
 
@@ -220,6 +253,12 @@ type NotFound = Error
 
 // Unauthorized defines model for Unauthorized.
 type Unauthorized = Error
+
+// CreateDashboardFromYAMLJSONRequestBody defines body for CreateDashboardFromYAML for application/json ContentType.
+type CreateDashboardFromYAMLJSONRequestBody = DashboardYAMLInput
+
+// UpdateDashboardFromYAMLJSONRequestBody defines body for UpdateDashboardFromYAML for application/json ContentType.
+type UpdateDashboardFromYAMLJSONRequestBody = DashboardYAMLInput
 
 // CreateMonitorJSONRequestBody defines body for CreateMonitor for application/json ContentType.
 type CreateMonitorJSONRequestBody = MonitorInput
@@ -424,6 +463,25 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 
 // The interface specification for the client above.
 type ClientInterface interface {
+	// ListDashboards request
+	ListDashboards(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDashboardFromYAMLWithBody request with any body
+	CreateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateDashboardFromYAML(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteDashboard request
+	DeleteDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDashboard request
+	GetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateDashboardFromYAMLWithBody request with any body
+	UpdateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateDashboardFromYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListMonitors request
 	ListMonitors(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -442,6 +500,90 @@ type ClientInterface interface {
 	UpdateMonitorWithBody(ctx context.Context, projectId ProjectId, monitorId MonitorId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	UpdateMonitor(ctx context.Context, projectId ProjectId, monitorId MonitorId, body UpdateMonitorJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+}
+
+func (c *Client) ListDashboards(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListDashboardsRequest(c.Server, projectId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDashboardFromYAMLRequestWithBody(c.Server, projectId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateDashboardFromYAML(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDashboardFromYAMLRequest(c.Server, projectId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDashboardFromYAMLRequestWithBody(c.Server, projectId, dashboardId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDashboardFromYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDashboardFromYAMLRequest(c.Server, projectId, dashboardId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
 }
 
 func (c *Client) ListMonitors(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -526,6 +668,223 @@ func (c *Client) UpdateMonitor(ctx context.Context, projectId ProjectId, monitor
 		return nil, err
 	}
 	return c.Client.Do(req)
+}
+
+// NewListDashboardsRequest generates requests for ListDashboards
+func NewListDashboardsRequest(server string, projectId ProjectId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateDashboardFromYAMLRequest calls the generic CreateDashboardFromYAML builder with application/json body
+func NewCreateDashboardFromYAMLRequest(server string, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateDashboardFromYAMLRequestWithBody(server, projectId, "application/json", bodyReader)
+}
+
+// NewCreateDashboardFromYAMLRequestWithBody generates requests for CreateDashboardFromYAML with any type of body
+func NewCreateDashboardFromYAMLRequestWithBody(server string, projectId ProjectId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/yaml", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteDashboardRequest generates requests for DeleteDashboard
+func NewDeleteDashboardRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetDashboardRequest generates requests for GetDashboard
+func NewGetDashboardRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateDashboardFromYAMLRequest calls the generic UpdateDashboardFromYAML builder with application/json body
+func NewUpdateDashboardFromYAMLRequest(server string, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateDashboardFromYAMLRequestWithBody(server, projectId, dashboardId, "application/json", bodyReader)
+}
+
+// NewUpdateDashboardFromYAMLRequestWithBody generates requests for UpdateDashboardFromYAML with any type of body
+func NewUpdateDashboardFromYAMLRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/yaml", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
 }
 
 // NewListMonitorsRequest generates requests for ListMonitors
@@ -788,6 +1147,25 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
+	// ListDashboardsWithResponse request
+	ListDashboardsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListDashboardsResponse, error)
+
+	// CreateDashboardFromYAMLWithBodyWithResponse request with any body
+	CreateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error)
+
+	CreateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error)
+
+	// DeleteDashboardWithResponse request
+	DeleteDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*DeleteDashboardResponse, error)
+
+	// GetDashboardWithResponse request
+	GetDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardResponse, error)
+
+	// UpdateDashboardFromYAMLWithBodyWithResponse request with any body
+	UpdateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error)
+
+	UpdateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error)
+
 	// ListMonitorsWithResponse request
 	ListMonitorsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListMonitorsResponse, error)
 
@@ -806,6 +1184,146 @@ type ClientWithResponsesInterface interface {
 	UpdateMonitorWithBodyWithResponse(ctx context.Context, projectId ProjectId, monitorId MonitorId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateMonitorResponse, error)
 
 	UpdateMonitorWithResponse(ctx context.Context, projectId ProjectId, monitorId MonitorId, body UpdateMonitorJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateMonitorResponse, error)
+}
+
+type ListDashboardsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Dashboards []Dashboard `json:"dashboards"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r ListDashboardsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListDashboardsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateDashboardFromYAMLResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Dashboard Dashboard `json:"dashboard"`
+	}
+	JSON201 *struct {
+		Dashboard Dashboard `json:"dashboard"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDashboardFromYAMLResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDashboardFromYAMLResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteDashboardResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteDashboardResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetDashboardResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Dashboard Dashboard `json:"dashboard"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDashboardResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateDashboardFromYAMLResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Dashboard Dashboard `json:"dashboard"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateDashboardFromYAMLResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateDashboardFromYAMLResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
 }
 
 type ListMonitorsResponse struct {
@@ -948,6 +1466,67 @@ func (r UpdateMonitorResponse) StatusCode() int {
 	return 0
 }
 
+// ListDashboardsWithResponse request returning *ListDashboardsResponse
+func (c *ClientWithResponses) ListDashboardsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListDashboardsResponse, error) {
+	rsp, err := c.ListDashboards(ctx, projectId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListDashboardsResponse(rsp)
+}
+
+// CreateDashboardFromYAMLWithBodyWithResponse request with arbitrary body returning *CreateDashboardFromYAMLResponse
+func (c *ClientWithResponses) CreateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error) {
+	rsp, err := c.CreateDashboardFromYAMLWithBody(ctx, projectId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDashboardFromYAMLResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error) {
+	rsp, err := c.CreateDashboardFromYAML(ctx, projectId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDashboardFromYAMLResponse(rsp)
+}
+
+// DeleteDashboardWithResponse request returning *DeleteDashboardResponse
+func (c *ClientWithResponses) DeleteDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*DeleteDashboardResponse, error) {
+	rsp, err := c.DeleteDashboard(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteDashboardResponse(rsp)
+}
+
+// GetDashboardWithResponse request returning *GetDashboardResponse
+func (c *ClientWithResponses) GetDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardResponse, error) {
+	rsp, err := c.GetDashboard(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDashboardResponse(rsp)
+}
+
+// UpdateDashboardFromYAMLWithBodyWithResponse request with arbitrary body returning *UpdateDashboardFromYAMLResponse
+func (c *ClientWithResponses) UpdateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error) {
+	rsp, err := c.UpdateDashboardFromYAMLWithBody(ctx, projectId, dashboardId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDashboardFromYAMLResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error) {
+	rsp, err := c.UpdateDashboardFromYAML(ctx, projectId, dashboardId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDashboardFromYAMLResponse(rsp)
+}
+
 // ListMonitorsWithResponse request returning *ListMonitorsResponse
 func (c *ClientWithResponses) ListMonitorsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListMonitorsResponse, error) {
 	rsp, err := c.ListMonitors(ctx, projectId, reqEditors...)
@@ -1007,6 +1586,286 @@ func (c *ClientWithResponses) UpdateMonitorWithResponse(ctx context.Context, pro
 		return nil, err
 	}
 	return ParseUpdateMonitorResponse(rsp)
+}
+
+// ParseListDashboardsResponse parses an HTTP response from a ListDashboardsWithResponse call
+func ParseListDashboardsResponse(rsp *http.Response) (*ListDashboardsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListDashboardsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Dashboards []Dashboard `json:"dashboards"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDashboardFromYAMLResponse parses an HTTP response from a CreateDashboardFromYAMLWithResponse call
+func ParseCreateDashboardFromYAMLResponse(rsp *http.Response) (*CreateDashboardFromYAMLResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDashboardFromYAMLResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Dashboard Dashboard `json:"dashboard"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			Dashboard Dashboard `json:"dashboard"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteDashboardResponse parses an HTTP response from a DeleteDashboardWithResponse call
+func ParseDeleteDashboardResponse(rsp *http.Response) (*DeleteDashboardResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteDashboardResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDashboardResponse parses an HTTP response from a GetDashboardWithResponse call
+func ParseGetDashboardResponse(rsp *http.Response) (*GetDashboardResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDashboardResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Dashboard Dashboard `json:"dashboard"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateDashboardFromYAMLResponse parses an HTTP response from a UpdateDashboardFromYAMLWithResponse call
+func ParseUpdateDashboardFromYAMLResponse(rsp *http.Response) (*UpdateDashboardFromYAMLResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateDashboardFromYAMLResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Dashboard Dashboard `json:"dashboard"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
 }
 
 // ParseListMonitorsResponse parses an HTTP response from a ListMonitorsWithResponse call
@@ -1292,44 +2151,53 @@ func ParseUpdateMonitorResponse(rsp *http.Response) (*UpdateMonitorResponse, err
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"Pq2vebP8fwAAAP//L3c4oxM9AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

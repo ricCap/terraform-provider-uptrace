@@ -10,24 +10,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/acctest"
+	acceptancetests "github.com/riccap/tofu-uptrace-provider/internal/acceptance_tests"
 )
 
 //nolint:gochecknoinits // Required for initializing test provider factories
 func init() {
 	// Initialize provider factories to avoid import cycle
-	acctest.TestAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
+	acceptancetests.TestAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"uptrace": providerserver.NewProtocol6WithError(New("test")()),
 	}
 }
 
 func TestAccMonitorResource_MetricBasic(t *testing.T) {
 	resourceName := "uptrace_monitor.test"
-	monitorName := acctest.RandomTestName("tf-acc-metric")
+	monitorName := acceptancetests.RandomTestName("tf-acc-metric")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			// Create and Read testing
@@ -64,11 +64,11 @@ func TestAccMonitorResource_MetricBasic(t *testing.T) {
 
 func TestAccMonitorResource_ErrorBasic(t *testing.T) {
 	resourceName := "uptrace_monitor.test"
-	monitorName := acctest.RandomTestName("tf-acc-error")
+	monitorName := acceptancetests.RandomTestName("tf-acc-error")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -87,11 +87,11 @@ func TestAccMonitorResource_ErrorBasic(t *testing.T) {
 
 func TestAccMonitorResource_Disappears(t *testing.T) {
 	resourceName := "uptrace_monitor.test"
-	monitorName := acctest.RandomTestName("tf-acc-disappears")
+	monitorName := acceptancetests.RandomTestName("tf-acc-disappears")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -119,7 +119,7 @@ func testAccCheckMonitorExists(resourceName string) resource.TestCheckFunc {
 			return fmt.Errorf("No monitor ID is set")
 		}
 
-		client := acctest.GetTestClient()
+		client := acceptancetests.GetTestClient()
 		_, err := client.GetMonitor(context.Background(), rs.Primary.ID)
 		if err != nil {
 			return fmt.Errorf("Monitor %s not found: %w", rs.Primary.ID, err)
@@ -130,7 +130,7 @@ func testAccCheckMonitorExists(resourceName string) resource.TestCheckFunc {
 }
 
 func testAccCheckMonitorDestroy(s *terraform.State) error {
-	client := acctest.GetTestClient()
+	client := acceptancetests.GetTestClient()
 
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "uptrace_monitor" {
@@ -153,7 +153,7 @@ func testAccCheckMonitorDisappears(resourceName string) resource.TestCheckFunc {
 			return fmt.Errorf("Not found: %s", resourceName)
 		}
 
-		client := acctest.GetTestClient()
+		client := acceptancetests.GetTestClient()
 		return client.DeleteMonitor(context.Background(), rs.Primary.ID)
 	}
 }
@@ -182,7 +182,7 @@ resource "uptrace_monitor" "test" {
     check_num_point   = 2
   }
 }
-`, acctest.GetTestProviderConfig(), name)
+`, acceptancetests.GetTestProviderConfig(), name)
 }
 
 func testAccMonitorResourceConfigErrorBasic(name string) string {
@@ -205,5 +205,5 @@ resource "uptrace_monitor" "test" {
     query = "sum($logs) | where span.event_name exists"
   }
 }
-`, acctest.GetTestProviderConfig(), name)
+`, acceptancetests.GetTestProviderConfig(), name)
 }

@@ -1,4 +1,4 @@
-package acctest
+package acceptancetests
 
 import (
 	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"

@@ -174,18 +174,13 @@ func testAccDashboardResourceConfigBasic(name string) string {
 resource "uptrace_dashboard" "test" {
   yaml = <<-YAML
     name: %s
-    gridRows:
+    grid_rows:
       - items:
-          - type: chart
-            title: CPU Usage
-            params:
-              metrics:
-                - name: system.cpu.utilization
-                  alias: cpu
-              query: avg(cpu)
-              chartKind: line
-              legend:
-                show: true
+          - title: CPU Usage
+            metrics:
+              - system.cpu.utilization as $cpu
+            query:
+              - avg($cpu)
   YAML
 }
 `, acceptancetests.GetTestProviderConfig(), name)
@@ -198,20 +193,15 @@ func testAccDashboardResourceConfigUpdated(name string) string {
 resource "uptrace_dashboard" "test" {
   yaml = <<-YAML
     name: %s
-    gridRows:
+    grid_rows:
       - items:
-          - type: chart
-            title: CPU and Memory Usage
-            params:
-              metrics:
-                - name: system.cpu.utilization
-                  alias: cpu
-                - name: system.memory.usage
-                  alias: mem
-              query: avg(cpu), avg(mem)
-              chartKind: line
-              legend:
-                show: true
+          - title: CPU and Memory Usage
+            metrics:
+              - system.cpu.utilization as $cpu
+              - system.memory.usage as $mem
+            query:
+              - avg($cpu)
+              - avg($mem)
   YAML
 }
 `, acceptancetests.GetTestProviderConfig(), name)
@@ -224,47 +214,31 @@ func testAccDashboardResourceConfigComplex(name string) string {
 resource "uptrace_dashboard" "test" {
   yaml = <<-YAML
     name: %s
-    gridRows:
-      - items:
-          - type: chart
-            title: Request Rate
-            params:
-              metrics:
-                - name: http_requests_total
-                  alias: requests
-              query: rate(requests[5m])
-              chartKind: line
-              legend:
-                show: true
-          - type: table
-            title: Service List
-            params:
-              metrics:
-                - name: service_info
-                  alias: services
-              columns:
-                - name: service_name
-                  label: Service
-      - items:
-          - type: gauge
-            title: Error Rate
-            params:
-              metrics:
-                - name: http_errors_total
-                  alias: errors
-              valueMapping:
-                - value: 0-5
-                  color: green
-                - value: 5-10
-                  color: yellow
-                - value: 10+
-                  color: red
-          - type: heatmap
-            title: Response Time Distribution
-            params:
-              metrics:
-                - name: http_response_time
-                  alias: response_time
+    grid_rows:
+      - title: Performance
+        items:
+          - title: Request Rate
+            metrics:
+              - http_requests_total as $requests
+            query:
+              - per_min(sum($requests))
+          - title: Error Rate
+            metrics:
+              - http_errors_total as $errors
+            query:
+              - per_min(sum($errors))
+      - title: Resources
+        items:
+          - title: CPU Usage
+            metrics:
+              - system.cpu.utilization as $cpu
+            query:
+              - avg($cpu)
+          - title: Memory Usage
+            metrics:
+              - system.memory.usage as $mem
+            query:
+              - avg($mem)
   YAML
 }
 `, acceptancetests.GetTestProviderConfig(), name)

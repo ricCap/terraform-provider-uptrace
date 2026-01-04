@@ -254,12 +254,6 @@ type NotFound = Error
 // Unauthorized defines model for Unauthorized.
 type Unauthorized = Error
 
-// CreateDashboardFromYAMLJSONRequestBody defines body for CreateDashboardFromYAML for application/json ContentType.
-type CreateDashboardFromYAMLJSONRequestBody = DashboardYAMLInput
-
-// UpdateDashboardFromYAMLJSONRequestBody defines body for UpdateDashboardFromYAML for application/json ContentType.
-type UpdateDashboardFromYAMLJSONRequestBody = DashboardYAMLInput
-
 // CreateMonitorJSONRequestBody defines body for CreateMonitor for application/json ContentType.
 type CreateMonitorJSONRequestBody = MonitorInput
 
@@ -469,8 +463,6 @@ type ClientInterface interface {
 	// CreateDashboardFromYAMLWithBody request with any body
 	CreateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
-	CreateDashboardFromYAML(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
 	// DeleteDashboard request
 	DeleteDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -479,8 +471,6 @@ type ClientInterface interface {
 
 	// UpdateDashboardFromYAMLWithBody request with any body
 	UpdateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UpdateDashboardFromYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListMonitors request
 	ListMonitors(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*http.Response, error)
@@ -526,18 +516,6 @@ func (c *Client) CreateDashboardFromYAMLWithBody(ctx context.Context, projectId 
 	return c.Client.Do(req)
 }
 
-func (c *Client) CreateDashboardFromYAML(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewCreateDashboardFromYAMLRequest(c.Server, projectId, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
 func (c *Client) DeleteDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteDashboardRequest(c.Server, projectId, dashboardId)
 	if err != nil {
@@ -564,18 +542,6 @@ func (c *Client) GetDashboard(ctx context.Context, projectId ProjectId, dashboar
 
 func (c *Client) UpdateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateDashboardFromYAMLRequestWithBody(c.Server, projectId, dashboardId, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateDashboardFromYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateDashboardFromYAMLRequest(c.Server, projectId, dashboardId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -704,17 +670,6 @@ func NewListDashboardsRequest(server string, projectId ProjectId) (*http.Request
 	return req, nil
 }
 
-// NewCreateDashboardFromYAMLRequest calls the generic CreateDashboardFromYAML builder with application/json body
-func NewCreateDashboardFromYAMLRequest(server string, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewCreateDashboardFromYAMLRequestWithBody(server, projectId, "application/json", bodyReader)
-}
-
 // NewCreateDashboardFromYAMLRequestWithBody generates requests for CreateDashboardFromYAML with any type of body
 func NewCreateDashboardFromYAMLRequestWithBody(server string, projectId ProjectId, contentType string, body io.Reader) (*http.Request, error) {
 	var err error
@@ -831,17 +786,6 @@ func NewGetDashboardRequest(server string, projectId ProjectId, dashboardId Dash
 	}
 
 	return req, nil
-}
-
-// NewUpdateDashboardFromYAMLRequest calls the generic UpdateDashboardFromYAML builder with application/json body
-func NewUpdateDashboardFromYAMLRequest(server string, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUpdateDashboardFromYAMLRequestWithBody(server, projectId, dashboardId, "application/json", bodyReader)
 }
 
 // NewUpdateDashboardFromYAMLRequestWithBody generates requests for UpdateDashboardFromYAML with any type of body
@@ -1153,8 +1097,6 @@ type ClientWithResponsesInterface interface {
 	// CreateDashboardFromYAMLWithBodyWithResponse request with any body
 	CreateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error)
 
-	CreateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error)
-
 	// DeleteDashboardWithResponse request
 	DeleteDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*DeleteDashboardResponse, error)
 
@@ -1163,8 +1105,6 @@ type ClientWithResponsesInterface interface {
 
 	// UpdateDashboardFromYAMLWithBodyWithResponse request with any body
 	UpdateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error)
-
-	UpdateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error)
 
 	// ListMonitorsWithResponse request
 	ListMonitorsWithResponse(ctx context.Context, projectId ProjectId, reqEditors ...RequestEditorFn) (*ListMonitorsResponse, error)
@@ -1484,14 +1424,6 @@ func (c *ClientWithResponses) CreateDashboardFromYAMLWithBodyWithResponse(ctx co
 	return ParseCreateDashboardFromYAMLResponse(rsp)
 }
 
-func (c *ClientWithResponses) CreateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, body CreateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDashboardFromYAMLResponse, error) {
-	rsp, err := c.CreateDashboardFromYAML(ctx, projectId, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseCreateDashboardFromYAMLResponse(rsp)
-}
-
 // DeleteDashboardWithResponse request returning *DeleteDashboardResponse
 func (c *ClientWithResponses) DeleteDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*DeleteDashboardResponse, error) {
 	rsp, err := c.DeleteDashboard(ctx, projectId, dashboardId, reqEditors...)
@@ -1513,14 +1445,6 @@ func (c *ClientWithResponses) GetDashboardWithResponse(ctx context.Context, proj
 // UpdateDashboardFromYAMLWithBodyWithResponse request with arbitrary body returning *UpdateDashboardFromYAMLResponse
 func (c *ClientWithResponses) UpdateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error) {
 	rsp, err := c.UpdateDashboardFromYAMLWithBody(ctx, projectId, dashboardId, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateDashboardFromYAMLResponse(rsp)
-}
-
-func (c *ClientWithResponses) UpdateDashboardFromYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardFromYAMLJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error) {
-	rsp, err := c.UpdateDashboardFromYAML(ctx, projectId, dashboardId, body, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -2151,53 +2075,53 @@ func ParseUpdateMonitorResponse(rsp *http.Response) (*UpdateMonitorResponse, err
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
-	"Pq2vebP8fwAAAP//L3c4oxM9AAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

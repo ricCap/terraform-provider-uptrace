@@ -202,11 +202,12 @@ func (c *Client) GetDashboard(ctx context.Context, dashboardID int64) (*generate
 
 // CreateDashboardFromYAML creates a new dashboard from YAML definition.
 func (c *Client) CreateDashboardFromYAML(ctx context.Context, yaml string) (*generated.Dashboard, error) {
-	input := generated.DashboardYAMLInput{
-		Yaml: yaml,
-	}
-
-	resp, err := c.client.CreateDashboardFromYAMLWithResponse(ctx, c.projectID, input)
+	resp, err := c.client.CreateDashboardFromYAMLWithBodyWithResponse(
+		ctx,
+		c.projectID,
+		"text/yaml",
+		strings.NewReader(yaml),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create dashboard: %w", err)
 	}
@@ -229,11 +230,13 @@ func (c *Client) CreateDashboardFromYAML(ctx context.Context, yaml string) (*gen
 
 // UpdateDashboardFromYAML updates an existing dashboard from YAML definition.
 func (c *Client) UpdateDashboardFromYAML(ctx context.Context, dashboardID int64, yaml string) (*generated.Dashboard, error) {
-	input := generated.DashboardYAMLInput{
-		Yaml: yaml,
-	}
-
-	resp, err := c.client.UpdateDashboardFromYAMLWithResponse(ctx, c.projectID, dashboardID, input)
+	resp, err := c.client.UpdateDashboardFromYAMLWithBodyWithResponse(
+		ctx,
+		c.projectID,
+		dashboardID,
+		"text/yaml",
+		strings.NewReader(yaml),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update dashboard: %w", err)
 	}

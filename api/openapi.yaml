@@ -229,9 +229,10 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/yaml:
             schema:
-              $ref: '#/components/schemas/DashboardYAMLInput'
+              type: string
+              description: YAML dashboard definition
       responses:
         '200':
           description: Dashboard created successfully
@@ -330,9 +331,10 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          text/yaml:
             schema:
-              $ref: '#/components/schemas/DashboardYAMLInput'
+              type: string
+              description: YAML dashboard definition
       responses:
         '200':
           description: Dashboard updated successfully

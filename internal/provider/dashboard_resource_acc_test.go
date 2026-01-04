@@ -37,6 +37,9 @@ func TestAccDashboardResource_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				// Ignore YAML field - API returns enriched YAML with default values
+				// that differ from user's input (width, height, type, properties, etc.)
+				ImportStateVerifyIgnore: []string{"yaml", "created_at", "updated_at"},
 			},
 			// Update testing
 			{

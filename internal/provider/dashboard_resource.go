@@ -172,9 +172,28 @@ func (r *DashboardResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	// TODO: Fetch YAML content from yamlUrl if available
-	// For now, preserve the existing YAML from state
-	yamlContent := state.YAML.ValueString()
+	// Only fetch YAML from API during import (when state.YAML is empty)
+	// Otherwise, preserve the user's original YAML to avoid drift from API-added defaults
+	var yamlContent string
+	if state.YAML.ValueString() == "" {
+		tflog.Debug(ctx, "Fetching dashboard YAML (import scenario)", map[string]any{"id": state.ID.ValueString()})
+		fetchedYAML, err := r.client.GetDashboardYAML(ctx, dashboardID)
+		if err != nil {
+			tflog.Error(ctx, "Could not fetch dashboard YAML during import", map[string]any{
+				"id":    state.ID.ValueString(),
+				"error": err.Error(),
+			})
+			resp.Diagnostics.AddError(
+				"Error Fetching Dashboard YAML",
+				fmt.Sprintf("Could not fetch YAML for dashboard ID %s during import: %s", state.ID.ValueString(), err.Error()),
+			)
+			return
+		}
+		yamlContent = fetchedYAML
+	} else {
+		// Preserve user's original YAML from state
+		yamlContent = state.YAML.ValueString()
+	}
 
 	// Convert API response to state
 	dashboardToState(ctx, dashboard, yamlContent, &state, &resp.Diagnostics)

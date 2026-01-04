@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -200,6 +201,29 @@ func (c *Client) GetDashboard(ctx context.Context, dashboardID int64) (*generate
 	return &resp.JSON200.Dashboard, nil
 }
 
+// GetDashboardYAML retrieves the YAML representation of a dashboard.
+func (c *Client) GetDashboardYAML(ctx context.Context, dashboardID int64) (string, error) {
+	// Use raw client method to avoid automatic YAML unmarshaling
+	httpResp, err := c.client.GetDashboardYAML(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get dashboard YAML: %w", err)
+	}
+	defer httpResp.Body.Close()
+
+	if httpResp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(httpResp.Body)
+		return "", c.handleErrorResponse(httpResp.StatusCode, bodyBytes)
+	}
+
+	// Read the raw YAML text from response body
+	bodyBytes, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	return string(bodyBytes), nil
+}
+
 // CreateDashboardFromYAML creates a new dashboard from YAML definition.
 func (c *Client) CreateDashboardFromYAML(ctx context.Context, yaml string) (*generated.Dashboard, error) {
 	resp, err := c.client.CreateDashboardFromYAMLWithBodyWithResponse(
@@ -245,11 +269,8 @@ func (c *Client) UpdateDashboardFromYAML(ctx context.Context, dashboardID int64,
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
-	if resp.JSON200 == nil {
-		return nil, fmt.Errorf("unexpected empty response")
-	}
-
-	return &resp.JSON200.Dashboard, nil
+	// API returns empty body on success, fetch the updated dashboard
+	return c.GetDashboard(ctx, dashboardID)
 }
 
 // DeleteDashboard deletes a dashboard by ID.

@@ -16,6 +16,8 @@ import (
 	"path"
 	"strings"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/oapi-codegen/runtime"
 )
@@ -469,6 +471,9 @@ type ClientInterface interface {
 	// GetDashboard request
 	GetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// GetDashboardYAML request
+	GetDashboardYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// UpdateDashboardFromYAMLWithBody request with any body
 	UpdateDashboardFromYAMLWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -530,6 +535,18 @@ func (c *Client) DeleteDashboard(ctx context.Context, projectId ProjectId, dashb
 
 func (c *Client) GetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) GetDashboardYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDashboardYAMLRequest(c.Server, projectId, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -771,6 +788,47 @@ func NewGetDashboardRequest(server string, projectId ProjectId, dashboardId Dash
 	}
 
 	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetDashboardYAMLRequest generates requests for GetDashboardYAML
+func NewGetDashboardYAMLRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/yaml", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -1103,6 +1161,9 @@ type ClientWithResponsesInterface interface {
 	// GetDashboardWithResponse request
 	GetDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardResponse, error)
 
+	// GetDashboardYAMLWithResponse request
+	GetDashboardYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardYAMLResponse, error)
+
 	// UpdateDashboardFromYAMLWithBodyWithResponse request with any body
 	UpdateDashboardFromYAMLWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardFromYAMLResponse, error)
 
@@ -1231,6 +1292,32 @@ func (r GetDashboardResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type GetDashboardYAMLResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	YAML200      *string
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDashboardYAMLResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDashboardYAMLResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -1440,6 +1527,15 @@ func (c *ClientWithResponses) GetDashboardWithResponse(ctx context.Context, proj
 		return nil, err
 	}
 	return ParseGetDashboardResponse(rsp)
+}
+
+// GetDashboardYAMLWithResponse request returning *GetDashboardYAMLResponse
+func (c *ClientWithResponses) GetDashboardYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardYAMLResponse, error) {
+	rsp, err := c.GetDashboardYAML(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDashboardYAMLResponse(rsp)
 }
 
 // UpdateDashboardFromYAMLWithBodyWithResponse request with arbitrary body returning *UpdateDashboardFromYAMLResponse
@@ -1723,6 +1819,60 @@ func ParseGetDashboardResponse(rsp *http.Response) (*GetDashboardResponse, error
 			return nil, err
 		}
 		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDashboardYAMLResponse parses an HTTP response from a GetDashboardYAMLWithResponse call
+func ParseGetDashboardYAMLResponse(rsp *http.Response) (*GetDashboardYAMLResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDashboardYAMLResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "yaml") && rsp.StatusCode == 200:
+		var dest string
+		if err := yaml.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.YAML200 = &dest
 
 	}
 
@@ -2075,53 +2225,54 @@ func ParseUpdateMonitorResponse(rsp *http.Response) (*UpdateMonitorResponse, err
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+xbaW/butL+KwTf90MLqF6SNG38LU26+CJpc9LkHly0QUFLI5vnSKTKxY1P4P9+wUWb",
-	"Jct223S5bT7FFskZzszzcIYj3+GQpxlnwJTEozucEUFSUCDsp1MiZxNORDSOzMcIZChopihneFQ+RONT",
-	"HGBqvsuImuEAM5ICHuGoMj3AAj5qKiDCIyU0BFiGM0iJWTfmIiUKjzBl6vAABziljKY6xaNhgNUiA/cI",
-	"piDwchngc86o4qJNKf9orUppMbVLIS9TKkHZ1Iq8EPwvCFWbyOtMCRICytyQtaKzYomvZ4ulWUpmnEmw",
-	"DntGokv4qEEq8ynkTAGz/5IsS2hIjMr9v6TR+64i9P8FxHiE/69fBkPfPZX950JwL6q+72ckQsILWwb4",
-	"BRcTGkXA7l9yIQo9QpRJHcc0pMAUykCkVErKmTQqjZkCwUjyFsQchFvu3pXLhSJppSJwAwP8mqsXXLPo",
-	"/lW4BMm1CAExrlBsZS4DfM2IVjMu6D/wDXSoSrNumpOERogLZD3Epsg8B6a8XIsyv2qNeiwrCZ6BUNQF",
-	"eSiAKIiOVRcn2UGUM6RoClKRNEMPrhm9RSlNEioh5CySD3GA4ZakWQJ4NHxy+GT/4OnR0cHwYL/35Ghv",
-	"LyjRGHE9SQAXEGQ6nYB1K+2kRs3oRw2IRmanMQVRkxg04b4K8Zw+1ouwzyurYhPuNAT0Zm7+gU+GRMjt",
-	"GbCpmuHR3uPHllTyzyWt5HQX4IwyBn5fMdGJwqOYJBJWnfznDNQMBFIzQAXZIyqRX6CilZ/vRU04T4Aw",
-	"K2s9s14UjIrUjMqKiAkknE0lUnx3e+os2hw+CZEKuZH3HkELkibXImk5WS7PkOIoBhXOKpv/z/H5GRKQ",
-	"CZDAlENP1f996imoPx/2U1CChrI/7BcLmA9GJq5opwXFQcu5Vx5U70ykB7VTzEbeTTGNT8wTs6PCjkbV",
-	"Mcu0aqLYatDYst1budUIYspoY4dG8Aitxvl7NhU0uuSf5Og9Q4Z0FKTuf/P3CBk9RyicEaHyLxFSVCUw",
-	"Qv7YRJdEQfnQpkPlEubPG7T2nVnc6TRTKvvgT0X5QXFFkvpAhEhCiRzlR6d8z/AGPK64wRquzerFAVc3",
-	"dASK0MT+S6LIGpMkF5UhLgWp++G4GOkOMJSv0iIX2uWGPGrhLaskss+qHvXnQ2463EJKKUhJpi1LvtIp",
-	"YY8EkIhMEvD65qOrQsb+EPJJIAo5i+lUixxC3Xb3OucLt3lAKqK0PGnd+KurqwvkBjS2fzAYtDGVzSvb",
-	"iPHKJpzjUxRbz0z0dGo0ru51+PTpIew9OTw42osPhySKw6PHT46G5PHeEexN4uHG7Tqv1va0Nuh81n1h",
-	"0dKMBA+Z5j7OqFSIx4XL7DBDed5DJpE2GN6UhZzbmaclWSwtpMZubokoIgRZmIcfNYhFU583mY/5mCYK",
-	"BLLDrJGthrJmYQlzEFQtRs8vL99couPXpzbloyGMSLaZTXOjtBm1sZ+GSS2JdGzAPream7PZyappH2b6",
-	"g/YIaUCtPeVwWjXzDbmQCtJemOmeVjSh/+R42oXV1p4lTuqGCAtnEP79WqcXnDJVy1uGq8z22p67JupC",
-	"UzaFWtE5oMxMlEjNiEKplgpNBJBwhtRMgJzxpJbL7HdXZQEOeaJT1rTgif3eWtBEOcxJok2GQZl1kws3",
-	"AdJovs5ZG1K3qeA6o2xqy5A5aTliX/oRiPohRnw1p6mKPhwMDDc1s5jCAIOWjCYlt8dJwj9B9G+S6LZQ",
-	"IrdmNiJuFDKGgI5wHbYr0RS8iWm+IceklG0wgjPh1kbYzgRMJ4k8L44gDwNsheBVMLzin4wpZoRFCSAz",
-	"1WlhY4AZ974rZsa26sYmutkchKqgtQy/NcR6/ccZepBflPxhw/yMsKkmU3hYYVm35xwXq1kfmU8fFEh4",
-	"iN7rwWAf0NFgMyhMBv8mjiW05PxXNAXE7cMuIGxj/DUMn1ul4IVWmvPR2EJthDFIxpGsOfTdTbAmxBk3",
-	"laarqpGfjcanshroW5RJq+HcUXXnl27ftebOleisuPe/oOLOBTTOv1d0OkMnF9foOqfo3apt67DF8zmI",
-	"BWfwbPE8JTTZofjmzuULQyTFLWQKxlgSTRYI7HqttXdxnHIGb2I8ercNB9bP4mWwxQ3RypQbi5QMiKoe",
-	"U12rXNZH+1y7xUsnWghgqsjx3bCSzXgGhlViKlzGnBEtITKQLB3qxzRpBEi6PQ7NaIO70kFfiED3eYOH",
-	"3LavzNDuu448nL/dTUfbdYIHkx2Z+7SIyw6eXHOp8KOQ5W8G+QkY5GeDc1vFVEBnM2SuvLyV9GeRgU2M",
-	"i2w4Z8oyAbU3ATWGLJ41QvGy4ZRi1p0ZRhRMF4YkvMXdDXAFwnRt4XKipeJprWzx3IQecJa4FDJ0g3JJ",
-	"D3HQ0VI7bL12KbWsJtD5f81mi9lwqVUxu7RkOdVp15I5Lxt+M4pAqAVVi7cmGpx1JkAEiGNtmCD/9CLf",
-	"37/+vGqody1BrLRakOJ/A0Ox4CnyOTn2vReLbrto6duZUpnr8FAW87xzREJLv763WS6jReLnyFG/r933",
-	"vQjmuNmmev72Ch1fjF3qTxiZmqo0rxKEb2JJRFmY6Mg880EqEWFReUsse+/Z1YxKu5atViRacG2A6pLW",
-	"wJ9vARImbmEOgVsBElCwblVDhFNB0pQYwyXJomevahMaApNQ2fz5+KqxcZNCOP17XEz7fpLsm7G2IFFJ",
-	"xW5GcxzgOQjpTDPsDXoDM9CsQzKKR3i/N+jtW6CrmQ2F4mr/rriTX1Yu+c2QaVvBc+ltYMm+sl3jBZKz",
-	"P7ai3c3oOPI0eFouvtJ33hsMdmoprtxQ15Teqhov24MNZl2hycriTXJs9i3f6jAEKWOdoHyHRsTBYLhO",
-	"pcIQ/VqH1U7a3zyp7JsvA/zY2bF7Rltb29KFTlNiqm93ZkVVbykylcYaFRfe5Me3f91jzcldDumXL0HY",
-	"83dDAPbzDs/nCwlwxmVLCJ9YWCOCGHyqdIsso7kOUrVvVA9kN7ewwwvBUzPFv5QBUj3j0WIlmBXcqmI7",
-	"ZRRv37paZfvl6isgy/sB1A4wWgebrVCz0neHCMkCR4nNdvYcgP43NoQekMRi0N4duw7JQ4f4LfBbeUnn",
-	"p2MWj7wWzK0jmS2I4q7yotjSAcsczC39eXdgk+qbAAv3wlUd5G5gGQzt6Frncie+LYYPdp3WESnfxO0H",
-	"TuXuGcWbSV8vTrynoooH1hxBG3IUJDMITYm+0ecvQW1y+M/CPt83CfleMfMS1DYB89npRLBxcPV9161S",
-	"nBpzfXnCs6uGAfa3YKtvpNrbPMIQ3FKpTOW0Y5LkVvidJN1TTuGvZRsHzI+bPnwvTvChvGO+4cFah21e",
-	"5m9XGBeXApvL4vN84a8anlV1t2tQ+xu8TQVxsfCvVQ6npZfyuCkc92Wl8FZVat6P6g4nN+W8uItdz7af",
-	"/8p2rYNy7yybln3trYK3PVi3itVaG/qrl6A/yEZ++dKzbFS0wHgj+ffvil8AbVdp5rjtqjOreN1UZea+",
-	"3anG7Jr0i1eYneGwQ3XZ7eeXoLqd/OOTyq9bU24IkXus1sofKu5Sq5X6thVlv5ODLzpTf5deO5Ze3edt",
-	"pUtt0VPtT7+7MVHvfgbpsNX+w9kLwSMd2s6064PWW6kko3u9SiO5+vMmC8KV9zV4SJKiizxmUhG20pke",
-	"9fuJGTXjUo2GB/vDp/U1b5b/DQAA//8LMiixFz0AAA==",
+	"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",
+	"5iI/AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

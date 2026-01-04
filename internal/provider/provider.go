@@ -161,6 +161,7 @@ func (p *UptraceProvider) Configure(ctx context.Context, req provider.ConfigureR
 func (p *UptraceProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewMonitorDataSource,
+		NewMonitorsDataSource,
 	}
 }
 

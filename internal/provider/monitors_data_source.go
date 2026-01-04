@@ -77,6 +77,7 @@ func (d *MonitorsDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 				Description: "Filter monitors by name (case-insensitive substring match).",
 				Optional:    true,
 			},
+			//nolint:dupl // Schema duplication with monitor_data_source acceptable - different data sources
 			"monitors": schema.ListNestedAttribute{
 				Description: "List of monitors matching the filter criteria.",
 				Computed:    true,
@@ -218,8 +219,7 @@ func (d *MonitorsDataSource) Configure(_ context.Context, req datasource.Configu
 //nolint:gocritic // Request type defined by Terraform Plugin Framework interface
 func (d *MonitorsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var config MonitorsDataSourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...
-)
+	resp.Diagnostics.Append(req.Config.Get(ctx, &config)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -276,6 +276,7 @@ func (d *MonitorsDataSource) Read(ctx context.Context, req datasource.ReadReques
 func filterMonitors(monitors []generated.Monitor, typeFilter, stateFilter, nameFilter types.String) []generated.Monitor {
 	var filtered []generated.Monitor
 
+	//nolint:gocritic // Large struct copy acceptable for filtering logic
 	for _, monitor := range monitors {
 		// Skip if type filter doesn't match
 		if !typeFilter.IsNull() && !typeFilter.IsUnknown() {
@@ -314,6 +315,7 @@ func convertMonitorToModel(ctx context.Context, monitor *generated.Monitor, diag
 	monitorToState(ctx, monitor, &tempModel, diags)
 
 	// Convert to MonitorModel
+	//nolint:gosimple // MonitorModel and MonitorResourceModel are different types, struct literal is required
 	model := MonitorModel{
 		ID:                    tempModel.ID,
 		Name:                  tempModel.Name,
@@ -332,7 +334,7 @@ func convertMonitorToModel(ctx context.Context, monitor *generated.Monitor, diag
 }
 
 // convertMonitorModelsToList converts a slice of MonitorModel to types.List.
-func convertMonitorModelsToList(ctx context.Context, models []MonitorModel) (types.List, diag.Diagnostics) {
+func convertMonitorModelsToList(_ context.Context, models []MonitorModel) (types.List, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Define the attribute types for a monitor
@@ -368,6 +370,7 @@ func convertMonitorModelsToList(ctx context.Context, models []MonitorModel) (typ
 
 	// Convert each model to an object value
 	monitorObjects := make([]attr.Value, 0, len(models))
+	//nolint:gocritic // Large struct copy acceptable for conversion to Terraform types
 	for _, model := range models {
 		monitorAttrs := map[string]attr.Value{
 			"id":                       model.ID,

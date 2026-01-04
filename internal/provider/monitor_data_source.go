@@ -37,6 +37,7 @@ func (d *MonitorDataSource) Metadata(_ context.Context, req datasource.MetadataR
 func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Description: "Fetches an existing Uptrace monitor by ID.",
+		//nolint:dupl // Schema duplication with monitors_data_source acceptable - different data sources
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description: "Monitor identifier.",

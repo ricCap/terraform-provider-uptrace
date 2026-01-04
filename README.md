@@ -4,14 +4,17 @@ A Terraform provider for managing [Uptrace](https://uptrace.dev/) resources.
 
 ## Features
 
-- **Monitor Management**: Create and manage metric and error monitors
+- **Monitor Resource**: Create and manage metric and error monitors with full CRUD support
+- **Dashboard Resource**: Manage YAML-based dashboards with grid layouts and visualizations
+- **Monitor Data Source**: Read individual monitor configurations
+- **Monitors Data Source**: Query and filter multiple monitors by type, state, or name
 - **Type-safe Client**: Auto-generated client from OpenAPI specifications
-- **Full CRUD Support**: Complete lifecycle management for Uptrace resources
+- **Full Lifecycle Management**: Complete CRUD operations for all resources
 
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.0
-- [Go](https://golang.org/doc/install) >= 1.25
+- [Go](https://golang.org/doc/install) >= 1.24
 - [Uptrace](https://uptrace.dev/) instance with API access
 
 ## Building The Provider
@@ -39,23 +42,51 @@ terraform {
 }
 
 provider "uptrace" {
-  endpoint = "https://uptrace.example.com"
-  token    = var.uptrace_token
+  endpoint   = "https://uptrace.example.com"
+  token      = var.uptrace_token
+  project_id = 1
 }
 
-resource "uptrace_monitor" "example" {
-  name        = "High Error Rate"
-  description = "Alert when error rate exceeds threshold"
-  type        = "metric"
+# Or using environment variables:
+# export UPTRACE_ENDPOINT="https://uptrace.example.com"
+# export UPTRACE_TOKEN="your-token"
+# export UPTRACE_PROJECT_ID="1"
 
-  project_id = 1
+# Metric monitor
+resource "uptrace_monitor" "high_cpu" {
+  name = "High CPU Usage"
+  type = "metric"
+
+  notify_everyone_by_email = false
+  channel_ids              = [1, 2]
 
   params = {
-    metrics = ["errors"]
-    query   = "rate > 10"
+    metrics = [
+      {
+        name  = "system.cpu.utilization"
+        alias = "cpu_usage"
+      }
+    ]
+    query             = "avg(cpu_usage) > 90"
+    max_allowed_value = 90
   }
+}
 
-  channels = [1, 2]
+# Dashboard
+resource "uptrace_dashboard" "overview" {
+  name = "System Overview"
+
+  yaml = <<-YAML
+    schema: v2
+    grid_rows:
+      - title: Metrics
+        items:
+          - title: CPU Usage
+            metrics:
+              - system.cpu.utilization as $cpu
+            query:
+              - avg($cpu)
+  YAML
 }
 ```
 
@@ -63,10 +94,11 @@ resource "uptrace_monitor" "example" {
 
 ### Prerequisites
 
-- Go 1.25+
+- Go 1.24+
 - [Task](https://taskfile.dev/)
 - [golangci-lint](https://golangci-lint.run/)
 - [oapi-codegen](https://github.com/deepmap/oapi-codegen)
+- [Docker](https://www.docker.com/) (for running acceptance tests)
 
 ### Setup
 

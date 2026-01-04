@@ -47,10 +47,6 @@ override.tf.json
 dist/
 *.zip
 
-# Documentation
-docs/
-!docs/.gitkeep
-
 # Testing
 .test/
 terraform-provider-uptrace.log

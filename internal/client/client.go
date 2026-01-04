@@ -211,7 +211,10 @@ func (c *Client) GetDashboardYAML(ctx context.Context, dashboardID int64) (strin
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(httpResp.Body)
+		bodyBytes, readErr := io.ReadAll(httpResp.Body)
+		if readErr != nil {
+			return "", fmt.Errorf("failed to read error response body: %w", readErr)
+		}
 		return "", c.handleErrorResponse(httpResp.StatusCode, bodyBytes)
 	}
 

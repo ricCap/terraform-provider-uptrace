@@ -173,6 +173,7 @@ func testAccDashboardResourceConfigBasic(name string) string {
 
 resource "uptrace_dashboard" "test" {
   yaml = <<-YAML
+    schema: v2
     name: %s
     grid_rows:
       - items:
@@ -192,6 +193,7 @@ func testAccDashboardResourceConfigUpdated(name string) string {
 
 resource "uptrace_dashboard" "test" {
   yaml = <<-YAML
+    schema: v2
     name: %s
     grid_rows:
       - items:
@@ -213,6 +215,7 @@ func testAccDashboardResourceConfigComplex(name string) string {
 
 resource "uptrace_dashboard" "test" {
   yaml = <<-YAML
+    schema: v2
     name: %s
     grid_rows:
       - title: Performance

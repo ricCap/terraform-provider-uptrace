@@ -1,5 +1,6 @@
 resource "uptrace_dashboard" "example" {
   yaml = <<-YAML
+    schema: v2
     name: Service Overview
     grid_rows:
       - title: Traffic

@@ -65,7 +65,6 @@ func TestAccMonitorDataSource_AllFields(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "params.metrics.0.name", resourceName, "params.metrics.0.name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "params.metrics.0.alias", resourceName, "params.metrics.0.alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "params.query", resourceName, "params.query"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "params.column", resourceName, "params.column"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "params.max_allowed_value", resourceName, "params.max_allowed_value"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "params.check_num_point", resourceName, "params.check_num_point"),
 
@@ -108,7 +107,8 @@ resource "uptrace_monitor" "test" {
       name  = "system.cpu.utilization"
       alias = "$cpu"
     }]
-    query = "avg($cpu) > 80"
+    query             = "avg($cpu) > 80"
+    max_allowed_value = 80
   }
 }
 
@@ -124,8 +124,8 @@ func testAccMonitorDataSourceConfigAllFields(name string) string {
 %s
 
 resource "uptrace_monitor" "test" {
-  name                    = "%s"
-  type                    = "metric"
+  name                     = "%s"
+  type                     = "metric"
   notify_everyone_by_email = false
 
   repeat_interval = {
@@ -138,7 +138,6 @@ resource "uptrace_monitor" "test" {
       alias = "$cpu"
     }]
     query             = "avg($cpu) > 90"
-    column            = "$cpu"
     max_allowed_value = 90
     check_num_point   = 3
   }

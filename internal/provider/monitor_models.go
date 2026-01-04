@@ -332,26 +332,35 @@ func convertParamsToState(_ context.Context, monitor *generated.Monitor, state *
 	)
 }
 
+// convertMetricsToListValue converts a slice of generated.MetricDefinition to a Terraform list value.
+// This is a shared helper used by both metric and error monitor parameter conversions.
+func convertMetricsToListValue(metrics []generated.MetricDefinition) types.List {
+	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}
+
+	if len(metrics) == 0 {
+		return types.ListValueMust(types.ObjectType{AttrTypes: metricAttrTypes}, []attr.Value{})
+	}
+
+	metricValues := make([]attr.Value, len(metrics))
+	for i, m := range metrics {
+		metricAttrs := map[string]attr.Value{
+			"name":  types.StringValue(m.Name),
+			"alias": types.StringNull(),
+		}
+		if m.Alias != nil {
+			metricAttrs["alias"] = types.StringValue(*m.Alias)
+		}
+		metricValues[i] = types.ObjectValueMust(metricAttrTypes, metricAttrs)
+	}
+	return types.ListValueMust(types.ObjectType{AttrTypes: metricAttrTypes}, metricValues)
+}
+
 // convertMetricParamsToAttrs converts metric params to attribute map.
 //
 //nolint:gocritic // Generated params type passed by value to match oapi-codegen patterns
 func convertMetricParamsToAttrs(params generated.MetricMonitorParams, attrs map[string]attr.Value) {
-	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}
-
-	if len(params.Metrics) > 0 {
-		metrics := make([]attr.Value, len(params.Metrics))
-		for i, m := range params.Metrics {
-			metricAttrs := map[string]attr.Value{
-				"name":  types.StringValue(m.Name),
-				"alias": types.StringNull(),
-			}
-			if m.Alias != nil {
-				metricAttrs["alias"] = types.StringValue(*m.Alias)
-			}
-			metrics[i] = types.ObjectValueMust(metricAttrTypes, metricAttrs)
-		}
-		attrs["metrics"] = types.ListValueMust(types.ObjectType{AttrTypes: metricAttrTypes}, metrics)
-	}
+	// Convert metrics using shared helper
+	attrs["metrics"] = convertMetricsToListValue(params.Metrics)
 
 	if params.Query != "" {
 		attrs["query"] = types.StringValue(params.Query)
@@ -381,22 +390,8 @@ func convertMetricParamsToAttrs(params generated.MetricMonitorParams, attrs map[
 
 // convertErrorParamsToAttrs converts error params to attribute map.
 func convertErrorParamsToAttrs(params generated.ErrorMonitorParams, attrs map[string]attr.Value) {
-	metricAttrTypes := map[string]attr.Type{"name": types.StringType, "alias": types.StringType}
-
-	if len(params.Metrics) > 0 {
-		metrics := make([]attr.Value, len(params.Metrics))
-		for i, m := range params.Metrics {
-			metricAttrs := map[string]attr.Value{
-				"name":  types.StringValue(m.Name),
-				"alias": types.StringNull(),
-			}
-			if m.Alias != nil {
-				metricAttrs["alias"] = types.StringValue(*m.Alias)
-			}
-			metrics[i] = types.ObjectValueMust(metricAttrTypes, metricAttrs)
-		}
-		attrs["metrics"] = types.ListValueMust(types.ObjectType{AttrTypes: metricAttrTypes}, metrics)
-	}
+	// Convert metrics using shared helper
+	attrs["metrics"] = convertMetricsToListValue(params.Metrics)
 
 	if params.Query != nil {
 		attrs["query"] = types.StringValue(*params.Query)

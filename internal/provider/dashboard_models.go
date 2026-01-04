@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -44,10 +44,16 @@ func dashboardToState(
 	}
 }
 
-// isNotFoundError checks if an error is a "not found" (404) error.
-func isNotFoundError(err error) bool {
-	if err == nil {
-		return false
+// parseDashboardID parses a dashboard ID string and adds diagnostics on error.
+// Returns the parsed ID and a boolean indicating success.
+func parseDashboardID(idStr string, diags *diag.Diagnostics) (int64, bool) {
+	dashboardID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		diags.AddError(
+			"Invalid Dashboard ID",
+			fmt.Sprintf("Could not parse dashboard ID %s: %s", idStr, err.Error()),
+		)
+		return 0, false
 	}
-	return strings.Contains(strings.ToLower(err.Error()), "not found")
+	return dashboardID, true
 }

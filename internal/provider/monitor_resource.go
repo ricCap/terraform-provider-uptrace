@@ -3,8 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -14,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -79,6 +81,9 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.OneOf("metric", "error"),
+				},
 			},
 			"state": schema.StringAttribute{
 				Description: "Current monitor state (open, firing, paused).",
@@ -114,10 +119,16 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						Optional:    true,
 						Computed:    true,
 						Default:     stringdefault.StaticString("default"),
+						Validators: []validator.String{
+							stringvalidator.OneOf("default", "custom"),
+						},
 					},
 					"interval": schema.Int64Attribute{
 						Description: "Custom interval in seconds (only for custom strategy, minimum 60).",
 						Optional:    true,
+						Validators: []validator.Int64{
+							int64validator.AtLeast(60),
+						},
 					},
 				},
 			},
@@ -267,8 +278,8 @@ func (r *MonitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 	monitor, err := r.client.GetMonitor(ctx, state.ID.ValueString())
 	if err != nil {
 		// If the monitor doesn't exist (404), remove from state
-		if strings.Contains(err.Error(), "not found") {
-			tflog.Info(ctx, "Monitor not found, removing from state", map[string]any{"id": state.ID.ValueString()})
+		if isNotFoundError(err) {
+			tflog.Warn(ctx, "Monitor not found, removing from state", map[string]any{"id": state.ID.ValueString()})
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -345,8 +356,8 @@ func (r *MonitorResource) Delete(ctx context.Context, req resource.DeleteRequest
 	err := r.client.DeleteMonitor(ctx, state.ID.ValueString())
 	if err != nil {
 		// If the monitor doesn't exist (404), treat as already deleted
-		if strings.Contains(err.Error(), "not found") {
-			tflog.Info(ctx, "Monitor already deleted", map[string]any{"id": state.ID.ValueString()})
+		if isNotFoundError(err) {
+			tflog.Warn(ctx, "Monitor already deleted", map[string]any{"id": state.ID.ValueString()})
 			return
 		}
 

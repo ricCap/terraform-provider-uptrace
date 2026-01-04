@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -148,12 +147,8 @@ func (r *DashboardResource) Read(ctx context.Context, req resource.ReadRequest, 
 	tflog.Info(ctx, "Reading dashboard", map[string]any{"id": state.ID.ValueString()})
 
 	// Parse dashboard ID
-	dashboardID, err := strconv.ParseInt(state.ID.ValueString(), 10, 64)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid Dashboard ID",
-			fmt.Sprintf("Could not parse dashboard ID %s: %s", state.ID.ValueString(), err.Error()),
-		)
+	dashboardID, ok := parseDashboardID(state.ID.ValueString(), &resp.Diagnostics)
+	if !ok {
 		return
 	}
 
@@ -225,12 +220,8 @@ func (r *DashboardResource) Update(ctx context.Context, req resource.UpdateReque
 	tflog.Info(ctx, "Updating dashboard", map[string]any{"id": state.ID.ValueString()})
 
 	// Parse dashboard ID
-	dashboardID, err := strconv.ParseInt(state.ID.ValueString(), 10, 64)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid Dashboard ID",
-			fmt.Sprintf("Could not parse dashboard ID %s: %s", state.ID.ValueString(), err.Error()),
-		)
+	dashboardID, ok := parseDashboardID(state.ID.ValueString(), &resp.Diagnostics)
+	if !ok {
 		return
 	}
 
@@ -268,17 +259,13 @@ func (r *DashboardResource) Delete(ctx context.Context, req resource.DeleteReque
 	tflog.Info(ctx, "Deleting dashboard", map[string]any{"id": state.ID.ValueString()})
 
 	// Parse dashboard ID
-	dashboardID, err := strconv.ParseInt(state.ID.ValueString(), 10, 64)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Invalid Dashboard ID",
-			fmt.Sprintf("Could not parse dashboard ID %s: %s", state.ID.ValueString(), err.Error()),
-		)
+	dashboardID, ok := parseDashboardID(state.ID.ValueString(), &resp.Diagnostics)
+	if !ok {
 		return
 	}
 
 	// Delete dashboard via API
-	err = r.client.DeleteDashboard(ctx, dashboardID)
+	err := r.client.DeleteDashboard(ctx, dashboardID)
 	if err != nil {
 		if isNotFoundError(err) {
 			tflog.Warn(ctx, "Dashboard already deleted", map[string]any{"id": state.ID.ValueString()})

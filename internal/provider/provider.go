@@ -159,7 +159,9 @@ func (p *UptraceProvider) Configure(ctx context.Context, req provider.ConfigureR
 
 // DataSources defines the data sources implemented in the provider.
 func (p *UptraceProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		NewMonitorDataSource,
+	}
 }
 
 // Resources defines the resources implemented in the provider.

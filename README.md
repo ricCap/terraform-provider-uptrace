@@ -1,5 +1,10 @@
 # Terraform Provider for Uptrace
 
+[![Tests](https://github.com/ricCap/tofu-uptrace-provider/actions/workflows/test.yml/badge.svg)](https://github.com/ricCap/tofu-uptrace-provider/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/ricCap/tofu-uptrace-provider?sort=semver)](https://github.com/ricCap/tofu-uptrace-provider/releases)
+[![codecov](https://codecov.io/gh/ricCap/tofu-uptrace-provider/branch/main/graph/badge.svg)](https://codecov.io/gh/ricCap/tofu-uptrace-provider)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Terraform provider for managing [Uptrace](https://uptrace.dev/) resources.
 
 ## Features

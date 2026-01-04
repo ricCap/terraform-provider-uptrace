@@ -176,7 +176,8 @@ resource "uptrace_dashboard" "test" {
     schema: v2
     name: %s
     grid_rows:
-      - items:
+      - title: Metrics
+        items:
           - title: CPU Usage
             metrics:
               - system.cpu.utilization as $cpu
@@ -196,7 +197,8 @@ resource "uptrace_dashboard" "test" {
     schema: v2
     name: %s
     grid_rows:
-      - items:
+      - title: Metrics
+        items:
           - title: CPU and Memory Usage
             metrics:
               - system.cpu.utilization as $cpu

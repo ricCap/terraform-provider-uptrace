@@ -164,6 +164,106 @@ func (c *Client) DeleteMonitor(ctx context.Context, monitorID string) error {
 	return nil
 }
 
+// ListDashboards retrieves all dashboards for the project.
+func (c *Client) ListDashboards(ctx context.Context) ([]generated.Dashboard, error) {
+	resp, err := c.client.ListDashboardsWithResponse(ctx, c.projectID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list dashboards: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return []generated.Dashboard{}, nil
+	}
+
+	return resp.JSON200.Dashboards, nil
+}
+
+// GetDashboard retrieves a specific dashboard by ID.
+func (c *Client) GetDashboard(ctx context.Context, dashboardID int64) (*generated.Dashboard, error) {
+	resp, err := c.client.GetDashboardWithResponse(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get dashboard: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("unexpected empty response")
+	}
+
+	return &resp.JSON200.Dashboard, nil
+}
+
+// CreateDashboardFromYAML creates a new dashboard from YAML definition.
+func (c *Client) CreateDashboardFromYAML(ctx context.Context, yaml string) (*generated.Dashboard, error) {
+	input := generated.DashboardYAMLInput{
+		Yaml: yaml,
+	}
+
+	resp, err := c.client.CreateDashboardFromYAMLWithResponse(ctx, c.projectID, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create dashboard: %w", err)
+	}
+
+	// Uptrace API returns 200 for successful creation
+	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusCreated {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	// Try 200 first (most common), then 201
+	if resp.JSON200 != nil {
+		return &resp.JSON200.Dashboard, nil
+	}
+	if resp.JSON201 != nil {
+		return &resp.JSON201.Dashboard, nil
+	}
+
+	return nil, fmt.Errorf("unexpected empty response")
+}
+
+// UpdateDashboardFromYAML updates an existing dashboard from YAML definition.
+func (c *Client) UpdateDashboardFromYAML(ctx context.Context, dashboardID int64, yaml string) (*generated.Dashboard, error) {
+	input := generated.DashboardYAMLInput{
+		Yaml: yaml,
+	}
+
+	resp, err := c.client.UpdateDashboardFromYAMLWithResponse(ctx, c.projectID, dashboardID, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update dashboard: %w", err)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("unexpected empty response")
+	}
+
+	return &resp.JSON200.Dashboard, nil
+}
+
+// DeleteDashboard deletes a dashboard by ID.
+func (c *Client) DeleteDashboard(ctx context.Context, dashboardID int64) error {
+	resp, err := c.client.DeleteDashboardWithResponse(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return fmt.Errorf("failed to delete dashboard: %w", err)
+	}
+
+	// Uptrace API returns 200 for successful deletion
+	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusNoContent {
+		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	return nil
+}
+
 // handleErrorResponse processes error responses from the API.
 func (c *Client) handleErrorResponse(statusCode int, body []byte) error {
 	switch statusCode {

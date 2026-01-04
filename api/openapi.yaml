@@ -1,10 +1,10 @@
 openapi: 3.0.3
 
 info:
-  title: Uptrace Monitors API
+  title: Uptrace API
   description: |
-    REST API for managing Uptrace metric and error monitors.
-    This API allows you to create, update, retrieve, and delete monitors programmatically.
+    REST API for managing Uptrace resources including monitors and dashboards.
+    This API allows you to create, update, retrieve, and delete monitors and dashboards programmatically.
   version: 1.0.0
   contact:
     name: Uptrace
@@ -185,6 +185,177 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /metrics/{projectId}/dashboards:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+
+    get:
+      summary: List dashboards
+      description: Retrieve all dashboards for a project
+      operationId: listDashboards
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dashboards
+                properties:
+                  dashboards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Dashboard'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/yaml:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+
+    post:
+      summary: Create dashboard from YAML
+      description: Create a new dashboard from YAML definition
+      operationId: createDashboardFromYAML
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardYAMLInput'
+      responses:
+        '200':
+          description: Dashboard created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dashboard
+                properties:
+                  dashboard:
+                    $ref: '#/components/schemas/Dashboard'
+        '201':
+          description: Dashboard created successfully (alternative status)
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dashboard
+                properties:
+                  dashboard:
+                    $ref: '#/components/schemas/Dashboard'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    get:
+      summary: Get dashboard
+      description: Retrieve a specific dashboard by ID
+      operationId: getDashboard
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dashboard
+                properties:
+                  dashboard:
+                    $ref: '#/components/schemas/Dashboard'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete dashboard
+      description: Delete a dashboard by ID
+      operationId: deleteDashboard
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Dashboard deleted successfully
+        '204':
+          description: Dashboard deleted successfully (alternative status)
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/yaml:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    put:
+      summary: Update dashboard from YAML
+      description: Update an existing dashboard from YAML definition
+      operationId: updateDashboardFromYAML
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardYAMLInput'
+      responses:
+        '200':
+          description: Dashboard updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dashboard
+                properties:
+                  dashboard:
+                    $ref: '#/components/schemas/Dashboard'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -211,6 +382,16 @@ components:
       description: Monitor ID
       schema:
         type: string
+
+    DashboardId:
+      name: dashboardId
+      in: path
+      required: true
+      description: Dashboard ID
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
 
   schemas:
     Monitor:
@@ -423,6 +604,70 @@ components:
           type: string
           description: Optional alias for the metric
           example: "cpu_usage"
+
+    Dashboard:
+      type: object
+      required:
+        - id
+        - projectId
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Dashboard unique identifier
+          example: 1
+        projectId:
+          type: integer
+          format: int64
+          description: Project ID this dashboard belongs to
+          example: 1
+        name:
+          type: string
+          description: Dashboard name
+          minLength: 1
+          maxLength: 255
+          example: "Service Overview"
+        pinned:
+          type: boolean
+          description: Whether the dashboard is pinned
+          default: false
+          example: false
+        yamlUrl:
+          type: string
+          format: uri
+          description: URL to fetch dashboard YAML representation
+          example: "/internal/v1/metrics/1/dashboards/1/yaml"
+        createdAt:
+          type: number
+          format: double
+          description: Dashboard creation timestamp (Unix milliseconds)
+          example: 1767348994143.7922
+        updatedAt:
+          type: number
+          format: double
+          description: Dashboard last update timestamp (Unix milliseconds)
+          example: 1767348994143.7922
+
+    DashboardYAMLInput:
+      type: object
+      required:
+        - yaml
+      properties:
+        yaml:
+          type: string
+          description: YAML dashboard definition
+          minLength: 1
+          example: |
+            name: Service Overview
+            gridRows:
+              - items:
+                  - type: chart
+                    title: Request Rate
+                    params:
+                      metrics:
+                        - name: http_requests_total
+                          alias: requests
 
     Error:
       type: object

@@ -7,17 +7,17 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/acctest"
+	acceptancetests "github.com/riccap/tofu-uptrace-provider/internal/acceptance_tests"
 )
 
 func TestAccMonitorsDataSource_All(t *testing.T) {
 	dataSourceName := "data.uptrace_monitors.test"
-	name1 := acctest.RandomTestName("tf-acc-ds-all-1")
-	name2 := acctest.RandomTestName("tf-acc-ds-all-2")
+	name1 := acceptancetests.RandomTestName("tf-acc-ds-all-1")
+	name2 := acceptancetests.RandomTestName("tf-acc-ds-all-2")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorsDataSourceConfigAll(name1, name2),
@@ -37,13 +37,13 @@ func TestAccMonitorsDataSource_All(t *testing.T) {
 
 func TestAccMonitorsDataSource_FilterByType(t *testing.T) {
 	dataSourceName := "data.uptrace_monitors.test"
-	metricName1 := acctest.RandomTestName("tf-acc-ds-metric-1")
-	metricName2 := acctest.RandomTestName("tf-acc-ds-metric-2")
-	errorName := acctest.RandomTestName("tf-acc-ds-error")
+	metricName1 := acceptancetests.RandomTestName("tf-acc-ds-metric-1")
+	metricName2 := acceptancetests.RandomTestName("tf-acc-ds-metric-2")
+	errorName := acceptancetests.RandomTestName("tf-acc-ds-error")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorsDataSourceConfigFilterByType(metricName1, metricName2, errorName),
@@ -61,12 +61,12 @@ func TestAccMonitorsDataSource_FilterByType(t *testing.T) {
 
 func TestAccMonitorsDataSource_FilterByName(t *testing.T) {
 	dataSourceName := "data.uptrace_monitors.test"
-	cpuName := acctest.RandomTestName("tf-acc-ds-CPU-monitor")
-	memName := acctest.RandomTestName("tf-acc-ds-memory-monitor")
+	cpuName := acceptancetests.RandomTestName("tf-acc-ds-CPU-monitor")
+	memName := acceptancetests.RandomTestName("tf-acc-ds-memory-monitor")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorsDataSourceConfigFilterByName(cpuName, memName),
@@ -85,8 +85,8 @@ func TestAccMonitorsDataSource_EmptyResults(t *testing.T) {
 	dataSourceName := "data.uptrace_monitors.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorsDataSourceConfigEmptyResults(),
@@ -101,13 +101,13 @@ func TestAccMonitorsDataSource_EmptyResults(t *testing.T) {
 
 func TestAccMonitorsDataSource_MultipleFilters(t *testing.T) {
 	dataSourceName := "data.uptrace_monitors.test"
-	metricCPUName := acctest.RandomTestName("tf-acc-ds-CPU-metric")
-	metricMemName := acctest.RandomTestName("tf-acc-ds-memory-metric")
-	errorName := acctest.RandomTestName("tf-acc-ds-CPU-error")
+	metricCPUName := acceptancetests.RandomTestName("tf-acc-ds-CPU-metric")
+	metricMemName := acceptancetests.RandomTestName("tf-acc-ds-memory-metric")
+	errorName := acceptancetests.RandomTestName("tf-acc-ds-CPU-error")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { acctest.PreCheck(t) },
-		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccMonitorsDataSourceConfigMultipleFilters(metricCPUName, metricMemName, errorName),
@@ -163,7 +163,7 @@ data "uptrace_monitors" "test" {
     uptrace_monitor.metric2,
   ]
 }
-`, acctest.GetTestProviderConfig(), name1, name2)
+`, acceptancetests.GetTestProviderConfig(), name1, name2)
 }
 
 // testAccMonitorsDataSourceConfigFilterByType generates a config that filters by type.
@@ -221,7 +221,7 @@ data "uptrace_monitors" "test" {
     uptrace_monitor.error1,
   ]
 }
-`, acctest.GetTestProviderConfig(), metricName1, metricName2, errorName)
+`, acceptancetests.GetTestProviderConfig(), metricName1, metricName2, errorName)
 }
 
 // testAccMonitorsDataSourceConfigFilterByName generates a config that filters by name.
@@ -265,7 +265,7 @@ data "uptrace_monitors" "test" {
     uptrace_monitor.mem,
   ]
 }
-`, acctest.GetTestProviderConfig(), cpuName, memName)
+`, acceptancetests.GetTestProviderConfig(), cpuName, memName)
 }
 
 // testAccMonitorsDataSourceConfigEmptyResults generates a config that returns no results.
@@ -276,7 +276,7 @@ func testAccMonitorsDataSourceConfigEmptyResults() string {
 data "uptrace_monitors" "test" {
   name = "this-monitor-name-should-never-exist-in-any-test-run-12345"
 }
-`, acctest.GetTestProviderConfig())
+`, acceptancetests.GetTestProviderConfig())
 }
 
 // testAccMonitorsDataSourceConfigMultipleFilters generates a config with multiple filters.
@@ -335,5 +335,5 @@ data "uptrace_monitors" "test" {
     uptrace_monitor.error_cpu,
   ]
 }
-`, acctest.GetTestProviderConfig(), metricCPUName, metricMemName, errorName)
+`, acceptancetests.GetTestProviderConfig(), metricCPUName, metricMemName, errorName)
 }

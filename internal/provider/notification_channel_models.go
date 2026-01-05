@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"
+	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 )
 
 // planToChannelInput converts a Terraform plan to an API NotificationChannelInput.

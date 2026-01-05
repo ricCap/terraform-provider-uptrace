@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/provider"
+	"github.com/riccap/terraform-provider-uptrace/internal/provider"
 )
 
 // version is set during the release process via ldflags.

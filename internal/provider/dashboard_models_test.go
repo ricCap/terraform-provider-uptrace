@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"
+	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 )
 
 func TestDashboardToState_Complete(t *testing.T) {

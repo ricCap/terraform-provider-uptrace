@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
-	acceptancetests "github.com/riccap/tofu-uptrace-provider/internal/acceptance_tests"
+	acceptancetests "github.com/riccap/terraform-provider-uptrace/internal/acceptance_tests"
 )
 
 func TestAccMonitorDataSource_Basic(t *testing.T) {

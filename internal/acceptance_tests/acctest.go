@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/riccap/tofu-uptrace-provider/internal/client"
+	"github.com/riccap/terraform-provider-uptrace/internal/client"
 )
 
 // PreCheck validates that required environment variables are set for acceptance tests.

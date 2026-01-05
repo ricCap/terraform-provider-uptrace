@@ -1,7 +1,7 @@
 package acceptancetests
 
 import (
-	"github.com/riccap/tofu-uptrace-provider/internal/client/generated"
+	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 )
 
 // GetMetricMonitorInput returns a basic metric monitor input for testing.

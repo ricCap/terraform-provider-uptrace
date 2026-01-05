@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
-	acceptancetests "github.com/riccap/tofu-uptrace-provider/internal/acceptance_tests"
+	acceptancetests "github.com/riccap/terraform-provider-uptrace/internal/acceptance_tests"
 )
 
 func TestAccDashboardResource_Basic(t *testing.T) {

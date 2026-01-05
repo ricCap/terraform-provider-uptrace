@@ -381,6 +381,164 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /projects/{projectId}/notification-channels:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+
+    get:
+      summary: List notification channels
+      description: Retrieve all notification channels for a project
+      operationId: listNotificationChannels
+      tags:
+        - Notification Channels
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - channels
+                properties:
+                  channels:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NotificationChannel'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create notification channel
+      description: Create a new notification channel
+      operationId: createNotificationChannel
+      tags:
+        - Notification Channels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationChannelInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - channel
+                properties:
+                  channel:
+                    $ref: '#/components/schemas/NotificationChannel'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /projects/{projectId}/notification-channels/{channelId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/ChannelId'
+
+    get:
+      summary: Get notification channel
+      description: Retrieve a specific notification channel by ID
+      operationId: getNotificationChannel
+      tags:
+        - Notification Channels
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - channel
+                properties:
+                  channel:
+                    $ref: '#/components/schemas/NotificationChannel'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      summary: Update notification channel
+      description: Update an existing notification channel
+      operationId: updateNotificationChannel
+      tags:
+        - Notification Channels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationChannelInput'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - channel
+                properties:
+                  channel:
+                    $ref: '#/components/schemas/NotificationChannel'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete notification channel
+      description: Delete an existing notification channel
+      operationId: deleteNotificationChannel
+      tags:
+        - Notification Channels
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - channel
+                properties:
+                  channel:
+                    $ref: '#/components/schemas/NotificationChannel'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -413,6 +571,16 @@ components:
       in: path
       required: true
       description: Dashboard ID
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+
+    ChannelId:
+      name: channelId
+      in: path
+      required: true
+      description: Notification channel ID
       schema:
         type: integer
         format: int64
@@ -726,6 +894,101 @@ components:
           type: object
           description: Additional error details
           additionalProperties: true
+
+    NotificationChannel:
+      type: object
+      required:
+        - id
+        - projectId
+        - name
+        - type
+        - status
+        - params
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique channel identifier
+          example: 1
+        projectId:
+          type: integer
+          format: int64
+          description: Project ID
+          example: 1
+        name:
+          type: string
+          description: Channel name
+          example: "Engineering Alerts"
+        type:
+          type: string
+          enum: [slack, webhook, telegram, mattermost]
+          description: Channel type
+          example: "slack"
+        status:
+          type: string
+          description: Channel delivery status
+          example: "delivering"
+        condition:
+          type: string
+          description: Optional condition expression
+          example: ""
+        params:
+          type: object
+          description: Channel-specific configuration parameters (varies by type)
+          additionalProperties: true
+        monitorIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+          description: List of monitor IDs using this channel
+          example: []
+        monitorCount:
+          type: integer
+          description: Count of monitors using this channel (only in list responses)
+          example: 0
+
+    NotificationChannelInput:
+      type: object
+      required:
+        - name
+        - type
+        - params
+      properties:
+        name:
+          type: string
+          description: Channel name
+          example: "Engineering Alerts"
+          minLength: 1
+        type:
+          type: string
+          enum: [slack, webhook, telegram, mattermost]
+          description: |
+            Channel type. Supported types:
+            - `slack`: Slack webhook notifications
+            - `webhook`: Generic webhook notifications
+            - `telegram`: Telegram bot notifications
+            - `mattermost`: Mattermost webhook notifications
+          example: "slack"
+        condition:
+          type: string
+          description: Optional condition expression to filter notifications
+          example: ""
+        params:
+          type: object
+          description: |
+            Channel-specific configuration parameters:
+
+            **Slack**: `{"webhookUrl": "https://hooks.slack.com/services/..."}`
+
+            **Webhook**: `{"url": "https://example.com/webhook", "payload": {...}}`
+
+            **Telegram**: `{"botToken": "123456:ABC-DEF...", "chatId": -1001234567890}`
+
+            **Mattermost**: `{"webhookUrl": "https://mattermost.example.com/hooks/..."}`
+          additionalProperties: true
+          example:
+            webhookUrl: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
 
   responses:
     BadRequest:

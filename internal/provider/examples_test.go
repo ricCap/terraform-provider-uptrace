@@ -139,8 +139,8 @@ func TestAccExampleDashboards(t *testing.T) {
 					resource.TestCheckResourceAttr("uptrace_dashboard.microservices_map", "name", "Microservices Health Map"),
 
 					// Verify dashboards have YAML config
-					resource.TestCheckResourceAttrSet("uptrace_dashboard.service_overview", "yaml_config"),
-					resource.TestCheckResourceAttrSet("uptrace_dashboard.red_metrics", "yaml_config"),
+					resource.TestCheckResourceAttrSet("uptrace_dashboard.service_overview", "yaml"),
+					resource.TestCheckResourceAttrSet("uptrace_dashboard.red_metrics", "yaml"),
 				),
 			},
 		},

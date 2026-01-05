@@ -51,8 +51,8 @@ resource "uptrace_notification_channel" "telegram_oncall" {
   type = "telegram"
 
   params = {
-    botToken = var.telegram_bot_token
-    chatId   = var.telegram_chat_id
+    bot_token = var.telegram_bot_token
+    chat_id   = var.telegram_chat_id
   }
 }
 
@@ -72,7 +72,11 @@ resource "uptrace_monitor" "critical_error_rate" {
   ]
 
   params = {
-    metrics = []
+    metrics = [
+      {
+        name = "span.count"
+      }
+    ]
     query   = "span.status_code:error"
 
     # Alert if error count > 100 in 5 minutes
@@ -97,7 +101,11 @@ resource "uptrace_monitor" "warning_4xx_errors" {
   ]
 
   params = {
-    metrics = []
+    metrics = [
+      {
+        name = "span.count"
+      }
+    ]
     query   = "span.status_code:>=400 span.status_code:<500"
 
     min_allowed_value = 0
@@ -120,7 +128,11 @@ resource "uptrace_monitor" "critical_database_errors" {
   ]
 
   params = {
-    metrics = []
+    metrics = [
+      {
+        name = "span.count"
+      }
+    ]
     query   = "db.system:* span.status_code:error"
 
     min_allowed_value = 0
@@ -150,7 +162,7 @@ resource "uptrace_monitor" "critical_api_latency" {
     metrics = [
       {
         name  = "span.duration"
-        alias = "p95_latency"
+        alias = "$p95_latency"
       }
     ]
 
@@ -182,7 +194,7 @@ resource "uptrace_monitor" "warning_db_slow_queries" {
     metrics = [
       {
         name  = "span.duration"
-        alias = "p95_duration"
+        alias = "$p95_duration"
       }
     ]
 
@@ -216,7 +228,7 @@ resource "uptrace_monitor" "warning_traffic_spike" {
     metrics = [
       {
         name  = "span.count"
-        alias = "request_count"
+        alias = "$request_count"
       }
     ]
 
@@ -248,7 +260,7 @@ resource "uptrace_monitor" "critical_no_traffic" {
     metrics = [
       {
         name  = "span.count"
-        alias = "request_count"
+        alias = "$request_count"
       }
     ]
 
@@ -272,94 +284,110 @@ resource "uptrace_monitor" "critical_no_traffic" {
 
 # Main application overview dashboard
 resource "uptrace_dashboard" "application_overview" {
-  name = "Application Overview"
-
-  yaml_config = <<-YAML
-    table:
-      - schema_version: v2
-        row:
-          - title: API Performance
-            columns:
-              - span.system: [http]
-                span.kind: [server]
-            chart:
-              - type: line
-                metric: span.duration|p95
-                legend: P95 Latency
-              - type: line
-                metric: span.count|per_min
-                legend: Requests/min
+  yaml = <<-YAML
+    schema: v2
+    name: Application Overview
+    grid_rows:
+      - title: API Performance
+        items:
+          - title: Request Rate
+            metrics:
+              - span.count as $requests
+            query:
+              - per_min(sum($requests))
+            where:
+              - span.system
+              - =
+              - http
+              - span.kind
+              - =
+              - server
+          - title: P95 Latency
+            metrics:
+              - span.duration as $duration
+            query:
+              - p95($duration)
+            where:
+              - span.system
+              - =
+              - http
+              - span.kind
+              - =
+              - server
+      - title: Errors & Database
+        items:
           - title: Error Rate
-            columns:
-              - span.status_code: [error]
-            chart:
-              - type: line
-                metric: span.count|per_min
-                legend: Errors/min
-                color: red
-      - row:
-          - title: Database Performance
-            columns:
-              - db.system: [*]
-            chart:
-              - type: line
-                metric: span.duration|p95
-                legend: DB Query P95
-              - type: line
-                metric: span.count|per_min
-                legend: Queries/min
-          - title: External API Calls
-            columns:
-              - span.kind: [client]
-                span.system: [http]
-            chart:
-              - type: line
-                metric: span.duration|p95
-                legend: External API P95
+            metrics:
+              - span.count as $errors
+            query:
+              - per_min(sum($errors))
+            where:
+              - span.status_code
+              - =
+              - error
+          - title: Database Query Performance
+            metrics:
+              - span.duration as $db_duration
+            query:
+              - p95($db_duration)
+            where:
+              - db.system
+              - exists
+              - true
   YAML
 }
 
 # Error tracking dashboard
 resource "uptrace_dashboard" "error_tracking" {
-  name = "Error Tracking Dashboard"
-
-  yaml_config = <<-YAML
-    table:
-      - schema_version: v2
-        row:
+  yaml = <<-YAML
+    schema: v2
+    name: Error Tracking Dashboard
+    grid_rows:
+      - title: HTTP Errors
+        items:
           - title: Total Errors
-            columns:
-              - span.status_code: [error]
-            chart:
-              - type: line
-                metric: span.count|per_min
-                legend: Errors/min
-                color: red
-          - title: 4xx Errors
-            columns:
-              - span.status_code: [>=400, <500]
-            chart:
-              - type: line
-                metric: span.count|per_min
-                legend: 4xx/min
-                color: orange
-      - row:
-          - title: 5xx Errors
-            columns:
-              - span.status_code: [>=500]
-            chart:
-              - type: line
-                metric: span.count|per_min
-                legend: 5xx/min
-                color: red
+            metrics:
+              - span.count as $errors
+            query:
+              - per_min(sum($errors))
+            where:
+              - span.status_code
+              - =
+              - error
+          - title: 4xx Client Errors
+            metrics:
+              - span.count as $client_errors
+            query:
+              - per_min(sum($client_errors))
+            where:
+              - http.status_code
+              - '>='
+              - 400
+              - http.status_code
+              - <
+              - 500
+      - title: Server Errors
+        items:
+          - title: 5xx Server Errors
+            metrics:
+              - span.count as $server_errors
+            query:
+              - per_min(sum($server_errors))
+            where:
+              - http.status_code
+              - '>='
+              - 500
           - title: Database Errors
-            columns:
-              - db.system: [*]
-                span.status_code: [error]
-            chart:
-              - type: line
-                metric: span.count|per_min
-                legend: DB Errors/min
-                color: purple
+            metrics:
+              - span.count as $db_errors
+            query:
+              - per_min(sum($db_errors))
+            where:
+              - db.system
+              - exists
+              - true
+              - span.status_code
+              - =
+              - error
   YAML
 }

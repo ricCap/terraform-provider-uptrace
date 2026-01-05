@@ -1,0 +1,28 @@
+# Uptrace Configuration
+uptrace_endpoint   = "https://uptrace.example.com/api/v1"
+uptrace_token      = "your_api_token"
+uptrace_project_id = 1
+
+# Severity-Based Routing
+pagerduty_url               = "https://events.pagerduty.com/integration/YOUR_KEY/enqueue"
+slack_oncall_webhook        = "https://hooks.slack.com/services/YOUR/ONCALL/WEBHOOK"
+slack_engineering_webhook   = "https://hooks.slack.com/services/YOUR/ENGINEERING/WEBHOOK"
+
+# Team-Based Routing
+slack_backend_webhook  = "https://hooks.slack.com/services/YOUR/BACKEND/WEBHOOK"
+slack_frontend_webhook = "https://hooks.slack.com/services/YOUR/FRONTEND/WEBHOOK"
+slack_data_webhook     = "https://hooks.slack.com/services/YOUR/DATA/WEBHOOK"
+
+# Fan-Out Pattern
+slack_critical_webhook = "https://hooks.slack.com/services/YOUR/CRITICAL/WEBHOOK"
+telegram_bot_token     = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+telegram_chat_id       = "-1001234567890"
+custom_webhook_url     = "https://your-integration.example.com/webhook"
+
+# Environment-Specific
+slack_production_webhook = "https://hooks.slack.com/services/YOUR/PROD/WEBHOOK"
+slack_staging_webhook    = "https://hooks.slack.com/services/YOUR/STAGING/WEBHOOK"
+
+# Time-Based Routing
+slack_business_hours_webhook = "https://hooks.slack.com/services/YOUR/BUSINESS/WEBHOOK"
+pagerduty_after_hours_url    = "https://events.pagerduty.com/integration/YOUR_AFTERHOURS_KEY/enqueue"

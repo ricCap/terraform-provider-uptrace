@@ -1,0 +1,22 @@
+# Copy this file to terraform.tfvars and fill in your actual values
+# DO NOT commit terraform.tfvars to version control
+
+# Uptrace Configuration
+uptrace_endpoint   = "https://uptrace.example.com/api/v1"
+uptrace_token      = "your_uptrace_api_token_here"
+uptrace_project_id = 1
+
+# Slack Webhooks
+# Get these from: https://api.slack.com/messaging/webhooks
+slack_critical_webhook  = "https://hooks.slack.com/services/YOUR/CRITICAL/WEBHOOK"
+slack_warnings_webhook  = "https://hooks.slack.com/services/YOUR/WARNINGS/WEBHOOK"
+
+# PagerDuty Integration
+# Get this from: PagerDuty > Services > Your Service > Integrations
+pagerduty_webhook_url = "https://events.pagerduty.com/integration/YOUR_INTEGRATION_KEY/enqueue"
+
+# Telegram Bot
+# Create a bot: https://core.telegram.org/bots#creating-a-new-bot
+telegram_bot_token = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+# Get chat ID by sending /getid to @userinfobot
+telegram_chat_id   = "-1001234567890"

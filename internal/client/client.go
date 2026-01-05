@@ -144,7 +144,7 @@ func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput
 
 // UpdateMonitor updates an existing monitor.
 //
-//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
+//nolint:gocritic,dupl // Generated API type passed by value; wrapper functions intentionally follow same pattern
 func (c *Client) UpdateMonitor(ctx context.Context, monitorID string, input generated.MonitorInput) (*generated.Monitor, error) {
 	resp, err := c.client.UpdateMonitorWithResponse(ctx, c.projectID, monitorID, input)
 	if err != nil {
@@ -324,6 +324,8 @@ func (c *Client) ListNotificationChannels(ctx context.Context) ([]generated.Noti
 }
 
 // GetNotificationChannel retrieves a specific notification channel by ID.
+//
+//nolint:dupl // Wrapper functions intentionally follow same pattern
 func (c *Client) GetNotificationChannel(ctx context.Context, channelID int64) (*generated.NotificationChannel, error) {
 	resp, err := c.client.GetNotificationChannelWithResponse(ctx, c.projectID, channelID)
 	if err != nil {
@@ -360,6 +362,8 @@ func (c *Client) CreateNotificationChannel(ctx context.Context, input generated.
 }
 
 // UpdateNotificationChannel updates an existing notification channel.
+//
+//nolint:dupl // Wrapper functions intentionally follow same pattern
 func (c *Client) UpdateNotificationChannel(ctx context.Context, channelID int64, input generated.NotificationChannelInput) (*generated.NotificationChannel, error) {
 	resp, err := c.client.UpdateNotificationChannelWithResponse(ctx, c.projectID, channelID, input)
 	if err != nil {

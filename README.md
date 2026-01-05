@@ -1,21 +1,26 @@
 # Terraform Provider for Uptrace
 
-A Terraform provider for managing [Uptrace](https://uptrace.dev/) resources.
+A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring resources - monitors, dashboards, and notification channels.
+
+[![Tests](https://github.com/riccap/tofu-uptrace-provider/actions/workflows/test.yml/badge.svg)](https://github.com/riccap/tofu-uptrace-provider/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/riccap/tofu-uptrace-provider)](https://goreportcard.com/report/github.com/riccap/tofu-uptrace-provider)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
 
-- **Monitor Resource**: Create and manage metric and error monitors with full CRUD support
-- **Dashboard Resource**: Manage YAML-based dashboards with grid layouts and visualizations
-- **Monitor Data Source**: Read individual monitor configurations
-- **Monitors Data Source**: Query and filter multiple monitors by type, state, or name
-- **Type-safe Client**: Auto-generated client from OpenAPI specifications
-- **Full Lifecycle Management**: Complete CRUD operations for all resources
+- **Monitor Management**: Create metric and error monitors with configurable thresholds and alerts
+- **Dashboard Creation**: YAML-based dashboards with flexible grid layouts and visualizations
+- **Notification Channels**: Support for Slack, Telegram, Mattermost, and generic webhooks
+- **Data Sources**: Query individual monitors or filter multiple monitors by criteria
+- **Type-Safe Client**: Auto-generated client from OpenAPI specifications
+- **Full CRUD Support**: Complete lifecycle management for all resources
+- **Import Support**: Import existing Uptrace resources into Terraform state
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 1.0
-- [Go](https://golang.org/doc/install) >= 1.24
+- [Terraform](https://www.terraform.io/downloads.html) or [OpenTofu](https://opentofu.org/) >= 1.0
 - [Uptrace](https://uptrace.dev/) instance with API access
+- Uptrace API token and project ID
 
 ## Building The Provider
 
@@ -29,91 +34,224 @@ Or using Task:
 task build
 ```
 
-## Using the Provider
+## Quick Start
+
+### Installation
 
 ```hcl
 terraform {
   required_providers {
     uptrace = {
-      source  = "riccap/uptrace"
+      source  = "registry.terraform.io/riccap/uptrace"
       version = "~> 0.1"
     }
   }
 }
 
 provider "uptrace" {
-  endpoint   = "https://uptrace.example.com"
+  endpoint   = "https://uptrace.example.com/api/v1"
   token      = var.uptrace_token
-  project_id = 1
+  project_id = var.uptrace_project_id
 }
+```
 
-# Or using environment variables:
-# export UPTRACE_ENDPOINT="https://uptrace.example.com"
-# export UPTRACE_TOKEN="your-token"
-# export UPTRACE_PROJECT_ID="1"
+### Configuration
 
-# Metric monitor
-resource "uptrace_monitor" "high_cpu" {
-  name = "High CPU Usage"
-  type = "metric"
+The provider can be configured via:
 
-  notify_everyone_by_email = false
-  channel_ids              = [1, 2]
+1. **HCL variables** (shown above)
+2. **Environment variables**:
+   ```bash
+   export UPTRACE_ENDPOINT="https://uptrace.example.com/api/v1"
+   export UPTRACE_TOKEN="your-api-token"
+   export UPTRACE_PROJECT_ID="1"
+   ```
+
+### Example Usage
+
+**Create a Notification Channel:**
+
+```hcl
+resource "uptrace_notification_channel" "slack_alerts" {
+  name = "Engineering Alerts"
+  type = "slack"
+
+  params = {
+    webhookUrl = var.slack_webhook_url
+  }
+}
+```
+
+**Create an Error Monitor:**
+
+```hcl
+resource "uptrace_monitor" "api_errors" {
+  name = "High Error Rate"
+  type = "error"
+
+  channel_ids = [uptrace_notification_channel.slack_alerts.id]
 
   params = {
     metrics = [
       {
-        name  = "system.cpu.utilization"
-        alias = "cpu_usage"
+        name = "span.count"
       }
     ]
-    query             = "avg(cpu_usage) > 90"
-    max_allowed_value = 90
+    query = "service.name:api-gateway span.status_code:error"
+
+    max_allowed_value = 100
+    check_num_point   = 1
   }
 }
+```
 
-# Dashboard
-resource "uptrace_dashboard" "overview" {
-  name = "System Overview"
+**Create a Performance Monitor:**
 
+```hcl
+resource "uptrace_monitor" "api_latency" {
+  name = "API Response Time >2s"
+  type = "metric"
+
+  channel_ids = [uptrace_notification_channel.slack_alerts.id]
+
+  params = {
+    metrics = [
+      {
+        name  = "span.duration"
+        alias = "$p95_latency"
+      }
+    ]
+
+    query = "span.system:http span.kind:server"
+
+    max_allowed_value = 2000000000  # 2 seconds in nanoseconds
+    column            = "$p95_latency"
+    check_num_point   = 2
+  }
+}
+```
+
+**Create a Dashboard:**
+
+```hcl
+resource "uptrace_dashboard" "api_overview" {
   yaml = <<-YAML
     schema: v2
+    name: API Overview
     grid_rows:
-      - title: Metrics
+      - title: Performance
         items:
-          - title: CPU Usage
+          - title: Request Rate
             metrics:
-              - system.cpu.utilization as $cpu
+              - span.count as $requests
             query:
-              - avg($cpu)
+              - per_min(sum($requests))
+            where:
+              - span.system
+              - =
+              - http
+          - title: P95 Latency
+            metrics:
+              - span.duration as $duration
+            query:
+              - p95($duration)
+            where:
+              - span.system
+              - =
+              - http
+      - title: Errors
+        items:
+          - title: Error Rate
+            metrics:
+              - span.count as $errors
+            query:
+              - per_min(sum($errors))
+            where:
+              - span.status_code
+              - =
+              - error
   YAML
 }
 ```
+
+## Documentation
+
+- **[Getting Started Guide](docs/guides/getting-started.md)** - Complete introduction with examples
+- **[Best Practices Guide](docs/guides/best-practices.md)** - Production recommendations
+- **[Resource Documentation](docs/)** - Detailed resource and data source reference
+- **[Example Configurations](examples/)** - Real-world usage examples
+
+## Examples
+
+### Complete Examples
+
+- **[Dashboard Examples](examples/dashboard-examples/)** - 8 dashboard patterns (RED metrics, database performance, business metrics, etc.)
+- **[Multi-Channel Alerts](examples/multi-channel-alerts/)** - Advanced notification routing patterns
+- **[Complete Setup](examples/complete-setup/)** - Full monitoring stack with channels, monitors, and dashboards
+
+### Resource Examples
+
+- **[Monitor Resource](examples/resources/uptrace_monitor/)** - Metric and error monitor configurations
+- **[Dashboard Resource](examples/resources/uptrace_dashboard/)** - Dashboard YAML examples
+- **[Notification Channel Resource](examples/resources/uptrace_notification_channel/)** - Channel configurations for all supported types
 
 ## Development
 
 ### Prerequisites
 
-- Go 1.24+
-- [Task](https://taskfile.dev/)
-- [golangci-lint](https://golangci-lint.run/)
-- [oapi-codegen](https://github.com/deepmap/oapi-codegen)
-- [Docker](https://www.docker.com/) (for running acceptance tests)
+- Go 1.21+
+- [Task](https://taskfile.dev/) - Task runner for development commands
+- [golangci-lint](https://golangci-lint.run/) - Go linter
+- [oapi-codegen](https://github.com/deepmap/oapi-codegen) - OpenAPI code generator
+- [tfplugindocs](https://github.com/hashicorp/terraform-plugin-docs) - Documentation generator
+- [Docker](https://www.docker.com/) - For running local Uptrace instance and acceptance tests
 
 ### Setup
 
 ```bash
-# Install dependencies
+# Install development dependencies
 task deps
 
-# Generate client code
+# Generate API client from OpenAPI spec
 task generate
 
-# Run tests
-task test
+# Build the provider
+task build
 
-# Run acceptance tests (requires Uptrace instance)
-task testacc
+# Run unit tests
+task test:unit
+
+# Run linters
+task lint
+
+# Start local Uptrace instance for testing
+task dev:up
+
+# Run acceptance tests (requires running Uptrace instance)
+task test:acc
+
+# Stop local Uptrace instance
+task dev:down
+
+# Generate documentation
+task docs
+```
+
+### Available Tasks
+
+Run `task --list` to see all available tasks:
+
+```
+* build:          Build the provider binary
+* deps:           Install development dependencies
+* dev:down:       Stop development environment
+* dev:up:         Start development environment (Uptrace + dependencies)
+* docs:           Generate provider documentation
+* generate:       Generate API client code from OpenAPI spec
+* lint:           Run golangci-lint
+* test:acc:       Run acceptance tests
+* test:unit:      Run unit tests
+* test:           Run all tests
 ```
 
 ### Project Structure
@@ -134,34 +272,95 @@ task testacc
 
 ### Unit Tests
 
+Run unit tests without requiring an Uptrace instance:
+
 ```bash
-task test
+task test:unit
 ```
 
 ### Acceptance Tests
 
-Acceptance tests create real resources. Set up environment variables:
+Acceptance tests create real resources in an Uptrace instance.
+
+**Option 1: Use local Uptrace instance (recommended for development):**
 
 ```bash
-export UPTRACE_ENDPOINT="https://uptrace.example.com"
-export UPTRACE_TOKEN="your-token"
-export UPTRACE_PROJECT_ID="1"
+# Start local Uptrace with Docker Compose
+task dev:up
 
-task testacc
+# Run acceptance tests
+task test:acc
+
+# Stop local instance when done
+task dev:down
 ```
 
-## Documentation
+**Option 2: Use existing Uptrace instance:**
 
-Documentation is auto-generated using [terraform-plugin-docs](https://github.com/hashicorp/terraform-plugin-docs):
+```bash
+export UPTRACE_ENDPOINT="https://uptrace.example.com/api/v1"
+export UPTRACE_TOKEN="your-api-token"
+export UPTRACE_PROJECT_ID="1"
+
+task test:acc
+```
+
+### Linting
+
+```bash
+task lint
+```
+
+## Contributing
+
+Contributions are welcome! Here's how to get started:
+
+1. **Fork the repository**
+2. **Create a feature branch**: `git checkout -b feature/my-feature`
+3. **Make your changes**
+4. **Run tests**: `task test`
+5. **Run linters**: `task lint`
+6. **Commit your changes**: `git commit -m 'feat: add my feature'`
+7. **Push to your fork**: `git push origin feature/my-feature`
+8. **Open a Pull Request**
+
+### Development Guidelines
+
+- Follow existing code style and patterns
+- Add tests for new features
+- Update documentation as needed
+- Keep commits focused and atomic
+- Write clear commit messages
+
+### Generating Documentation
+
+Documentation is auto-generated from code and examples:
 
 ```bash
 task docs
 ```
 
-## Contributing
+This generates resource documentation from:
+- Schema definitions in `internal/provider/`
+- Examples in `examples/resources/` and `examples/data-sources/`
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## Support
+
+- **[GitHub Issues](https://github.com/riccap/tofu-uptrace-provider/issues)** - Bug reports and feature requests
+- **[GitHub Discussions](https://github.com/riccap/tofu-uptrace-provider/discussions)** - Questions and community support
+- **[Uptrace Documentation](https://uptrace.dev/docs/)** - Uptrace platform documentation
+- **[Getting Started Guide](docs/guides/getting-started.md)** - Provider usage guide
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes and version history.
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+
+- Built with [Terraform Plugin Framework](https://github.com/hashicorp/terraform-plugin-framework)
+- API client generated with [oapi-codegen](https://github.com/deepmap/oapi-codegen)
+- Designed for [Uptrace](https://uptrace.dev/) observability platform

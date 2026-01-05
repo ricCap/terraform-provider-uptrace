@@ -634,6 +634,14 @@ components:
           default: []
         repeatInterval:
           $ref: '#/components/schemas/RepeatInterval'
+        trendAggFunc:
+          type: string
+          description: |
+            Trend aggregation function for monitor evaluation (required for cloud API, optional for self-hosted).
+            Determines how metric values are aggregated over time for trend analysis.
+            Common values: avg, sum, min, max, p50, p90, p95, p99.
+            Note: Self-hosted Uptrace v2.0.2 and earlier do not use this field.
+          example: "sum"
         params:
           oneOf:
             - $ref: '#/components/schemas/MetricMonitorParams'
@@ -684,6 +692,14 @@ components:
           default: []
         repeatInterval:
           $ref: '#/components/schemas/RepeatInterval'
+        trendAggFunc:
+          type: string
+          description: |
+            Trend aggregation function for monitor evaluation (required for cloud API, optional for self-hosted).
+            Determines how metric values are aggregated over time for trend analysis.
+            Common values: avg, sum, min, max, p50, p90, p95, p99.
+            Note: Self-hosted Uptrace v2.0.2 and earlier do not use this field.
+          example: "sum"
         params:
           oneOf:
             - $ref: '#/components/schemas/MetricMonitorParams'
@@ -932,6 +948,14 @@ components:
           type: string
           description: Optional condition expression
           example: ""
+        priority:
+          type: array
+          description: |
+            Alert priority levels (cloud API).
+            May be empty or null for self-hosted instances.
+          items:
+            type: string
+          example: ["high", "critical"]
         params:
           type: object
           description: Channel-specific configuration parameters (varies by type)
@@ -974,6 +998,15 @@ components:
           type: string
           description: Optional condition expression to filter notifications
           example: ""
+        priority:
+          type: array
+          description: |
+            Alert priority levels (required for cloud API).
+            Determines notification urgency and routing.
+            Valid values discovered through testing against cloud API.
+          items:
+            type: string
+          example: ["high", "critical"]
         params:
           type: object
           description: |

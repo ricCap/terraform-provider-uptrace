@@ -106,6 +106,35 @@ func TestAccMonitorResource_Disappears(t *testing.T) {
 	})
 }
 
+func TestAccMonitorResource_CloudTrendAggregation(t *testing.T) {
+	if !acceptancetests.IsCloudTest() {
+		t.Skip("Cloud API only - skipping for self-hosted")
+	}
+
+	resourceName := "uptrace_monitor.test"
+	monitorName := acceptancetests.RandomTestName("tf-cloud-trend")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckMonitorDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccMonitorCloudWithTrendFunc(monitorName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", monitorName),
+					resource.TestCheckResourceAttr(resourceName, "type", "error"),
+					resource.TestCheckResourceAttr(
+						resourceName,
+						"trend_agg_func",
+						"sum",
+					),
+				),
+			},
+		},
+	})
+}
+
 // Helper functions
 
 func testAccCheckMonitorExists(resourceName string) resource.TestCheckFunc {
@@ -206,4 +235,25 @@ resource "uptrace_monitor" "test" {
   }
 }
 `, acceptancetests.GetTestProviderConfig(), name)
+}
+
+func testAccMonitorCloudWithTrendFunc(name string) string {
+	return acceptancetests.GetTestProviderConfig() + fmt.Sprintf(`
+resource "uptrace_monitor" "test" {
+  name = %[1]q
+  type = "error"
+
+  notify_everyone_by_email = false
+
+  trend_agg_func = "sum"
+
+  params = {
+    metrics = [{
+      name = "uptrace_tracing_events"
+      alias = "$events"
+    }]
+    query = "where span.system = 'terraform-provider-test'"
+  }
+}
+`, name)
 }

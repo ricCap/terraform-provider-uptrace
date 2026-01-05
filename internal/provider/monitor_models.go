@@ -99,6 +99,12 @@ func planToMonitorInput(ctx context.Context, plan MonitorResourceModel, diags *d
 	// Convert repeat interval
 	input.RepeatInterval = convertRepeatInterval(ctx, plan, diags)
 
+	// Convert trend aggregation function (cloud API only)
+	if !plan.TrendAggFunc.IsNull() && !plan.TrendAggFunc.IsUnknown() {
+		trendAggFunc := plan.TrendAggFunc.ValueString()
+		input.TrendAggFunc = &trendAggFunc
+	}
+
 	// Convert params based on monitor type
 	if !plan.Params.IsNull() && !plan.Params.IsUnknown() {
 		var params MonitorParamsModel
@@ -229,6 +235,13 @@ func monitorToState(ctx context.Context, monitor *generated.Monitor, state *Moni
 		state.NotifyEveryoneByEmail = types.BoolValue(*monitor.NotifyEveryoneByEmail)
 	} else {
 		state.NotifyEveryoneByEmail = types.BoolValue(false)
+	}
+
+	// Convert trend aggregation function (cloud API only)
+	if monitor.TrendAggFunc != nil {
+		state.TrendAggFunc = types.StringValue(*monitor.TrendAggFunc)
+	} else {
+		state.TrendAggFunc = types.StringNull()
 	}
 
 	// Convert team IDs

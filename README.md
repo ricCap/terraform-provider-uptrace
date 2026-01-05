@@ -18,6 +18,14 @@ A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring res
 - **Full CRUD Support**: Complete lifecycle management for all resources
 - **Import Support**: Import existing Uptrace resources into Terraform state
 
+## Cloud API Support
+
+The provider supports both:
+- **Uptrace Cloud** (`api2.uptrace.dev`) - Managed Uptrace service
+- **Self-Hosted Uptrace** - Your own Uptrace instance
+
+Some fields are required only for cloud API. See the [Cloud API Guide](docs/guides/cloud-api.md) for details.
+
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) or [OpenTofu](https://opentofu.org/) >= 1.0

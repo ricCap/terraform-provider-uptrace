@@ -39,6 +39,7 @@ type NotificationChannelResourceModel struct {
 	Name      types.String `tfsdk:"name"`
 	Type      types.String `tfsdk:"type"`
 	Condition types.String `tfsdk:"condition"`
+	Priority  types.List   `tfsdk:"priority"`
 	Params    types.Map    `tfsdk:"params"`
 	Status    types.String `tfsdk:"status"`
 	CreatedAt types.String `tfsdk:"created_at"`
@@ -75,6 +76,12 @@ func (r *NotificationChannelResource) Schema(_ context.Context, _ resource.Schem
 			},
 			"condition": schema.StringAttribute{
 				Description: "Optional condition expression to filter notifications.",
+				Optional:    true,
+			},
+			"priority": schema.ListAttribute{
+				Description: "Alert priority levels. Required for Uptrace cloud API. " +
+					"Valid values discovered through testing. Leave empty for self-hosted.",
+				ElementType: types.StringType,
 				Optional:    true,
 			},
 			"params": schema.MapAttribute{

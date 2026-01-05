@@ -49,6 +49,7 @@ type MonitorResourceModel struct {
 	TeamIDs               types.List   `tfsdk:"team_ids"`
 	ChannelIDs            types.List   `tfsdk:"channel_ids"`
 	RepeatInterval        types.Object `tfsdk:"repeat_interval"`
+	TrendAggFunc          types.String `tfsdk:"trend_agg_func"`
 	Params                types.Object `tfsdk:"params"`
 	CreatedAt             types.String `tfsdk:"created_at"`
 	UpdatedAt             types.String `tfsdk:"updated_at"`
@@ -131,6 +132,13 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						},
 					},
 				},
+			},
+			"trend_agg_func": schema.StringAttribute{
+				Description: "Trend aggregation function for monitor evaluation. " +
+					"Required for Uptrace cloud API, optional for self-hosted v2.0.2 and earlier. " +
+					"Valid values: avg, sum, min, max, p50, p90, p95, p99.",
+				Optional: true,
+				Computed: true,
 			},
 			"params": schema.SingleNestedAttribute{
 				Description: "Monitor parameters (metric or error specific).",

@@ -124,6 +124,29 @@ func TestAccNotificationChannelResource_Disappears(t *testing.T) {
 	})
 }
 
+func TestAccNotificationChannelResource_CloudPriority(t *testing.T) {
+	if !acceptancetests.IsCloudTest() {
+		t.Skip("Cloud API only - skipping for self-hosted")
+	}
+
+	channelName := acceptancetests.RandomTestName("tf-cloud-priority")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckNotificationChannelDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNotificationChannelCloudWithPriority(channelName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "name", channelName),
+					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "priority.#", "2"),
+				),
+			},
+		},
+	})
+}
+
 func testAccNotificationChannelResourceConfigSlack(name string) string {
 	return fmt.Sprintf(`
 resource "uptrace_notification_channel" "test" {
@@ -148,6 +171,21 @@ resource "uptrace_notification_channel" "test" {
   }
 }
 `
+}
+
+func testAccNotificationChannelCloudWithPriority(name string) string {
+	return acceptancetests.GetTestProviderConfig() + fmt.Sprintf(`
+resource "uptrace_notification_channel" "test" {
+  name = %[1]q
+  type = "webhook"
+
+  priority = ["high", "critical"]
+
+  params = {
+    url = "https://example.com/webhook"
+  }
+}
+`, name)
 }
 
 func testAccCheckNotificationChannelExists(resourceName string) resource.TestCheckFunc {

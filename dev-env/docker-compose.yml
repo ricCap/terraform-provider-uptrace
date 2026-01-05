@@ -45,7 +45,7 @@ services:
       retries: 30
 
   uptrace:
-    image: 'uptrace/uptrace:2.0.1'
+    image: 'uptrace/uptrace:2.0.2'
     restart: on-failure
     volumes:
       - ./uptrace.yml:/etc/uptrace/config.yml

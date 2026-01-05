@@ -83,6 +83,12 @@ func (d *MonitorDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 					},
 				},
 			},
+			"trend_agg_func": schema.StringAttribute{
+				Description: "Trend aggregation function for monitor evaluation. " +
+					"Required for Uptrace cloud API, optional for self-hosted v2.0.2 and earlier. " +
+					"Valid values: avg, sum, min, max, p50, p90, p95, p99.",
+				Computed: true,
+			},
 			"params": schema.SingleNestedAttribute{
 				Description: "Monitor parameters (metric or error specific).",
 				Computed:    true,

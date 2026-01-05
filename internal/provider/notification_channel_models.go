@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 )
@@ -24,6 +26,18 @@ func planToChannelInput(ctx context.Context, plan NotificationChannelResourceMod
 	if !plan.Condition.IsNull() && !plan.Condition.IsUnknown() {
 		condition := plan.Condition.ValueString()
 		input.Condition = &condition
+	}
+
+	// Convert priority list
+	if !plan.Priority.IsNull() && !plan.Priority.IsUnknown() {
+		var priorityList []string
+		diags.Append(plan.Priority.ElementsAs(ctx, &priorityList, false)...)
+		if !diags.HasError() && len(priorityList) > 0 {
+			input.Priority = &priorityList
+			tflog.Debug(ctx, "Setting priority on channel input", map[string]any{
+				"priority": priorityList,
+			})
+		}
 	}
 
 	// Convert params map to interface{} for JSON marshaling
@@ -49,6 +63,13 @@ func planToChannelInput(ctx context.Context, plan NotificationChannelResourceMod
 		input.Params = paramsInterface
 	}
 
+	// Debug: log the marshaled input
+	if jsonBytes, err := json.Marshal(input); err == nil {
+		tflog.Debug(ctx, "Marshaled notification channel input", map[string]any{
+			"json": string(jsonBytes),
+		})
+	}
+
 	return input
 }
 
@@ -63,6 +84,17 @@ func channelToState(ctx context.Context, channel *generated.NotificationChannel,
 		state.Condition = types.StringValue(*channel.Condition)
 	} else {
 		state.Condition = types.StringNull()
+	}
+
+	// Convert priority from API response
+	if channel.Priority != nil && len(*channel.Priority) > 0 {
+		priorityValues := make([]attr.Value, len(*channel.Priority))
+		for i, p := range *channel.Priority {
+			priorityValues[i] = types.StringValue(p)
+		}
+		state.Priority = types.ListValueMust(types.StringType, priorityValues)
+	} else {
+		state.Priority = types.ListNull(types.StringType)
 	}
 
 	// Set status

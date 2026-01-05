@@ -63,7 +63,7 @@ changelog:
   sort: asc
   use: git
   abbrev: -1
-  format: "* {{ .Subject }} ({{ .AuthorName }})"
+  format: "* {{ .Message }} ({{ .AuthorName }})"
   filters:
     exclude:
       - "^docs:"

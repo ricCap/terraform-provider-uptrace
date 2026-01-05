@@ -7,9 +7,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 )
 
 func TestPlanToMonitorInput_MetricMonitor(t *testing.T) {

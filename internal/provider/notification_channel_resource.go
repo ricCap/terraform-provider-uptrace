@@ -167,7 +167,7 @@ func (r *NotificationChannelResource) Create(ctx context.Context, req resource.C
 //nolint:gocritic // Request type defined by Terraform Plugin Framework interface
 func (r *NotificationChannelResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var state NotificationChannelResourceModel
-	resp.Diagnostics.Append(req.State.Get(ctx, &state)...);
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}

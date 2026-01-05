@@ -22,7 +22,7 @@ func TestAccNotificationChannelResource_Slack(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccNotificationChannelResourceConfig_Slack("test-slack-channel"),
+				Config: testAccNotificationChannelResourceConfigSlack("test-slack-channel"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "name", "test-slack-channel"),
 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "type", "slack"),
@@ -40,7 +40,7 @@ func TestAccNotificationChannelResource_Slack(t *testing.T) {
 			},
 			// Update and Read testing
 			{
-				Config: testAccNotificationChannelResourceConfig_Slack("test-slack-channel-updated"),
+				Config: testAccNotificationChannelResourceConfigSlack("test-slack-channel-updated"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "name", "test-slack-channel-updated"),
 				),
@@ -60,7 +60,7 @@ func TestAccNotificationChannelResource_Webhook(t *testing.T) {
 		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNotificationChannelResourceConfig_Webhook(),
+				Config: testAccNotificationChannelResourceConfigWebhook(),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "name", "test-webhook-channel"),
 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "type", "webhook"),
@@ -88,7 +88,7 @@ func TestAccNotificationChannelResource_Webhook(t *testing.T) {
 // 		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
 // 		Steps: []resource.TestStep{
 // 			{
-// 				Config: testAccNotificationChannelResourceConfig_WithCondition(),
+// 				Config: testAccNotificationChannelResourceConfigWithCondition(),
 // 				Check: resource.ComposeAggregateTestCheckFunc(
 // 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "name", "conditional-alerts"),
 // 					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "condition", "severity == 'critical'"),
@@ -111,20 +111,20 @@ func TestAccNotificationChannelResource_Disappears(t *testing.T) {
 		CheckDestroy:             testAccCheckNotificationChannelDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNotificationChannelResourceConfig_Slack("test-disappear"),
+				Config: testAccNotificationChannelResourceConfigSlack("test-disappear"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNotificationChannelExists("uptrace_notification_channel.test"),
 				),
 			},
 			{
-				Config:  testAccNotificationChannelResourceConfig_Slack("test-disappear"),
+				Config:  testAccNotificationChannelResourceConfigSlack("test-disappear"),
 				Destroy: true,
 			},
 		},
 	})
 }
 
-func testAccNotificationChannelResourceConfig_Slack(name string) string {
+func testAccNotificationChannelResourceConfigSlack(name string) string {
 	return fmt.Sprintf(`
 resource "uptrace_notification_channel" "test" {
   name = %[1]q
@@ -137,7 +137,7 @@ resource "uptrace_notification_channel" "test" {
 `, name)
 }
 
-func testAccNotificationChannelResourceConfig_Webhook() string {
+func testAccNotificationChannelResourceConfigWebhook() string {
 	return `
 resource "uptrace_notification_channel" "test" {
   name = "test-webhook-channel"
@@ -145,20 +145,6 @@ resource "uptrace_notification_channel" "test" {
 
   params = {
     url = "https://example.com/webhook"
-  }
-}
-`
-}
-
-func testAccNotificationChannelResourceConfig_WithCondition() string {
-	return `
-resource "uptrace_notification_channel" "test" {
-  name      = "conditional-alerts"
-  type      = "slack"
-  condition = "severity == 'critical'"
-
-  params = {
-    webhookUrl = "https://hooks.slack.com/services/test"
   }
 }
 `

@@ -342,8 +342,6 @@ func (c *Client) GetNotificationChannel(ctx context.Context, channelID int64) (*
 }
 
 // CreateNotificationChannel creates a new notification channel.
-//
-//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
 func (c *Client) CreateNotificationChannel(ctx context.Context, input generated.NotificationChannelInput) (*generated.NotificationChannel, error) {
 	resp, err := c.client.CreateNotificationChannelWithResponse(ctx, c.projectID, input)
 	if err != nil {
@@ -362,8 +360,6 @@ func (c *Client) CreateNotificationChannel(ctx context.Context, input generated.
 }
 
 // UpdateNotificationChannel updates an existing notification channel.
-//
-//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
 func (c *Client) UpdateNotificationChannel(ctx context.Context, channelID int64, input generated.NotificationChannelInput) (*generated.NotificationChannel, error) {
 	resp, err := c.client.UpdateNotificationChannelWithResponse(ctx, c.projectID, channelID, input)
 	if err != nil {

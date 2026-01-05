@@ -53,7 +53,7 @@ func planToChannelInput(ctx context.Context, plan NotificationChannelResourceMod
 }
 
 // channelToState converts an API NotificationChannel to Terraform state.
-func channelToState(_ context.Context, channel *generated.NotificationChannel, state *NotificationChannelResourceModel, diags *diag.Diagnostics) {
+func channelToState(ctx context.Context, channel *generated.NotificationChannel, state *NotificationChannelResourceModel, diags *diag.Diagnostics) {
 	state.ID = types.StringValue(fmt.Sprintf("%d", channel.Id))
 	state.Name = types.StringValue(channel.Name)
 	state.Type = types.StringValue(string(channel.Type))
@@ -93,7 +93,7 @@ func channelToState(_ context.Context, channel *generated.NotificationChannel, s
 		}
 
 		var diag diag.Diagnostics
-		state.Params, diag = types.MapValueFrom(context.Background(), types.StringType, paramsMap)
+		state.Params, diag = types.MapValueFrom(ctx, types.StringType, paramsMap)
 		diags.Append(diag...)
 	} else {
 		state.Params = types.MapNull(types.StringType)

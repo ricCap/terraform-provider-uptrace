@@ -69,6 +69,16 @@ func New(cfg Config) (*Client, error) {
 	}, nil
 }
 
+// isSuccessStatus checks if the status code matches any of the allowed success codes.
+func isSuccessStatus(statusCode int, allowed ...int) bool {
+	for _, code := range allowed {
+		if statusCode == code {
+			return true
+		}
+	}
+	return false
+}
+
 // ListMonitors retrieves all monitors for the project.
 func (c *Client) ListMonitors(ctx context.Context) ([]generated.Monitor, error) {
 	resp, err := c.client.ListMonitorsWithResponse(ctx, c.projectID)
@@ -76,7 +86,7 @@ func (c *Client) ListMonitors(ctx context.Context) ([]generated.Monitor, error) 
 		return nil, fmt.Errorf("failed to list monitors: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -88,13 +98,15 @@ func (c *Client) ListMonitors(ctx context.Context) ([]generated.Monitor, error) 
 }
 
 // GetMonitor retrieves a specific monitor by ID.
+//
+//nolint:dupl // Similar to GetDashboard but different API endpoint and return type
 func (c *Client) GetMonitor(ctx context.Context, monitorID string) (*generated.Monitor, error) {
 	resp, err := c.client.GetMonitorWithResponse(ctx, c.projectID, monitorID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get monitor: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -115,7 +127,7 @@ func (c *Client) CreateMonitor(ctx context.Context, input generated.MonitorInput
 	}
 
 	// Uptrace API returns 200 for successful creation
-	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusCreated {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK, http.StatusCreated) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -139,7 +151,7 @@ func (c *Client) UpdateMonitor(ctx context.Context, monitorID string, input gene
 		return nil, fmt.Errorf("failed to update monitor: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -158,7 +170,7 @@ func (c *Client) DeleteMonitor(ctx context.Context, monitorID string) error {
 	}
 
 	// Uptrace API returns 200 for successful deletion
-	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusNoContent {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK, http.StatusNoContent) {
 		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -172,7 +184,7 @@ func (c *Client) ListDashboards(ctx context.Context) ([]generated.Dashboard, err
 		return nil, fmt.Errorf("failed to list dashboards: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -184,13 +196,15 @@ func (c *Client) ListDashboards(ctx context.Context) ([]generated.Dashboard, err
 }
 
 // GetDashboard retrieves a specific dashboard by ID.
+//
+//nolint:dupl // Similar to GetMonitor but different API endpoint and return type
 func (c *Client) GetDashboard(ctx context.Context, dashboardID int64) (*generated.Dashboard, error) {
 	resp, err := c.client.GetDashboardWithResponse(ctx, c.projectID, dashboardID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dashboard: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -240,7 +254,7 @@ func (c *Client) CreateDashboardFromYAML(ctx context.Context, yaml string) (*gen
 	}
 
 	// Uptrace API returns 200 for successful creation
-	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusCreated {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK, http.StatusCreated) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -268,7 +282,7 @@ func (c *Client) UpdateDashboardFromYAML(ctx context.Context, dashboardID int64,
 		return nil, fmt.Errorf("failed to update dashboard: %w", err)
 	}
 
-	if resp.StatusCode() != http.StatusOK {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
 		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 
@@ -284,7 +298,7 @@ func (c *Client) DeleteDashboard(ctx context.Context, dashboardID int64) error {
 	}
 
 	// Uptrace API returns 200 for successful deletion
-	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusNoContent {
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK, http.StatusNoContent) {
 		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
 	}
 

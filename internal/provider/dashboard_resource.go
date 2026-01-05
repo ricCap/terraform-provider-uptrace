@@ -211,16 +211,10 @@ func (r *DashboardResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	var state DashboardResourceModel
-	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	tflog.Info(ctx, "Updating dashboard", map[string]any{"id": state.ID.ValueString()})
+	tflog.Info(ctx, "Updating dashboard", map[string]any{"id": plan.ID.ValueString()})
 
 	// Parse dashboard ID
-	dashboardID, ok := parseDashboardID(state.ID.ValueString(), &resp.Diagnostics)
+	dashboardID, ok := parseDashboardID(plan.ID.ValueString(), &resp.Diagnostics)
 	if !ok {
 		return
 	}
@@ -230,7 +224,7 @@ func (r *DashboardResource) Update(ctx context.Context, req resource.UpdateReque
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Updating Dashboard",
-			fmt.Sprintf("Could not update dashboard ID %s: %s", state.ID.ValueString(), err.Error()),
+			fmt.Sprintf("Could not update dashboard ID %s: %s", plan.ID.ValueString(), err.Error()),
 		)
 		return
 	}

@@ -41,7 +41,7 @@ func (p *UptraceProvider) Metadata(_ context.Context, _ provider.MetadataRequest
 // Schema defines the provider-level schema for configuration data.
 func (p *UptraceProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Interact with Uptrace API to manage monitors, dashboards, and alerts.",
+		Description: "Interact with Uptrace API to manage monitors and dashboards.",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
 				Description: "The Uptrace API endpoint. May also be provided via UPTRACE_ENDPOINT environment variable.",

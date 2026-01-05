@@ -112,7 +112,7 @@ func TestAccExampleMultiChannelAlerts(t *testing.T) {
 	})
 }
 
-// TestAccExampleDashboards validates the dashboard-examples
+// TestAccExampleDashboards validates the dashboard-examples.
 func TestAccExampleDashboards(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
@@ -219,7 +219,7 @@ func TestAccExampleResourceFiles(t *testing.T) {
 	})
 }
 
-// getExampleConfig reads and prepares an example configuration for testing
+// getExampleConfig reads and prepares an example configuration for testing.
 func getExampleConfig(t *testing.T, exampleName string) string {
 	t.Helper()
 
@@ -306,7 +306,7 @@ variable "uptrace_project_id" { default = 1 }
 	return config + lines
 }
 
-// getResourceExampleConfig reads individual resource example files
+// getResourceExampleConfig reads individual resource example files.
 func getResourceExampleConfig(t *testing.T, resourceName string) string {
 	t.Helper()
 
@@ -334,7 +334,7 @@ variable "mattermost_webhook_url" { default = "https://mattermost.example.com/te
 	return config + string(content)
 }
 
-// Helper functions
+// Helper functions.
 func splitLines(s string) []string {
 	result := []string{}
 	line := ""

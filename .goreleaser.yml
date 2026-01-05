@@ -61,8 +61,9 @@ signs:
 
 changelog:
   sort: asc
-  use: github
-  abbrev: 0
+  use: git
+  abbrev: -1
+  format: "* {{ .Subject }} ({{ .AuthorName }})"
   filters:
     exclude:
       - "^docs:"

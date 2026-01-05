@@ -305,6 +305,96 @@ func (c *Client) DeleteDashboard(ctx context.Context, dashboardID int64) error {
 	return nil
 }
 
+// ListNotificationChannels retrieves all notification channels for the project.
+func (c *Client) ListNotificationChannels(ctx context.Context) ([]generated.NotificationChannel, error) {
+	resp, err := c.client.ListNotificationChannelsWithResponse(ctx, c.projectID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list notification channels: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return []generated.NotificationChannel{}, nil
+	}
+
+	return resp.JSON200.Channels, nil
+}
+
+// GetNotificationChannel retrieves a specific notification channel by ID.
+func (c *Client) GetNotificationChannel(ctx context.Context, channelID int64) (*generated.NotificationChannel, error) {
+	resp, err := c.client.GetNotificationChannelWithResponse(ctx, c.projectID, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get notification channel: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("unexpected empty response")
+	}
+
+	return &resp.JSON200.Channel, nil
+}
+
+// CreateNotificationChannel creates a new notification channel.
+//
+//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
+func (c *Client) CreateNotificationChannel(ctx context.Context, input generated.NotificationChannelInput) (*generated.NotificationChannel, error) {
+	resp, err := c.client.CreateNotificationChannelWithResponse(ctx, c.projectID, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create notification channel: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("unexpected empty response")
+	}
+
+	return &resp.JSON200.Channel, nil
+}
+
+// UpdateNotificationChannel updates an existing notification channel.
+//
+//nolint:gocritic // Generated API type passed by value to match oapi-codegen signature
+func (c *Client) UpdateNotificationChannel(ctx context.Context, channelID int64, input generated.NotificationChannelInput) (*generated.NotificationChannel, error) {
+	resp, err := c.client.UpdateNotificationChannelWithResponse(ctx, c.projectID, channelID, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update notification channel: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("unexpected empty response")
+	}
+
+	return &resp.JSON200.Channel, nil
+}
+
+// DeleteNotificationChannel deletes a notification channel by ID.
+func (c *Client) DeleteNotificationChannel(ctx context.Context, channelID int64) error {
+	resp, err := c.client.DeleteNotificationChannelWithResponse(ctx, c.projectID, channelID)
+	if err != nil {
+		return fmt.Errorf("failed to delete notification channel: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	return nil
+}
+
 // handleErrorResponse processes error responses from the API.
 func (c *Client) handleErrorResponse(statusCode int, body []byte) error {
 	switch statusCode {

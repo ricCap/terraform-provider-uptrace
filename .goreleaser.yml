@@ -94,7 +94,7 @@ changelog:
 release:
   github:
     owner: riccap
-    name: tofu-uptrace-provider
+    name: terraform-provider-uptrace
   draft: false
   prerelease: auto
   name_template: "v{{ .Version }}"
@@ -107,7 +107,7 @@ release:
     terraform {
       required_providers {
         uptrace = {
-          source  = "github.com/riccap/tofu-uptrace-provider"
+          source  = "github.com/riccap/terraform-provider-uptrace"
           version = "{{ .Version }}"
         }
       }
@@ -116,11 +116,11 @@ release:
 
     ## What's Changed
   footer: |
-    **Full Changelog**: https://github.com/riccap/tofu-uptrace-provider/compare/{{ if .PreviousTag }}{{ .PreviousTag }}{{ else }}{{ .Tag }}{{ end }}...{{ .Tag }}
+    **Full Changelog**: https://github.com/riccap/terraform-provider-uptrace/compare/{{ if .PreviousTag }}{{ .PreviousTag }}{{ else }}{{ .Tag }}{{ end }}...{{ .Tag }}
 
     ## Documentation
 
-    - [Getting Started Guide](https://github.com/riccap/tofu-uptrace-provider/blob/main/docs/guides/getting-started.md)
-    - [Best Practices](https://github.com/riccap/tofu-uptrace-provider/blob/main/docs/guides/best-practices.md)
-    - [Resource Documentation](https://github.com/riccap/tofu-uptrace-provider/tree/main/docs/resources)
-    - [Examples](https://github.com/riccap/tofu-uptrace-provider/tree/main/examples)
+    - [Getting Started Guide](https://github.com/riccap/terraform-provider-uptrace/blob/main/docs/guides/getting-started.md)
+    - [Best Practices](https://github.com/riccap/terraform-provider-uptrace/blob/main/docs/guides/best-practices.md)
+    - [Resource Documentation](https://github.com/riccap/terraform-provider-uptrace/tree/main/docs/resources)
+    - [Examples](https://github.com/riccap/terraform-provider-uptrace/tree/main/examples)

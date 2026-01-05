@@ -2,8 +2,8 @@
 
 A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring resources - monitors, dashboards, and notification channels.
 
-[![Tests](https://github.com/riccap/tofu-uptrace-provider/actions/workflows/test.yml/badge.svg)](https://github.com/riccap/tofu-uptrace-provider/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/riccap/tofu-uptrace-provider)](https://goreportcard.com/report/github.com/riccap/tofu-uptrace-provider)
+[![Tests](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml/badge.svg)](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/riccap/terraform-provider-uptrace)](https://goreportcard.com/report/github.com/riccap/terraform-provider-uptrace)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
@@ -346,8 +346,8 @@ This generates resource documentation from:
 
 ## Support
 
-- **[GitHub Issues](https://github.com/riccap/tofu-uptrace-provider/issues)** - Bug reports and feature requests
-- **[GitHub Discussions](https://github.com/riccap/tofu-uptrace-provider/discussions)** - Questions and community support
+- **[GitHub Issues](https://github.com/riccap/terraform-provider-uptrace/issues)** - Bug reports and feature requests
+- **[GitHub Discussions](https://github.com/riccap/terraform-provider-uptrace/discussions)** - Questions and community support
 - **[Uptrace Documentation](https://uptrace.dev/docs/)** - Uptrace platform documentation
 - **[Getting Started Guide](docs/guides/getting-started.md)** - Provider usage guide
 

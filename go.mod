@@ -1,4 +1,4 @@
-module github.com/riccap/tofu-uptrace-provider
+module github.com/riccap/terraform-provider-uptrace
 
 go 1.24.0
 

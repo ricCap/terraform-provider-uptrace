@@ -16,8 +16,8 @@ Thank you for your interest in contributing! This document outlines the developm
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ricCap/tofu-uptrace-provider.git
-   cd tofu-uptrace-provider
+   git clone https://github.com/ricCap/terraform-provider-uptrace.git
+   cd terraform-provider-uptrace
    ```
 
 2. Install dependencies:

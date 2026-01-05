@@ -62,22 +62,32 @@ signs:
 changelog:
   sort: asc
   use: github
+  abbrev: 0
   filters:
     exclude:
       - "^docs:"
       - "^test:"
       - "^chore:"
       - "^ci:"
-      - Merge pull request
-      - Merge branch
+      - "^build:"
+      - "^style:"
+      - "^refactor:"
+      - "Merge pull request"
+      - "Merge branch"
+      - "^fix:.*linter"
+      - "^fix:.*golangci"
+      - "^fix:.*comment"
   groups:
-    - title: Features
+    - title: "🚀 New Features"
       regexp: "^.*feat[(\\w)]*:+.*$"
       order: 0
-    - title: Bug Fixes
+    - title: "🐛 Bug Fixes"
       regexp: "^.*fix[(\\w)]*:+.*$"
       order: 1
-    - title: Others
+    - title: "📚 Documentation"
+      regexp: "^.*docs[(\\w)]*:+.*$"
+      order: 2
+    - title: "🔧 Other Changes"
       order: 999
 
 release:
@@ -88,6 +98,28 @@ release:
   prerelease: auto
   name_template: "v{{ .Version }}"
   header: |
-    ## Uptrace Terraform Provider {{ .Version }}
+    ## Installation
 
-    **Full Changelog**: https://github.com/riccap/tofu-uptrace-provider/compare/{{ .PreviousTag }}...{{ .Tag }}
+    Download the appropriate binary for your platform from the assets below, or use Terraform/OpenTofu to install automatically:
+
+    ```hcl
+    terraform {
+      required_providers {
+        uptrace = {
+          source  = "github.com/riccap/tofu-uptrace-provider"
+          version = "{{ .Version }}"
+        }
+      }
+    }
+    ```
+
+    ## What's Changed
+  footer: |
+    **Full Changelog**: https://github.com/riccap/tofu-uptrace-provider/compare/{{ if .PreviousTag }}{{ .PreviousTag }}{{ else }}{{ .Tag }}{{ end }}...{{ .Tag }}
+
+    ## Documentation
+
+    - [Getting Started Guide](https://github.com/riccap/tofu-uptrace-provider/blob/main/docs/guides/getting-started.md)
+    - [Best Practices](https://github.com/riccap/tofu-uptrace-provider/blob/main/docs/guides/best-practices.md)
+    - [Resource Documentation](https://github.com/riccap/tofu-uptrace-provider/tree/main/docs/resources)
+    - [Examples](https://github.com/riccap/tofu-uptrace-provider/tree/main/examples)

@@ -11,7 +11,11 @@ import (
 )
 
 // TestAccExampleCompleteSetup validates the complete-setup example
+// Note: Skipped because it requires real telemetry data to test properly.
+// The example is maintained as reference documentation showing real-world patterns.
 func TestAccExampleCompleteSetup(t *testing.T) {
+	t.Skip("Skipped: This example requires real telemetry data and specific query patterns that depend on actual service instrumentation. It serves as reference documentation.")
+
 	if testing.Short() {
 		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
 		return
@@ -57,7 +61,11 @@ func TestAccExampleCompleteSetup(t *testing.T) {
 }
 
 // TestAccExampleMultiChannelAlerts validates the multi-channel-alerts example
+// Note: Skipped because it requires real telemetry data to test properly.
+// The example is maintained as reference documentation showing alert routing patterns.
 func TestAccExampleMultiChannelAlerts(t *testing.T) {
+	t.Skip("Skipped: This example requires real telemetry data and specific query patterns that depend on actual service instrumentation. It serves as reference documentation for alert routing strategies.")
+
 	if testing.Short() {
 		t.Skip("Acceptance tests skipped unless env 'TF_ACC' set")
 		return

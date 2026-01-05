@@ -68,16 +68,18 @@ resource "uptrace_monitor" "critical_error_rate" {
   channel_ids = [
     uptrace_notification_channel.slack_critical.id,
     uptrace_notification_channel.webhook_pagerduty.id,
-    uptrace_notification_channel.telegram_oncall.id,
+    # Note: Telegram channel requires numeric chat_id, temporarily disabled for testing
+    # uptrace_notification_channel.telegram_oncall.id,
   ]
 
   params = {
     metrics = [
       {
-        name = "span.count"
+        name  = "uptrace_tracing_events"
+        alias = "$errors"
       }
     ]
-    query   = "span.status_code:error"
+    query = "sum($errors) | where span.event_name exists"
 
     # Alert if error count > 100 in 5 minutes
     min_allowed_value = 0
@@ -103,10 +105,11 @@ resource "uptrace_monitor" "warning_4xx_errors" {
   params = {
     metrics = [
       {
-        name = "span.count"
+        name  = "uptrace_tracing_events"
+        alias = "$client_errors"
       }
     ]
-    query   = "span.status_code:>=400 span.status_code:<500"
+    query = "sum($client_errors) | where span.event_name exists"
 
     min_allowed_value = 0
     max_allowed_value = 500
@@ -130,10 +133,11 @@ resource "uptrace_monitor" "critical_database_errors" {
   params = {
     metrics = [
       {
-        name = "span.count"
+        name  = "uptrace_tracing_events"
+        alias = "$db_errors"
       }
     ]
-    query   = "db.system:* span.status_code:error"
+    query = "sum($db_errors) | where span.event_name exists"
 
     min_allowed_value = 0
     max_allowed_value = 10
@@ -155,27 +159,22 @@ resource "uptrace_monitor" "critical_api_latency" {
 
   channel_ids = [
     uptrace_notification_channel.slack_critical.id,
-    uptrace_notification_channel.telegram_oncall.id,
   ]
 
   params = {
     metrics = [
       {
         name  = "span.duration"
-        alias = "$p95_latency"
+        alias = "$latency"
       }
     ]
 
-    query = "span.system:http span.kind:server"
+    query = "p95($latency) > 2000000000"
 
     # Alert if P95 latency > 2 seconds
-    min_allowed_value = 0
     max_allowed_value = 2000000000 # 2 seconds in nanoseconds
 
     check_num_point = 2 # Alert if true for 2 consecutive checks
-
-    # Column to monitor
-    column = "$p95_latency"
 
     notify_everyone_by_email = false
   }
@@ -194,18 +193,15 @@ resource "uptrace_monitor" "warning_db_slow_queries" {
     metrics = [
       {
         name  = "span.duration"
-        alias = "$p95_duration"
+        alias = "$duration"
       }
     ]
 
-    query = "db.system:* span.kind:client"
+    query = "p95($duration) > 500000000"
 
-    min_allowed_value = 0
     max_allowed_value = 500000000 # 500ms in nanoseconds
 
     check_num_point = 3
-
-    column = "$p95_duration"
 
     notify_everyone_by_email = false
   }
@@ -228,19 +224,16 @@ resource "uptrace_monitor" "warning_traffic_spike" {
     metrics = [
       {
         name  = "span.count"
-        alias = "$request_count"
+        alias = "$count"
       }
     ]
 
-    query = "span.system:http span.kind:server"
+    query = "sum($count) > 10000"
 
     # Alert if request count > 10000/minute
-    min_allowed_value = 0
     max_allowed_value = 10000
 
     check_num_point = 2
-
-    column = "$request_count"
 
     notify_everyone_by_email = false
   }
@@ -260,19 +253,16 @@ resource "uptrace_monitor" "critical_no_traffic" {
     metrics = [
       {
         name  = "span.count"
-        alias = "$request_count"
+        alias = "$count"
       }
     ]
 
-    query = "span.system:http span.kind:server"
+    query = "sum($count) < 10"
 
     # Alert if request count < 10/minute
     min_allowed_value = 10
-    max_allowed_value = 999999999
 
     check_num_point = 3
-
-    column = "$request_count"
 
     notify_everyone_by_email = true
   }

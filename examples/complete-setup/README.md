@@ -1,5 +1,7 @@
 # Complete Monitoring Setup Example
 
+> **Note**: This is a **reference example** demonstrating real-world patterns. The queries and thresholds need to be adapted to your actual telemetry data and service names. Not all queries will work out-of-the-box without live application data.
+
 This example demonstrates a production-ready monitoring setup using the Uptrace Terraform provider. It includes:
 
 - **4 Notification Channels** (Slack, PagerDuty, Telegram)

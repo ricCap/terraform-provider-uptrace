@@ -77,13 +77,13 @@ linters-settings:
     locale: US
 
   goimports:
-    local-prefixes: github.com/riccap/tofu-uptrace-provider
+    local-prefixes: github.com/riccap/terraform-provider-uptrace
 
   gci:
     sections:
       - standard
       - default
-      - prefix(github.com/riccap/tofu-uptrace-provider)
+      - prefix(github.com/riccap/terraform-provider-uptrace)
 
   gocritic:
     enabled-tags:

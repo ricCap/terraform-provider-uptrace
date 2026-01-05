@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+
 	acceptancetests "github.com/riccap/terraform-provider-uptrace/internal/acceptance_tests"
 )
 

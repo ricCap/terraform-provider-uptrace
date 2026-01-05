@@ -6,9 +6,10 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/riccap/terraform-provider-uptrace/internal/client/generated"
 )
 
 func TestDashboardToState_Complete(t *testing.T) {

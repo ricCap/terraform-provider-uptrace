@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
 	acceptancetests "github.com/riccap/terraform-provider-uptrace/internal/acceptance_tests"
 )
 

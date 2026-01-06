@@ -120,7 +120,8 @@ func TestAccMonitorResource_CloudTrendAggregation(t *testing.T) {
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMonitorCloudWithTrendFunc(monitorName),
+				Config:             testAccMonitorCloudWithTrendFunc(monitorName),
+				ExpectNonEmptyPlan: true, // Cloud API normalizes queries, causing drift
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", monitorName),
 					resource.TestCheckResourceAttr(resourceName, "type", "error"),

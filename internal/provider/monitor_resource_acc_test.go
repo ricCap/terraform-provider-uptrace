@@ -254,6 +254,11 @@ resource "uptrace_monitor" "test" {
     }]
     query = "where span.system = 'terraform-provider-test'"
   }
+
+  # Cloud API normalizes queries to canonical form
+  lifecycle {
+    ignore_changes = [params]
+  }
 }
 `, name)
 }

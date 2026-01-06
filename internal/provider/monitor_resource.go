@@ -162,9 +162,10 @@ func (r *MonitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 						},
 					},
 					"query": schema.StringAttribute{
-						Description: "UQL query for metric evaluation or error filtering.",
-						Optional:    true,
-						Computed:    true,
+						Description: "UQL query for metric evaluation or error filtering. " +
+							"Note: The Uptrace cloud API normalizes queries to canonical form, so the stored value may differ from the input.",
+						Optional: true,
+						Computed: true,
 					},
 					"column": schema.StringAttribute{
 						Description: "Column name to evaluate (metric monitors only).",

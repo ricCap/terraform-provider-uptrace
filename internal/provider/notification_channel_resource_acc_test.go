@@ -179,7 +179,7 @@ resource "uptrace_notification_channel" "test" {
   name = %[1]q
   type = "webhook"
 
-  priority = ["high", "critical"]
+  priority = ["low", "medium"]
 
   params = {
     url = "https://example.com/webhook"

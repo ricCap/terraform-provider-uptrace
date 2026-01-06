@@ -120,8 +120,7 @@ func TestAccMonitorResource_CloudTrendAggregation(t *testing.T) {
 		CheckDestroy:             testAccCheckMonitorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:             testAccMonitorCloudWithTrendFunc(monitorName),
-				ExpectNonEmptyPlan: true, // Cloud API normalizes queries, causing drift
+				Config: testAccMonitorCloudWithTrendFunc(monitorName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", monitorName),
 					resource.TestCheckResourceAttr(resourceName, "type", "error"),
@@ -253,12 +252,8 @@ resource "uptrace_monitor" "test" {
       name = "uptrace_tracing_events"
       alias = "$events"
     }]
-    query = "where span.system = 'terraform-provider-test'"
-  }
-
-  # Cloud API normalizes queries to canonical form
-  lifecycle {
-    ignore_changes = [params]
+    # Use minimal query to reduce normalization changes
+    query = ""
   }
 }
 `, name)

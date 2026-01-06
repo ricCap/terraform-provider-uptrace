@@ -41,7 +41,12 @@ func planToChannelInput(ctx context.Context, plan NotificationChannelResourceMod
 		})
 		diags.Append(convertDiags...)
 		if !convertDiags.HasError() && len(priorityList) > 0 {
-			input.Priority = &priorityList
+			// Convert []string to []generated.NotificationChannelInputPriority
+			typedPriorities := make([]generated.NotificationChannelInputPriority, len(priorityList))
+			for i, p := range priorityList {
+				typedPriorities[i] = generated.NotificationChannelInputPriority(p)
+			}
+			input.Priority = &typedPriorities
 			tflog.Debug(ctx, "Setting priority on channel input", map[string]any{
 				"priority": priorityList,
 			})
@@ -108,7 +113,8 @@ func channelToState(ctx context.Context, channel *generated.NotificationChannel,
 	if channel.Priority != nil && len(*channel.Priority) > 0 {
 		priorityValues := make([]attr.Value, len(*channel.Priority))
 		for i, p := range *channel.Priority {
-			priorityValues[i] = types.StringValue(p)
+			// Convert generated.NotificationChannelPriority to string
+			priorityValues[i] = types.StringValue(string(p))
 		}
 		state.Priority = types.ListValueMust(types.StringType, priorityValues)
 	} else {

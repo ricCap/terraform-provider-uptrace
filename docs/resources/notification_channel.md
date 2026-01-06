@@ -98,6 +98,7 @@ resource "uptrace_monitor" "high_error_rate" {
 ### Optional
 
 - `condition` (String) Optional condition expression to filter notifications.
+- `priority` (List of String) Alert priority levels. Required for Uptrace cloud API. Valid values discovered through testing. Leave empty for self-hosted.
 
 ### Read-Only
 

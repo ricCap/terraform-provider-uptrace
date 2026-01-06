@@ -50,10 +50,17 @@ dist/
 # Testing
 .test/
 terraform-provider-uptrace.log
+test-local.sh
+test-results.log
+
+# Scripts temporary files
+scripts/.otlp_*.json
+scripts/.otlp_*.txt
 
 # Dev environment
 dev-env/.terraform/
 dev-env/terraform-test/.terraform/
 dev-env/terraform-test/terraform.tfvars
+dev-env/terraform-test/dev.tfrc
 dev-env/terraform-test/*.tfstate
 dev-env/terraform-test/*.tfstate.backup

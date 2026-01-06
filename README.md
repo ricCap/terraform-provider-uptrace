@@ -18,6 +18,34 @@ A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring res
 - **Full CRUD Support**: Complete lifecycle management for all resources
 - **Import Support**: Import existing Uptrace resources into Terraform state
 
+## Cloud API Support
+
+The provider supports both:
+- **Uptrace Cloud** (`api2.uptrace.dev`) - Managed Uptrace service
+- **Self-Hosted Uptrace** - Your own Uptrace instance
+
+Some fields are required only for cloud API. See the [Cloud API Guide](docs/guides/cloud-api.md) for details.
+
+### Feature Compatibility
+
+| Feature | Self-Hosted | Uptrace Cloud | Notes |
+|---------|-------------|---------------|-------|
+| **Monitor Resource** | ✅ Full Support | ✅ Full Support | Cloud normalizes queries to canonical UQL form, which may cause displayed values to differ from input. Use `lifecycle { ignore_changes = [params] }` if needed. |
+| **Dashboard Resource** | ✅ Full Support | ✅ Full Support | YAML-based dashboards work identically across both platforms. |
+| **Notification Channels** | ✅ Full Support | ✅ Full Support | All channel types (Slack, Telegram, Mattermost, Webhook) supported. |
+| **Data Sources** | ✅ Full Support | ✅ Full Support | Query individual monitors or filter by criteria. |
+| **Monitor `trend_agg_func`** | ⚠️ Optional | ✅ Required | Required for cloud API. Optional for self-hosted v2.0.2 and earlier. Valid values: `avg`, `sum`, `min`, `max`, `p50`, `p90`, `p95`, `p99`. |
+| **Channel `priority` field** | ➖ Not Applicable | ❌ Not Functional | Cloud UI shows priority options (Info, Low, Medium, High) but API currently rejects all values. Feature appears to be UI-only. Provider correctly implements the field for when API support is added. |
+| **Import Support** | ✅ Full Support | ✅ Full Support | Import existing resources into Terraform state. |
+
+**Legend:**
+- ✅ **Full Support** - Feature works as expected
+- ⚠️ **Optional** - Feature available but not required
+- ❌ **Not Functional** - Feature not yet working (API limitation)
+- ➖ **Not Applicable** - Feature not available for this platform
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and [Cloud API Guide](docs/guides/cloud-api.md) for cloud-specific configuration details.
+
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) or [OpenTofu](https://opentofu.org/) >= 1.0

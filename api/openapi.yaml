@@ -634,6 +634,14 @@ components:
           default: []
         repeatInterval:
           $ref: '#/components/schemas/RepeatInterval'
+        trendAggFunc:
+          type: string
+          description: |
+            Trend aggregation function for monitor evaluation (required for cloud API, optional for self-hosted).
+            Determines how metric values are aggregated over time for trend analysis.
+            Common values: avg, sum, min, max, p50, p90, p95, p99.
+            Note: Self-hosted Uptrace v2.0.2 and earlier do not use this field.
+          example: "sum"
         params:
           oneOf:
             - $ref: '#/components/schemas/MetricMonitorParams'
@@ -684,6 +692,14 @@ components:
           default: []
         repeatInterval:
           $ref: '#/components/schemas/RepeatInterval'
+        trendAggFunc:
+          type: string
+          description: |
+            Trend aggregation function for monitor evaluation (required for cloud API, optional for self-hosted).
+            Determines how metric values are aggregated over time for trend analysis.
+            Common values: avg, sum, min, max, p50, p90, p95, p99.
+            Note: Self-hosted Uptrace v2.0.2 and earlier do not use this field.
+          example: "sum"
         params:
           oneOf:
             - $ref: '#/components/schemas/MetricMonitorParams'
@@ -932,6 +948,16 @@ components:
           type: string
           description: Optional condition expression
           example: ""
+        priority:
+          type: array
+          description: |
+            Alert priority levels (cloud API).
+            Valid values: Info, Low, Medium, High (case-sensitive, capitalized).
+            May be empty or null for self-hosted instances.
+          items:
+            type: string
+            enum: [Info, Low, Medium, High]
+          example: ["Low", "Medium"]
         params:
           type: object
           description: Channel-specific configuration parameters (varies by type)
@@ -974,6 +1000,16 @@ components:
           type: string
           description: Optional condition expression to filter notifications
           example: ""
+        priority:
+          type: array
+          description: |
+            Alert priority levels (required for cloud API).
+            Determines notification urgency and routing.
+            Valid values: Info, Low, Medium, High (case-sensitive, capitalized).
+          items:
+            type: string
+            enum: [Info, Low, Medium, High]
+          example: ["Low", "Medium"]
         params:
           type: object
           description: |

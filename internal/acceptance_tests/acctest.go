@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -32,15 +34,51 @@ func PreCheck(t *testing.T) {
 	}
 }
 
+// GetTestEndpoint returns the configured test endpoint.
+func GetTestEndpoint() string {
+	endpoint := os.Getenv("UPTRACE_ENDPOINT")
+	if endpoint == "" {
+		endpoint = "http://localhost:14318/internal/v1"
+	}
+	return endpoint
+}
+
+// GetTestToken returns the configured test token.
+func GetTestToken() string {
+	token := os.Getenv("UPTRACE_TOKEN")
+	if token == "" {
+		token = "user1_secret_token"
+	}
+	return token
+}
+
+// GetTestProjectID returns the configured test project ID.
+func GetTestProjectID() int {
+	projectIDStr := os.Getenv("UPTRACE_PROJECT_ID")
+	if projectIDStr == "" {
+		return 1
+	}
+	projectID, err := strconv.Atoi(projectIDStr)
+	if err != nil {
+		return 1
+	}
+	return projectID
+}
+
+// IsCloudTest returns true if testing against cloud API.
+func IsCloudTest() bool {
+	return strings.Contains(GetTestEndpoint(), "api2.uptrace.dev")
+}
+
 // GetTestProviderConfig returns HCL provider configuration for tests.
 func GetTestProviderConfig() string {
-	return `
+	return fmt.Sprintf(`
 provider "uptrace" {
-  endpoint   = "http://localhost:14318/internal/v1"
-  token      = "user1_secret_token"
-  project_id = 1
+  endpoint   = "%s"
+  token      = "%s"
+  project_id = %d
 }
-`
+`, GetTestEndpoint(), GetTestToken(), GetTestProjectID())
 }
 
 // RandomString generates a random string for unique resource names.
@@ -89,14 +127,10 @@ func WaitForMonitorState(ctx context.Context, client *client.Client, monitorID, 
 
 // GetTestClient creates a client for testing using environment variables.
 func GetTestClient() *client.Client {
-	endpoint := os.Getenv("UPTRACE_ENDPOINT")
-	token := os.Getenv("UPTRACE_TOKEN")
-	projectID := 1 // Default for tests
-
 	client, err := client.New(client.Config{
-		Endpoint:  endpoint,
-		Token:     token,
-		ProjectID: int64(projectID),
+		Endpoint:  GetTestEndpoint(),
+		Token:     GetTestToken(),
+		ProjectID: int64(GetTestProjectID()),
 	})
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create test client: %v", err))

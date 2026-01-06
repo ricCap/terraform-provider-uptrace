@@ -50,6 +50,7 @@ type MonitorModel struct {
 	TeamIDs               types.List   `tfsdk:"team_ids"`
 	ChannelIDs            types.List   `tfsdk:"channel_ids"`
 	RepeatInterval        types.Object `tfsdk:"repeat_interval"`
+	TrendAggFunc          types.String `tfsdk:"trend_agg_func"`
 	Params                types.Object `tfsdk:"params"`
 	CreatedAt             types.String `tfsdk:"created_at"`
 	UpdatedAt             types.String `tfsdk:"updated_at"`
@@ -126,6 +127,12 @@ func (d *MonitorsDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 									Computed:    true,
 								},
 							},
+						},
+						"trend_agg_func": schema.StringAttribute{
+							Description: "Trend aggregation function for monitor evaluation. " +
+								"Required for Uptrace cloud API, optional for self-hosted v2.0.2 and earlier. " +
+								"Valid values: avg, sum, min, max, p50, p90, p95, p99.",
+							Computed: true,
 						},
 						"params": schema.SingleNestedAttribute{
 							Description: "Monitor parameters (metric or error specific).",
@@ -315,7 +322,7 @@ func convertMonitorToModel(ctx context.Context, monitor *generated.Monitor, diag
 	monitorToState(ctx, monitor, &tempModel, diags)
 
 	// Convert to MonitorModel
-	//nolint:gosimple // MonitorModel and MonitorResourceModel are different types, struct literal is required
+
 	model := MonitorModel{
 		ID:                    tempModel.ID,
 		Name:                  tempModel.Name,
@@ -350,6 +357,7 @@ func convertMonitorModelsToList(_ context.Context, models []MonitorModel) (types
 			"strategy": types.StringType,
 			"interval": types.Int64Type,
 		}},
+		"trend_agg_func": types.StringType,
 		"params": types.ObjectType{AttrTypes: map[string]attr.Type{
 			"metrics": types.ListType{ElemType: types.ObjectType{AttrTypes: map[string]attr.Type{
 				"name":  types.StringType,
@@ -381,6 +389,7 @@ func convertMonitorModelsToList(_ context.Context, models []MonitorModel) (types
 			"team_ids":                 model.TeamIDs,
 			"channel_ids":              model.ChannelIDs,
 			"repeat_interval":          model.RepeatInterval,
+			"trend_agg_func":           model.TrendAggFunc,
 			"params":                   model.Params,
 			"created_at":               model.CreatedAt,
 			"updated_at":               model.UpdatedAt,

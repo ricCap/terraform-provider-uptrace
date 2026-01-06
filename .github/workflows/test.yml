@@ -66,7 +66,7 @@ jobs:
           fail_ci_if_error: false
 
   acceptance-tests:
-    name: Acceptance Tests
+    name: Local API Acceptance Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -113,6 +113,38 @@ jobs:
         run: |
           cd dev-env
           docker compose down -v
+
+  cloud-acceptance-tests:
+    name: Cloud API Acceptance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Note: This job runs cloud-specific tests only.
+    # Tests will skip if cloud credentials are not configured.
+    # Configure UPTRACE_CLOUD_ENDPOINT, UPTRACE_CLOUD_TOKEN, and
+    # UPTRACE_CLOUD_PROJECT_ID secrets to enable cloud API testing.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+
+      - name: Generate code
+        run: task generate
+
+      - name: Run cloud acceptance tests
+        env:
+          TF_ACC: "1"
+          UPTRACE_ENDPOINT: ${{ secrets.UPTRACE_CLOUD_ENDPOINT || '' }}
+          UPTRACE_TOKEN: ${{ secrets.UPTRACE_CLOUD_TOKEN || '' }}
+          UPTRACE_PROJECT_ID: ${{ secrets.UPTRACE_CLOUD_PROJECT_ID || '' }}
+        run: go test -v -timeout 20m ./internal/provider -run "TestAcc.*Cloud"
 
   lint:
     name: Lint

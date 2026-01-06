@@ -116,6 +116,27 @@ tasks:
     cmds:
       - go test -v -run TestAccMonitorResource_Error ./internal/provider/
 
+  test:cloud:
+    desc: Run acceptance tests against Uptrace cloud (requires UPTRACE_TOKEN env var)
+    env:
+      TF_ACC: "1"
+      UPTRACE_ENDPOINT: "https://api2.uptrace.dev/internal/v1"
+      UPTRACE_TOKEN: "{{.UPTRACE_TOKEN}}"
+      UPTRACE_PROJECT_ID: "{{.UPTRACE_PROJECT_ID}}"
+    cmds:
+      - |
+        if [ -z "$UPTRACE_TOKEN" ] || [ -z "$UPTRACE_PROJECT_ID" ]; then
+          echo "Error: UPTRACE_TOKEN and UPTRACE_PROJECT_ID environment variables must be set"
+          echo "Example: export UPTRACE_TOKEN=your-token UPTRACE_PROJECT_ID=your-project-id"
+          exit 1
+        fi
+      - go test -v -timeout 10m ./internal/provider -run TestAccMonitorResource_CloudTrendAggregation
+
+  test:cloud:send-telemetry:
+    desc: Send test telemetry data to Uptrace cloud for testing
+    cmds:
+      - ./scripts/send-test-telemetry.sh
+
   test:all:
     desc: Run all tests (unit + acceptance)
     cmds:

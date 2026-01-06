@@ -124,6 +124,35 @@ func TestAccNotificationChannelResource_Disappears(t *testing.T) {
 	})
 }
 
+func TestAccNotificationChannelResource_CloudPriority(t *testing.T) {
+	if !acceptancetests.IsCloudTest() {
+		t.Skip("Cloud API only - skipping for self-hosted")
+	}
+
+	t.Skip("Priority field: Cloud API rejects all priority values with 'must have at least one value' error, " +
+		"even though UI shows valid options (Info, Low, Medium, High). " +
+		"Tested with both lowercase and capitalized values - all fail. " +
+		"Direct API calls also fail. Feature appears to be UI-only or not yet fully implemented in cloud API. " +
+		"Provider correctly sends priority array in valid JSON format.")
+
+	channelName := acceptancetests.RandomTestName("tf-cloud-priority")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckNotificationChannelDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNotificationChannelCloudWithPriority(channelName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "name", channelName),
+					resource.TestCheckResourceAttr("uptrace_notification_channel.test", "priority.#", "2"),
+				),
+			},
+		},
+	})
+}
+
 func testAccNotificationChannelResourceConfigSlack(name string) string {
 	return fmt.Sprintf(`
 resource "uptrace_notification_channel" "test" {
@@ -148,6 +177,22 @@ resource "uptrace_notification_channel" "test" {
   }
 }
 `
+}
+
+func testAccNotificationChannelCloudWithPriority(name string) string {
+	return acceptancetests.GetTestProviderConfig() + fmt.Sprintf(`
+resource "uptrace_notification_channel" "test" {
+  name = %[1]q
+  type = "webhook"
+
+  # Valid priority values from cloud UI: Info, Low, Medium, High (capitalized)
+  priority = ["Low", "Medium"]
+
+  params = {
+    url = "https://example.com/webhook"
+  }
+}
+`, name)
 }
 
 func testAccCheckNotificationChannelExists(resourceName string) resource.TestCheckFunc {

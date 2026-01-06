@@ -118,6 +118,8 @@ jobs:
     name: Cloud API Acceptance Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Only run if cloud credentials are configured
+    if: ${{ secrets.UPTRACE_CLOUD_TOKEN != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -140,7 +142,7 @@ jobs:
           UPTRACE_ENDPOINT: ${{ secrets.UPTRACE_CLOUD_ENDPOINT }}
           UPTRACE_TOKEN: ${{ secrets.UPTRACE_CLOUD_TOKEN }}
           UPTRACE_PROJECT_ID: ${{ secrets.UPTRACE_CLOUD_PROJECT_ID }}
-        run: go test -v -timeout 20m ./internal/provider -run TestAcc
+        run: go test -v -timeout 20m ./internal/provider -run "TestAcc.*Cloud"
 
   lint:
     name: Lint

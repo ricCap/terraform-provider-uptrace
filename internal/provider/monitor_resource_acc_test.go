@@ -252,8 +252,8 @@ resource "uptrace_monitor" "test" {
       name = "uptrace_tracing_events"
       alias = "$events"
     }]
-    # Use minimal query to reduce normalization changes
-    query = ""
+    # Simple UQL query - may still normalize but is minimal
+    query = "*"
   }
 }
 `, name)

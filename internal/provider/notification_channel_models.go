@@ -31,13 +31,31 @@ func planToChannelInput(ctx context.Context, plan NotificationChannelResourceMod
 	// Convert priority list
 	if !plan.Priority.IsNull() && !plan.Priority.IsUnknown() {
 		var priorityList []string
-		diags.Append(plan.Priority.ElementsAs(ctx, &priorityList, false)...)
-		if !diags.HasError() && len(priorityList) > 0 {
+		convertDiags := plan.Priority.ElementsAs(ctx, &priorityList, false)
+		tflog.Debug(ctx, "Converting priority list", map[string]any{
+			"is_null":     plan.Priority.IsNull(),
+			"is_unknown":  plan.Priority.IsUnknown(),
+			"has_error":   convertDiags.HasError(),
+			"list_length": len(priorityList),
+			"list":        priorityList,
+		})
+		diags.Append(convertDiags...)
+		if !convertDiags.HasError() && len(priorityList) > 0 {
 			input.Priority = &priorityList
 			tflog.Debug(ctx, "Setting priority on channel input", map[string]any{
 				"priority": priorityList,
 			})
+		} else {
+			tflog.Warn(ctx, "Priority list not set", map[string]any{
+				"has_error":   convertDiags.HasError(),
+				"list_length": len(priorityList),
+			})
 		}
+	} else {
+		tflog.Debug(ctx, "Priority is null or unknown", map[string]any{
+			"is_null":    plan.Priority.IsNull(),
+			"is_unknown": plan.Priority.IsUnknown(),
+		})
 	}
 
 	// Convert params map to interface{} for JSON marshaling

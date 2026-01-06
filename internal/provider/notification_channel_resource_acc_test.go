@@ -179,7 +179,8 @@ resource "uptrace_notification_channel" "test" {
   name = %[1]q
   type = "webhook"
 
-  priority = ["low", "medium"]
+  # Valid priority values from cloud UI: Info, Low, Medium, High (capitalized)
+  priority = ["Low", "Medium"]
 
   params = {
     url = "https://example.com/webhook"

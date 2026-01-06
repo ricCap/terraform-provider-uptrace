@@ -952,10 +952,12 @@ components:
           type: array
           description: |
             Alert priority levels (cloud API).
+            Valid values: Info, Low, Medium, High (case-sensitive, capitalized).
             May be empty or null for self-hosted instances.
           items:
             type: string
-          example: ["high", "critical"]
+            enum: [Info, Low, Medium, High]
+          example: ["Low", "Medium"]
         params:
           type: object
           description: Channel-specific configuration parameters (varies by type)
@@ -1003,10 +1005,11 @@ components:
           description: |
             Alert priority levels (required for cloud API).
             Determines notification urgency and routing.
-            Valid values discovered through testing against cloud API.
+            Valid values: Info, Low, Medium, High (case-sensitive, capitalized).
           items:
             type: string
-          example: ["high", "critical"]
+            enum: [Info, Low, Medium, High]
+          example: ["Low", "Medium"]
         params:
           type: object
           description: |

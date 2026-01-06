@@ -6,7 +6,7 @@ A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring res
 [![Go Report Card](https://goreportcard.com/badge/github.com/riccap/terraform-provider-uptrace)](https://goreportcard.com/report/github.com/riccap/terraform-provider-uptrace)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> This provider is in early development. Any feedback is welcome (just create an issue)!
+> This provider is in early development 🐛. Any feedback is welcome (just create an issue)! Many of the features still need thorough manual testing.
 
 ## Features
 

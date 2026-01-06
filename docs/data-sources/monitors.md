@@ -170,6 +170,7 @@ Read-Only:
 - `repeat_interval` (Attributes) Repeat interval configuration. (see [below for nested schema](#nestedatt--monitors--repeat_interval))
 - `state` (String) Current monitor state (open, firing, paused).
 - `team_ids` (List of Number) List of team IDs to notify.
+- `trend_agg_func` (String) Trend aggregation function for monitor evaluation. Required for Uptrace cloud API, optional for self-hosted v2.0.2 and earlier. Valid values: avg, sum, min, max, p50, p90, p95, p99.
 - `type` (String) Monitor type (metric or error).
 - `updated_at` (String) Monitor last update timestamp.
 

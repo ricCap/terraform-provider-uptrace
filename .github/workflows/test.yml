@@ -118,8 +118,10 @@ jobs:
     name: Cloud API Acceptance Tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Only run if cloud credentials are configured
-    if: ${{ secrets.UPTRACE_CLOUD_TOKEN != '' }}
+    # Note: This job runs cloud-specific tests only.
+    # Tests will skip if cloud credentials are not configured.
+    # Configure UPTRACE_CLOUD_ENDPOINT, UPTRACE_CLOUD_TOKEN, and
+    # UPTRACE_CLOUD_PROJECT_ID secrets to enable cloud API testing.
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -139,9 +141,9 @@ jobs:
       - name: Run cloud acceptance tests
         env:
           TF_ACC: "1"
-          UPTRACE_ENDPOINT: ${{ secrets.UPTRACE_CLOUD_ENDPOINT }}
-          UPTRACE_TOKEN: ${{ secrets.UPTRACE_CLOUD_TOKEN }}
-          UPTRACE_PROJECT_ID: ${{ secrets.UPTRACE_CLOUD_PROJECT_ID }}
+          UPTRACE_ENDPOINT: ${{ secrets.UPTRACE_CLOUD_ENDPOINT || '' }}
+          UPTRACE_TOKEN: ${{ secrets.UPTRACE_CLOUD_TOKEN || '' }}
+          UPTRACE_PROJECT_ID: ${{ secrets.UPTRACE_CLOUD_PROJECT_ID || '' }}
         run: go test -v -timeout 20m ./internal/provider -run "TestAcc.*Cloud"
 
   lint:

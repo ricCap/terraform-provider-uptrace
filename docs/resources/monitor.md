@@ -71,6 +71,7 @@ resource "uptrace_monitor" "api_errors" {
 - `notify_everyone_by_email` (Boolean) Whether to notify all project members by email.
 - `repeat_interval` (Attributes) Repeat interval configuration. (see [below for nested schema](#nestedatt--repeat_interval))
 - `team_ids` (List of Number) List of team IDs to notify.
+- `trend_agg_func` (String) Trend aggregation function for monitor evaluation. Required for Uptrace cloud API, optional for self-hosted v2.0.2 and earlier. Valid values: avg, sum, min, max, p50, p90, p95, p99.
 
 ### Read-Only
 
@@ -91,7 +92,7 @@ Optional:
 - `metrics` (Attributes List) List of metrics to monitor. (see [below for nested schema](#nestedatt--params--metrics))
 - `min_allowed_value` (Number) Minimum allowed value for the metric.
 - `nulls_mode` (String) How to handle null values: 'allow', 'forbid', or 'convert'.
-- `query` (String) UQL query for metric evaluation or error filtering.
+- `query` (String) UQL query for metric evaluation or error filtering. Note: The Uptrace cloud API normalizes queries to canonical form, so the stored value may differ from the input.
 - `time_offset` (Number) Time offset in milliseconds.
 
 <a id="nestedatt--params--metrics"></a>

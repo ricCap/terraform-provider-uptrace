@@ -4,4 +4,12 @@
 # Email: admin@uptrace.local
 # Password: SomeRandomPassword
 
-uptrace_token = "user1_secret_token"
+# Local dev environment (default)
+uptrace_endpoint   = "http://localhost:14318/internal/v1"
+uptrace_token      = "user1_secret_token"
+uptrace_project_id = 1
+
+# Cloud environment (uncomment to use)
+# uptrace_endpoint   = "https://api2.uptrace.dev/internal/v1"
+# uptrace_token      = "your_cloud_token_here"
+# uptrace_project_id = 12345

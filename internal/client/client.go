@@ -334,6 +334,8 @@ func (c *Client) UnpinDashboard(ctx context.Context, dashboardID int64) error {
 }
 
 // CloneDashboard creates a copy of an existing dashboard.
+//
+//nolint:dupl // Similar to GetDashboard but different API endpoint and operation
 func (c *Client) CloneDashboard(ctx context.Context, dashboardID int64) (*generated.Dashboard, error) {
 	resp, err := c.client.CloneDashboardWithResponse(ctx, c.projectID, dashboardID)
 	if err != nil {

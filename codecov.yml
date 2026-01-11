@@ -1,0 +1,33 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+        threshold: 1%
+
+ignore:
+  - "internal/client/generated/**/*"  # Exclude generated API client
+  - "**/*_acc_test.go"                # Exclude acceptance tests
+  - "internal/acceptance_tests/**/*"  # Exclude acceptance test utilities
+  - "tools/**/*"                      # Exclude tool dependencies
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+flags:
+  unittests:
+    paths:
+      - "internal/"
+    carryforward: true
+  acceptancetests:
+    paths:
+      - "internal/provider/"
+    carryforward: true

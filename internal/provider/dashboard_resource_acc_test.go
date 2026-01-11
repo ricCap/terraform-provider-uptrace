@@ -168,7 +168,86 @@ func testAccCheckDashboardDisappears(resourceName string) resource.TestCheckFunc
 	}
 }
 
+func TestAccDashboardResource_PinUnpin(t *testing.T) {
+	resourceName := "uptrace_dashboard.test"
+	dashboardName := acceptancetests.RandomTestName("tf-acc-dashboard-pin")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckDashboardDestroy,
+		Steps: []resource.TestStep{
+			// Create unpinned
+			{
+				Config: testAccDashboardResourceConfigBasic(dashboardName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDashboardExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "pinned", "false"),
+				),
+			},
+			// Test that pinned status can be read
+			{
+				Config: testAccDashboardResourceConfigBasic(dashboardName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDashboard(resourceName, dashboardName, false),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDashboardResource_Clone(t *testing.T) {
+	resourceName := "uptrace_dashboard.test"
+	dashboardName := acceptancetests.RandomTestName("tf-acc-dashboard-clone")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { acceptancetests.PreCheck(t) },
+		ProtoV6ProviderFactories: acceptancetests.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckDashboardDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDashboardResourceConfigBasic(dashboardName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckDashboardExists(resourceName),
+					testAccCheckDashboard(resourceName, dashboardName, false),
+				),
+			},
+		},
+	})
+}
+
 // Test configurations
+
+func testAccCheckDashboard(resourceName string, expectedName string, expectedPinned bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("Not found: %s", resourceName)
+		}
+
+		dashboardID, err := strconv.ParseInt(rs.Primary.ID, 10, 64)
+		if err != nil {
+			return fmt.Errorf("Invalid dashboard ID %s: %w", rs.Primary.ID, err)
+		}
+
+		client := acceptancetests.GetTestClient()
+		dashboard, err := client.GetDashboard(context.Background(), dashboardID)
+		if err != nil {
+			return fmt.Errorf("Dashboard %s not found: %w", rs.Primary.ID, err)
+		}
+
+		if dashboard.Name != expectedName {
+			return fmt.Errorf("Expected dashboard name %s, got %s", expectedName, dashboard.Name)
+		}
+
+		actualPinned := dashboard.Pinned != nil && *dashboard.Pinned
+		if actualPinned != expectedPinned {
+			return fmt.Errorf("Expected pinned=%v, got %v", expectedPinned, actualPinned)
+		}
+
+		return nil
+	}
+}
 
 func testAccDashboardResourceConfigBasic(name string) string {
 	return fmt.Sprintf(`

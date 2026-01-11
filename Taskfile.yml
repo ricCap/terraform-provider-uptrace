@@ -74,11 +74,41 @@ tasks:
       - go test -v -run TestMonitorToState ./internal/provider/
 
   test:coverage:
-    desc: Run tests with coverage report
+    desc: Run unit tests with coverage report
     cmds:
       - go test -v -coverprofile=coverage.txt -covermode=atomic -short ./...
       - go tool cover -html=coverage.txt -o coverage.html
-      - echo "Coverage report generated at coverage.html"
+      - echo "Unit test coverage report generated at coverage.html"
+
+  test:coverage:unit:
+    desc: Run unit tests with coverage (alias for test:coverage)
+    cmds:
+      - task: test:coverage
+
+  test:coverage:acc:
+    desc: Run acceptance tests with coverage report
+    deps: [dev:up]
+    env:
+      TF_ACC: "1"
+      UPTRACE_ENDPOINT: "http://localhost:14318/internal/v1"
+      UPTRACE_TOKEN: "user1_secret_token"
+      UPTRACE_PROJECT_ID: "1"
+    cmds:
+      - |
+        echo "Waiting for Uptrace to be ready..."
+        timeout 120 bash -c 'until curl -f http://localhost:14318/internal/v1/projects/1/monitors -H "Authorization: Bearer user1_secret_token" 2>/dev/null; do sleep 2; done'
+      - go test -v -coverprofile=coverage-acc.txt -covermode=atomic -timeout 30m ./internal/provider -run TestAcc
+      - go tool cover -html=coverage-acc.txt -o coverage-acc.html
+      - echo "Acceptance test coverage report generated at coverage-acc.html"
+
+  test:coverage:all:
+    desc: Run all tests with coverage and merge reports
+    cmds:
+      - task: test:coverage:unit
+      - task: test:coverage:acc
+      - echo "Combined coverage reports:"
+      - echo "  Unit tests:       coverage.html"
+      - echo "  Acceptance tests: coverage-acc.html"
 
   test:acc:
     desc: Run acceptance tests with Docker

@@ -3,6 +3,7 @@
 A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring resources - monitors, dashboards, and notification channels.
 
 [![Tests](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml/badge.svg)](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/riccap/terraform-provider-uptrace/branch/main/graph/badge.svg)](https://codecov.io/gh/riccap/terraform-provider-uptrace)
 [![Go Report Card](https://goreportcard.com/badge/github.com/riccap/terraform-provider-uptrace)](https://goreportcard.com/report/github.com/riccap/terraform-provider-uptrace)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

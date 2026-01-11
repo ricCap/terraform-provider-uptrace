@@ -23,7 +23,7 @@ func newTestClient(server *httptest.Server) *client.Client {
 	return c
 }
 
-// TestPinDashboard tests the PinDashboard client method
+// TestPinDashboard tests the PinDashboard client method.
 func TestPinDashboard(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Verify request
@@ -46,7 +46,7 @@ func TestPinDashboard(t *testing.T) {
 	}
 }
 
-// TestUnpinDashboard tests the UnpinDashboard client method
+// TestUnpinDashboard tests the UnpinDashboard client method.
 func TestUnpinDashboard(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Verify request
@@ -69,7 +69,7 @@ func TestUnpinDashboard(t *testing.T) {
 	}
 }
 
-// TestCloneDashboard tests the CloneDashboard client method
+// TestCloneDashboard tests the CloneDashboard client method.
 func TestCloneDashboard(t *testing.T) {
 	expectedDashboard := generated.Dashboard{
 		Id:   456,
@@ -111,7 +111,7 @@ func TestCloneDashboard(t *testing.T) {
 	}
 }
 
-// TestResetDashboard tests the ResetDashboard client method
+// TestResetDashboard tests the ResetDashboard client method.
 func TestResetDashboard(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Verify request
@@ -134,9 +134,9 @@ func TestResetDashboard(t *testing.T) {
 	}
 }
 
-// TestPinDashboard_Error tests error handling in PinDashboard
+// TestPinDashboard_Error tests error handling in PinDashboard.
 func TestPinDashboard_Error(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		response := map[string]interface{}{
@@ -159,9 +159,9 @@ func TestPinDashboard_Error(t *testing.T) {
 	}
 }
 
-// TestCloneDashboard_Error tests error handling in CloneDashboard
+// TestCloneDashboard_Error tests error handling in CloneDashboard.
 func TestCloneDashboard_Error(t *testing.T) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		response := map[string]interface{}{

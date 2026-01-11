@@ -218,7 +218,7 @@ func TestAccDashboardResource_Clone(t *testing.T) {
 
 // Test configurations
 
-func testAccCheckDashboard(resourceName string, expectedName string, expectedPinned bool) resource.TestCheckFunc {
+func testAccCheckDashboard(resourceName, expectedName string, expectedPinned bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[resourceName]
 		if !ok {

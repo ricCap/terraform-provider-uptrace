@@ -305,6 +305,68 @@ func (c *Client) DeleteDashboard(ctx context.Context, dashboardID int64) error {
 	return nil
 }
 
+// PinDashboard pins a dashboard to the top of the dashboard list.
+func (c *Client) PinDashboard(ctx context.Context, dashboardID int64) error {
+	resp, err := c.client.PinDashboardWithResponse(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return fmt.Errorf("failed to pin dashboard: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	return nil
+}
+
+// UnpinDashboard unpins a dashboard from the top of the dashboard list.
+func (c *Client) UnpinDashboard(ctx context.Context, dashboardID int64) error {
+	resp, err := c.client.UnpinDashboardWithResponse(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return fmt.Errorf("failed to unpin dashboard: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	return nil
+}
+
+// CloneDashboard creates a copy of an existing dashboard.
+//
+//nolint:dupl // Similar to GetDashboard but different API endpoint and operation
+func (c *Client) CloneDashboard(ctx context.Context, dashboardID int64) (*generated.Dashboard, error) {
+	resp, err := c.client.CloneDashboardWithResponse(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to clone dashboard: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return nil, c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	if resp.JSON200 == nil {
+		return nil, fmt.Errorf("unexpected empty response")
+	}
+
+	return &resp.JSON200.Dashboard, nil
+}
+
+// ResetDashboard resets a dashboard to its template defaults or resets the layout.
+func (c *Client) ResetDashboard(ctx context.Context, dashboardID int64) error {
+	resp, err := c.client.ResetDashboardWithResponse(ctx, c.projectID, dashboardID)
+	if err != nil {
+		return fmt.Errorf("failed to reset dashboard: %w", err)
+	}
+
+	if !isSuccessStatus(resp.StatusCode(), http.StatusOK) {
+		return c.handleErrorResponse(resp.StatusCode(), resp.Body)
+	}
+
+	return nil
+}
+
 // ListNotificationChannels retrieves all notification channels for the project.
 func (c *Client) ListNotificationChannels(ctx context.Context) ([]generated.NotificationChannel, error) {
 	resp, err := c.client.ListNotificationChannelsWithResponse(ctx, c.projectID)

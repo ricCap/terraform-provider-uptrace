@@ -100,7 +100,14 @@ jobs:
           UPTRACE_ENDPOINT: "http://localhost:14318/internal/v1"
           UPTRACE_TOKEN: "user1_secret_token"
           UPTRACE_PROJECT_ID: "1"
-        run: go test -v -timeout 30m ./internal/provider -run TestAcc
+        run: go test -v -coverprofile=coverage-acc.txt -covermode=atomic -timeout 30m ./internal/provider -run TestAcc
+
+      - name: Upload acceptance test coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage-acc.txt
+          flags: acceptancetests
+          fail_ci_if_error: false
 
       - name: Docker Compose logs on failure
         if: failure()

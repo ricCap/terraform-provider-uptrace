@@ -4,6 +4,8 @@ A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring res
 
 [![Tests](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml/badge.svg)](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/riccap/terraform-provider-uptrace/branch/main/graph/badge.svg)](https://codecov.io/gh/riccap/terraform-provider-uptrace)
+[![codecov-unit](https://codecov.io/gh/riccap/terraform-provider-uptrace/branch/main/graph/badge.svg?flag=unittests)](https://codecov.io/gh/riccap/terraform-provider-uptrace?flags=unittests)
+[![codecov-acc](https://codecov.io/gh/riccap/terraform-provider-uptrace/branch/main/graph/badge.svg?flag=acceptancetests)](https://codecov.io/gh/riccap/terraform-provider-uptrace?flags=acceptancetests)
 [![Go Report Card](https://goreportcard.com/badge/github.com/riccap/terraform-provider-uptrace)](https://goreportcard.com/report/github.com/riccap/terraform-provider-uptrace)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

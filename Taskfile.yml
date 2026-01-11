@@ -106,9 +106,7 @@ tasks:
     cmds:
       - task: test:coverage:unit
       - task: test:coverage:acc
-      - echo "Combined coverage reports:"
-      - echo "  Unit tests:       coverage.html"
-      - echo "  Acceptance tests: coverage-acc.html"
+      - echo "Combined coverage reports - Unit tests coverage.html and Acceptance tests coverage-acc.html"
 
   test:acc:
     desc: Run acceptance tests with Docker

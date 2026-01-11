@@ -272,7 +272,7 @@ paths:
 
     get:
       summary: Get dashboard
-      description: Retrieve a specific dashboard by ID
+      description: Retrieve a specific dashboard by ID with its grid rows and items
       operationId: getDashboard
       tags:
         - Dashboards
@@ -288,6 +288,25 @@ paths:
                 properties:
                   dashboard:
                     $ref: '#/components/schemas/Dashboard'
+                  tableItems:
+                    type: array
+                    description: Grid items in the table section
+                    items:
+                      $ref: '#/components/schemas/GridItem'
+                  gridRows:
+                    type: array
+                    description: Grid rows with their items
+                    items:
+                      $ref: '#/components/schemas/GridRow'
+                  gridMetrics:
+                    type: array
+                    description: List of unique metric names used in grid items
+                    items:
+                      type: string
+                  yamlUrl:
+                    type: string
+                    description: URL to fetch dashboard YAML representation
+                    example: "/api/v1/metrics/1/dashboards/1/yaml"
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -372,6 +391,499 @@ paths:
                     $ref: '#/components/schemas/Dashboard'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/clone:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    post:
+      summary: Clone dashboard
+      description: Create a copy of an existing dashboard
+      operationId: cloneDashboard
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Dashboard cloned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - dashboard
+                properties:
+                  dashboard:
+                    $ref: '#/components/schemas/Dashboard'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/reset:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    put:
+      summary: Reset dashboard
+      description: Reset dashboard to template or reset layout
+      operationId: resetDashboard
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Dashboard reset successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/pinned:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    put:
+      summary: Pin dashboard
+      description: Pin dashboard to top of dashboard list
+      operationId: pinDashboard
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Dashboard pinned successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/unpinned:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    put:
+      summary: Unpin dashboard
+      description: Unpin dashboard from top of dashboard list
+      operationId: unpinDashboard
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Dashboard unpinned successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/table:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    put:
+      summary: Update dashboard table
+      description: Update the table configuration of a dashboard
+      operationId: updateDashboardTable
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Dashboard name
+                tableMetrics:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MetricAlias'
+                tableQuery:
+                  type: string
+                  description: Table query
+                tableColumnMap:
+                  type: object
+                  additionalProperties:
+                    $ref: '#/components/schemas/TableColumn'
+      responses:
+        '200':
+          description: Dashboard table updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/grid:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    put:
+      summary: Update dashboard grid query
+      description: Update the global grid query filter for a dashboard
+      operationId: updateDashboardGrid
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gridQuery:
+                  type: string
+                  description: Global query filter for grid items
+      responses:
+        '200':
+          description: Dashboard grid query updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create grid item
+      description: Create a new grid item in the dashboard
+      operationId: createGridItem
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GridItem'
+      responses:
+        '200':
+          description: Grid item created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridItem
+                properties:
+                  gridItem:
+                    $ref: '#/components/schemas/GridItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/grid/{gridItemId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+      - name: gridItemId
+        in: path
+        required: true
+        description: Grid item ID
+        schema:
+          type: integer
+          format: int64
+
+    put:
+      summary: Update grid item
+      description: Update an existing grid item
+      operationId: updateGridItem
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GridItem'
+      responses:
+        '200':
+          description: Grid item updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridItem
+                properties:
+                  gridItem:
+                    $ref: '#/components/schemas/GridItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete grid item
+      description: Delete a grid item from the dashboard
+      operationId: deleteGridItem
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Grid item deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridItem
+                properties:
+                  gridItem:
+                    $ref: '#/components/schemas/GridItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/rows:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+
+    post:
+      summary: Create grid row
+      description: Create a new grid row in the dashboard
+      operationId: createGridRow
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Row title
+                description:
+                  type: string
+                  description: Row description
+                expanded:
+                  type: boolean
+                  description: Whether the row is expanded
+      responses:
+        '200':
+          description: Grid row created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridRow
+                properties:
+                  gridRow:
+                    $ref: '#/components/schemas/GridRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/rows/{rowId}:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+      - name: rowId
+        in: path
+        required: true
+        description: Grid row ID
+        schema:
+          type: integer
+          format: int64
+
+    put:
+      summary: Update grid row
+      description: Update an existing grid row
+      operationId: updateGridRow
+      tags:
+        - Dashboards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GridRow'
+      responses:
+        '200':
+          description: Grid row updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridRow
+                properties:
+                  gridRow:
+                    $ref: '#/components/schemas/GridRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      summary: Delete grid row
+      description: Delete a grid row and all its items
+      operationId: deleteGridRow
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Grid row deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridItem
+                properties:
+                  gridItem:
+                    $ref: '#/components/schemas/GridItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/rows/{rowId}/up:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+      - name: rowId
+        in: path
+        required: true
+        description: Grid row ID
+        schema:
+          type: integer
+          format: int64
+
+    put:
+      summary: Move grid row up
+      description: Move a grid row up in the dashboard
+      operationId: moveGridRowUp
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Grid row moved up successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridRow
+                properties:
+                  gridRow:
+                    $ref: '#/components/schemas/GridRow'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /metrics/{projectId}/dashboards/{dashboardId}/rows/{rowId}/down:
+    parameters:
+      - $ref: '#/components/parameters/ProjectId'
+      - $ref: '#/components/parameters/DashboardId'
+      - name: rowId
+        in: path
+        required: true
+        description: Grid row ID
+        schema:
+          type: integer
+          format: int64
+
+    put:
+      summary: Move grid row down
+      description: Move a grid row down in the dashboard
+      operationId: moveGridRowDown
+      tags:
+        - Dashboards
+      responses:
+        '200':
+          description: Grid row moved down successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - gridRow
+                properties:
+                  gridRow:
+                    $ref: '#/components/schemas/GridRow'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -814,6 +1326,138 @@ components:
           description: Optional alias for the metric
           example: "cpu_usage"
 
+    MetricAlias:
+      type: object
+      required:
+        - name
+        - alias
+      properties:
+        name:
+          type: string
+          description: Metric name
+          example: "system.cpu.utilization"
+        alias:
+          type: string
+          description: Metric alias
+          example: "cpu_usage"
+
+    TableColumn:
+      type: object
+      properties:
+        unit:
+          type: string
+          description: Unit for the column values
+          example: "bytes"
+        color:
+          type: string
+          description: Color for the column (hex format)
+          example: "#FF5733"
+        aggFunc:
+          type: string
+          enum: [min, max, sum, avg, avg_zero, median, last]
+          description: Aggregation function for table display
+          default: "median"
+        sparklineDisabled:
+          type: boolean
+          description: Whether sparkline visualization is disabled
+          default: false
+
+    MetricColumn:
+      type: object
+      properties:
+        unit:
+          type: string
+          description: Unit for the metric column
+          example: "bytes"
+        color:
+          type: string
+          description: Color for the column (hex format)
+          example: "#FF5733"
+
+    GaugeColumn:
+      type: object
+      properties:
+        unit:
+          type: string
+          description: Unit for the gauge value
+          example: "percent"
+        aggFunc:
+          type: string
+          enum: [min, max, sum, avg, avg_zero, median, last]
+          description: Aggregation function for gauge display
+          default: "median"
+
+    ChartLegend:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [none, list, table]
+          description: Legend display type
+          default: "list"
+        placement:
+          type: string
+          enum: [bottom, right]
+          description: Legend placement
+          default: "bottom"
+        values:
+          type: array
+          items:
+            type: string
+            enum: [avg, min, max, last]
+          description: Values to show in legend
+          default: [avg]
+        maxLength:
+          type: integer
+          description: Maximum length for legend labels
+          example: 40
+
+    TimeseriesStyle:
+      type: object
+      properties:
+        color:
+          type: string
+          description: Line color (hex format)
+          example: "#FF5733"
+        opacity:
+          type: integer
+          description: Opacity (0-10)
+          minimum: 0
+          maximum: 10
+          default: 10
+        lineWidth:
+          type: number
+          format: float
+          description: Line width in pixels
+          default: 1.5
+        symbol:
+          type: string
+          description: Symbol type for data points
+          enum: [none, circle, rect, triangle, diamond]
+          default: "none"
+        symbolSize:
+          type: integer
+          description: Symbol size in pixels
+          default: 4
+
+    ValueMapping:
+      type: object
+      properties:
+        op:
+          type: string
+          enum: [any, eq, lt, lte, gt, gte]
+          description: Comparison operator
+          default: "eq"
+        value:
+          type: number
+          description: Value to compare against
+        text:
+          type: string
+          description: Text to display for this mapping
+        color:
+          type: string
+          description: Color for this mapping (hex format)
+
     Dashboard:
       type: object
       required:
@@ -831,6 +1475,10 @@ components:
           format: int64
           description: Project ID this dashboard belongs to
           example: 1
+        templateId:
+          type: string
+          description: Template ID if dashboard was created from a template
+          example: "uptrace.docker.containers"
         name:
           type: string
           description: Dashboard name
@@ -842,6 +1490,49 @@ components:
           description: Whether the dashboard is pinned
           default: false
           example: false
+        minInterval:
+          type: number
+          format: double
+          description: Minimum time interval in milliseconds
+          example: 60000
+        timeOffset:
+          type: number
+          format: double
+          description: Time offset in milliseconds
+          example: 0
+        tooltipsConnected:
+          type: boolean
+          description: Whether tooltips are connected across charts
+          default: false
+        gridQuery:
+          type: string
+          description: Global query filter applied to all grid items
+          example: ""
+        gridMaxWidth:
+          type: integer
+          description: Maximum width for grid items
+          example: 24
+        tableMetrics:
+          type: array
+          description: Metrics used in the dashboard table
+          items:
+            $ref: '#/components/schemas/MetricAlias'
+          default: []
+        tableQuery:
+          type: string
+          description: Query for the dashboard table
+          example: ""
+        tableGrouping:
+          type: array
+          description: Grouping columns for the table
+          items:
+            type: string
+          default: []
+        tableColumnMap:
+          type: object
+          description: Column configuration for table metrics
+          additionalProperties:
+            $ref: '#/components/schemas/TableColumn'
         yamlUrl:
           type: string
           format: uri
@@ -877,6 +1568,230 @@ components:
                       metrics:
                         - name: http_requests_total
                           alias: requests
+
+    GridRow:
+      type: object
+      required:
+        - id
+        - dashId
+        - title
+        - index
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Grid row unique identifier
+        dashId:
+          type: integer
+          format: int64
+          description: Dashboard ID this row belongs to
+        title:
+          type: string
+          description: Row title
+          example: "General"
+        description:
+          type: string
+          description: Row description
+        expanded:
+          type: boolean
+          description: Whether the row is expanded
+          default: true
+        index:
+          type: integer
+          description: Row position/order
+        items:
+          type: array
+          description: Grid items in this row
+          items:
+            $ref: '#/components/schemas/GridItem'
+        createdAt:
+          type: number
+          format: double
+          description: Creation timestamp (Unix milliseconds)
+        updatedAt:
+          type: number
+          format: double
+          description: Last update timestamp (Unix milliseconds)
+
+    GridItem:
+      type: object
+      required:
+        - id
+        - dashId
+        - dashKind
+        - type
+        - title
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Grid item unique identifier
+        dashId:
+          type: integer
+          format: int64
+          description: Dashboard ID this item belongs to
+        dashKind:
+          type: string
+          enum: [grid, table]
+          description: Dashboard kind (grid or table section)
+        rowId:
+          type: integer
+          format: int64
+          description: Grid row ID (for grid items)
+        title:
+          type: string
+          description: Item title
+        description:
+          type: string
+          description: Item description
+        width:
+          type: integer
+          description: Width in grid units (0-24)
+          minimum: 0
+          maximum: 24
+          default: 12
+        height:
+          type: integer
+          description: Height in grid units
+          default: 28
+        xAxis:
+          type: integer
+          description: X position in grid
+        yAxis:
+          type: integer
+          description: Y position in grid
+        type:
+          type: string
+          enum: [chart, table, heatmap, gauge]
+          description: Grid item type
+        params:
+          oneOf:
+            - $ref: '#/components/schemas/ChartGridItemParams'
+            - $ref: '#/components/schemas/TableGridItemParams'
+            - $ref: '#/components/schemas/HeatmapGridItemParams'
+            - $ref: '#/components/schemas/GaugeGridItemParams'
+          description: Type-specific parameters
+        createdAt:
+          type: number
+          format: double
+          description: Creation timestamp (Unix milliseconds)
+        updatedAt:
+          type: number
+          format: double
+          description: Last update timestamp (Unix milliseconds)
+
+    ChartGridItemParams:
+      type: object
+      required:
+        - metrics
+        - query
+      properties:
+        chartKind:
+          type: string
+          enum: [line, area, bar, stacked-area, stacked-bar]
+          description: Chart visualization type
+          default: "line"
+        metrics:
+          type: array
+          description: Metrics to display (max 10)
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/MetricAlias'
+        query:
+          type: string
+          description: UQL query for the chart
+        columnMap:
+          type: object
+          description: Column-specific configurations
+          additionalProperties:
+            $ref: '#/components/schemas/MetricColumn'
+        timeseriesMap:
+          type: object
+          description: Timeseries-specific styling
+          additionalProperties:
+            $ref: '#/components/schemas/TimeseriesStyle'
+        connectNulls:
+          type: boolean
+          description: Whether to connect null values in the chart
+          default: false
+        legend:
+          $ref: '#/components/schemas/ChartLegend'
+
+    TableGridItemParams:
+      type: object
+      required:
+        - metrics
+        - query
+      properties:
+        metrics:
+          type: array
+          description: Metrics to display (max 10)
+          minItems: 1
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/MetricAlias'
+        query:
+          type: string
+          description: UQL query for the table
+        columnMap:
+          type: object
+          description: Column-specific configurations
+          additionalProperties:
+            $ref: '#/components/schemas/TableColumn'
+        itemsPerPage:
+          type: integer
+          description: Number of items per page
+          default: 10
+        denseTable:
+          type: boolean
+          description: Whether to use dense table layout
+          default: false
+
+    HeatmapGridItemParams:
+      type: object
+      required:
+        - metric
+        - query
+      properties:
+        metric:
+          type: string
+          description: Metric name for heatmap
+        unit:
+          type: string
+          description: Unit for the metric
+        query:
+          type: string
+          description: UQL query for the heatmap
+
+    GaugeGridItemParams:
+      type: object
+      required:
+        - metrics
+        - query
+      properties:
+        metrics:
+          type: array
+          description: Metrics to display
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/MetricAlias'
+        query:
+          type: string
+          description: UQL query for the gauge
+        columnMap:
+          type: object
+          description: Column-specific configurations
+          additionalProperties:
+            $ref: '#/components/schemas/GaugeColumn'
+        template:
+          type: string
+          description: Template for gauge display
+        valueMappings:
+          type: array
+          description: Value-to-text/color mappings
+          items:
+            $ref: '#/components/schemas/ValueMapping'
 
     Error:
       type: object

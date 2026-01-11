@@ -142,6 +142,15 @@ Generated code in `internal/client/generated/` is excluded from linting.
 
 ## Git Workflow
 
+**CRITICAL: Never push directly to main. Always create a Pull Request.**
+
+1. Create a feature branch: `git checkout -b feat/my-feature`
+2. Make commits with conventional commit messages
+3. Push branch: `git push -u origin feat/my-feature`
+4. Create PR: `gh pr create --title "feat: my feature" --body "Description"`
+5. Wait for CI checks to pass
+6. Merge via GitHub (squash or merge commit)
+
 **Commit message format (Conventional Commits):**
 ```
 feat: add dashboard clone functionality
@@ -152,7 +161,7 @@ docs: update OpenAPI spec with new endpoints
 
 **All commits must include:**
 ```
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ## CI/CD

@@ -1,25 +1,37 @@
 terraform {
   required_providers {
     uptrace = {
-      source  = "riccap/uptrace"
-      version = "~> 0.1"
+      source = "riccap/uptrace"
     }
   }
 }
 
+# ============================================================================
+# Provider Configuration
+# ============================================================================
+# For local dev environment:
+#   endpoint   = "http://localhost:14318/internal/v1"
+#   token      = "user1_secret_token"
+#   project_id = 1
+#
+# For cloud (requires metrics to exist in project):
+#   endpoint   = "https://api2.uptrace.dev/internal/v1"
+#   token      = var.uptrace_token
+#   project_id = var.uptrace_project_id
+# ============================================================================
+
 provider "uptrace" {
-  endpoint   = "https://api2.uptrace.dev/internal/v1"
+  endpoint   = var.uptrace_endpoint
   token      = var.uptrace_token
   project_id = var.uptrace_project_id
 }
 
 # ============================================================================
-# Monitors (without notification channels to avoid API version issues)
+# Error Monitor
 # ============================================================================
 
-# Error monitor - Test cloud API (also needs monitor_trend_aggregation_func)
-resource "uptrace_monitor" "api_errors" {
-  name = "Terraform Test - API Error Rate"
+resource "uptrace_monitor" "error_monitor" {
+  name = "Terraform Test - Error Monitor"
   type = "error"
 
   notify_everyone_by_email = false
@@ -27,87 +39,57 @@ resource "uptrace_monitor" "api_errors" {
   params = {
     metrics = [
       {
-        name = "span.count"
+        name  = "uptrace_tracing_events"
+        alias = "$logs"
       }
     ]
-    query                          = "span.status_code:error"
-    monitor_trend_aggregation_func = "sum"
-    max_allowed_value              = 100
-    check_num_point                = 1
+    query = "sum($logs) | where span.event_name exists"
   }
 }
 
-# Metric monitor - Test cloud API with monitor_trend_aggregation_func
-resource "uptrace_monitor" "high_latency" {
-  name = "Terraform Test - High Latency"
-  type = "metric"
+# ============================================================================
+# Metric Monitor
+# Note: Requires the metric to exist in the project (send telemetry first)
+# ============================================================================
 
-  notify_everyone_by_email = false
-
-  params = {
-    metrics = [
-      {
-        name  = "span.duration"
-        alias = "$latency"
-      }
-    ]
-    query                          = "span.kind:server"
-    column                         = "$latency"
-    monitor_trend_aggregation_func = "avg"
-    max_allowed_value              = 5000000000 # 5 seconds in nanoseconds
-    check_num_point                = 2
-  }
-}
-
-# Notification channel - Test cloud API with priority
-resource "uptrace_notification_channel" "test_webhook" {
-  name = "Terraform Test - Webhook"
-  type = "webhook"
-
-  priority = ["high", "critical"]
-
-  params = {
-    url = "https://example.com/webhook"
-  }
-}
+# resource "uptrace_monitor" "metric_monitor" {
+#   name = "Terraform Test - CPU Monitor"
+#   type = "metric"
+#
+#   notify_everyone_by_email = false
+#
+#   params = {
+#     metrics = [
+#       {
+#         name  = "system.cpu.utilization"
+#         alias = "$cpu"
+#       }
+#     ]
+#     query             = "avg($cpu) > 80"
+#     max_allowed_value = 80
+#     check_num_point   = 2
+#   }
+# }
 
 # ============================================================================
 # Data Sources
 # ============================================================================
 
-# Fetch all monitors
 data "uptrace_monitors" "all" {
-  depends_on = [
-    uptrace_monitor.api_errors,
-    uptrace_monitor.high_latency,
-    uptrace_notification_channel.test_webhook
-  ]
+  depends_on = [uptrace_monitor.error_monitor]
 }
 
-# Fetch specific monitor
 data "uptrace_monitor" "error_monitor" {
-  id = uptrace_monitor.api_errors.id
+  id = uptrace_monitor.error_monitor.id
 }
 
 # ============================================================================
 # Outputs
 # ============================================================================
 
-output "monitors" {
-  description = "Created monitor IDs"
-  value = {
-    error_monitor   = uptrace_monitor.api_errors.id
-    latency_monitor = uptrace_monitor.high_latency.id
-  }
-}
-
-output "notification_channel" {
-  description = "Created notification channel"
-  value = {
-    id       = uptrace_notification_channel.test_webhook.id
-    name     = uptrace_notification_channel.test_webhook.name
-    priority = uptrace_notification_channel.test_webhook.priority
-  }
+output "error_monitor_id" {
+  description = "Created error monitor ID"
+  value       = uptrace_monitor.error_monitor.id
 }
 
 output "all_monitors_count" {
@@ -118,8 +100,9 @@ output "all_monitors_count" {
 output "error_monitor_details" {
   description = "Details of the error monitor from data source"
   value = {
-    id   = data.uptrace_monitor.error_monitor.id
-    name = data.uptrace_monitor.error_monitor.name
-    type = data.uptrace_monitor.error_monitor.type
+    id    = data.uptrace_monitor.error_monitor.id
+    name  = data.uptrace_monitor.error_monitor.name
+    type  = data.uptrace_monitor.error_monitor.type
+    state = data.uptrace_monitor.error_monitor.state
   }
 }

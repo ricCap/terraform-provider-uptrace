@@ -20,6 +20,26 @@ A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring res
 - **Full CRUD Support**: Complete lifecycle management for all resources
 - **Import Support**: Import existing Uptrace resources into Terraform state
 
+## Cloud API Support
+
+The provider supports both **Uptrace Cloud** (`api2.uptrace.dev`) and **Self-Hosted Uptrace**. See the [Cloud API Guide](docs/guides/cloud-api.md) for details on cloud-specific fields.
+
+### Feature Compatibility
+
+| Feature | Self-Hosted | Uptrace Cloud | Notes |
+|---------|-------------|---------------|-------|
+| **Monitor Resource** | ✅ Full Support | ⚠️ Partial | Cloud requires `trend_agg_func`, non-empty `query`, and existing metrics. Query normalization may cause state drift ([#53](https://github.com/ricCap/terraform-provider-uptrace/issues/53)). |
+| **Dashboard Resource** | ✅ Full Support | ✅ Full Support | YAML-based dashboards work identically across both platforms. |
+| **Notification Channels** | ✅ Full Support | ❌ Not Functional | Cloud API uses `priorities` (plural) field name ([#54](https://github.com/ricCap/terraform-provider-uptrace/issues/54)). |
+| **Data Sources** | ✅ Full Support | ✅ Full Support | Query individual monitors or filter by criteria. |
+| **Monitor `trend_agg_func`** | ⚠️ Optional | ✅ Required | Required for cloud API ([#55](https://github.com/ricCap/terraform-provider-uptrace/issues/55)). Valid values: `avg`, `sum`, `min`, `max`, `p50`, `p90`, `p95`, `p99`. |
+| **Import Support** | ✅ Full Support | ✅ Full Support | Import existing resources into Terraform state. |
+
+**Legend:**
+- ✅ **Full Support** - Feature works as expected
+- ⚠️ **Partial/Optional** - Feature available with limitations
+- ❌ **Not Functional** - Feature not yet working (API limitation)
+
 ## Installation
 
 ```hcl
@@ -77,12 +97,8 @@ resource "uptrace_monitor" "api_errors" {
 - **[Terraform Registry Docs](https://registry.terraform.io/providers/riccap/uptrace/latest/docs)** - Full provider documentation
 - **[OpenTofu Registry Docs](https://search.opentofu.org/provider/riccap/uptrace)** - OpenTofu documentation
 - **[Getting Started Guide](docs/guides/getting-started.md)** - Complete introduction
-- **[Cloud API Guide](docs/guides/cloud-api.md)** - Uptrace Cloud configuration
+- **[Cloud API Guide](docs/guides/cloud-api.md)** - Uptrace Cloud configuration and known issues
 - **[Example Configurations](examples/)** - Real-world usage examples
-
-## Cloud API Support
-
-The provider supports both **Uptrace Cloud** (`api2.uptrace.dev`) and **Self-Hosted Uptrace**. See the [Cloud API Guide](docs/guides/cloud-api.md) for details on cloud-specific fields like `trend_agg_func`.
 
 ## Contributing
 

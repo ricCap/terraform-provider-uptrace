@@ -64,3 +64,6 @@ dev-env/terraform-test/terraform.tfvars
 dev-env/terraform-test/dev.tfrc
 dev-env/terraform-test/*.tfstate
 dev-env/terraform-test/*.tfstate.backup
+
+# Analysis/research directories
+uptrace/

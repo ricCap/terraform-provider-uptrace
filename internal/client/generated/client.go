@@ -26,6 +26,61 @@ const (
 	BearerAuthScopes = "bearerAuth.Scopes"
 )
 
+// Defines values for ChartGridItemParamsChartKind.
+const (
+	ChartGridItemParamsChartKindArea        ChartGridItemParamsChartKind = "area"
+	ChartGridItemParamsChartKindBar         ChartGridItemParamsChartKind = "bar"
+	ChartGridItemParamsChartKindLine        ChartGridItemParamsChartKind = "line"
+	ChartGridItemParamsChartKindStackedArea ChartGridItemParamsChartKind = "stacked-area"
+	ChartGridItemParamsChartKindStackedBar  ChartGridItemParamsChartKind = "stacked-bar"
+)
+
+// Defines values for ChartLegendPlacement.
+const (
+	ChartLegendPlacementBottom ChartLegendPlacement = "bottom"
+	ChartLegendPlacementRight  ChartLegendPlacement = "right"
+)
+
+// Defines values for ChartLegendType.
+const (
+	ChartLegendTypeList  ChartLegendType = "list"
+	ChartLegendTypeNone  ChartLegendType = "none"
+	ChartLegendTypeTable ChartLegendType = "table"
+)
+
+// Defines values for ChartLegendValues.
+const (
+	ChartLegendValuesAvg  ChartLegendValues = "avg"
+	ChartLegendValuesLast ChartLegendValues = "last"
+	ChartLegendValuesMax  ChartLegendValues = "max"
+	ChartLegendValuesMin  ChartLegendValues = "min"
+)
+
+// Defines values for GaugeColumnAggFunc.
+const (
+	GaugeColumnAggFuncAvg     GaugeColumnAggFunc = "avg"
+	GaugeColumnAggFuncAvgZero GaugeColumnAggFunc = "avg_zero"
+	GaugeColumnAggFuncLast    GaugeColumnAggFunc = "last"
+	GaugeColumnAggFuncMax     GaugeColumnAggFunc = "max"
+	GaugeColumnAggFuncMedian  GaugeColumnAggFunc = "median"
+	GaugeColumnAggFuncMin     GaugeColumnAggFunc = "min"
+	GaugeColumnAggFuncSum     GaugeColumnAggFunc = "sum"
+)
+
+// Defines values for GridItemDashKind.
+const (
+	GridItemDashKindGrid  GridItemDashKind = "grid"
+	GridItemDashKindTable GridItemDashKind = "table"
+)
+
+// Defines values for GridItemType.
+const (
+	GridItemTypeChart   GridItemType = "chart"
+	GridItemTypeGauge   GridItemType = "gauge"
+	GridItemTypeHeatmap GridItemType = "heatmap"
+	GridItemTypeTable   GridItemType = "table"
+)
+
 // Defines values for MetricMonitorParamsNullsMode.
 const (
 	MetricMonitorParamsNullsModeAllow   MetricMonitorParamsNullsMode = "allow"
@@ -84,13 +139,101 @@ const (
 	RepeatIntervalStrategyDefault RepeatIntervalStrategy = "default"
 )
 
+// Defines values for TableColumnAggFunc.
+const (
+	TableColumnAggFuncAvg     TableColumnAggFunc = "avg"
+	TableColumnAggFuncAvgZero TableColumnAggFunc = "avg_zero"
+	TableColumnAggFuncLast    TableColumnAggFunc = "last"
+	TableColumnAggFuncMax     TableColumnAggFunc = "max"
+	TableColumnAggFuncMedian  TableColumnAggFunc = "median"
+	TableColumnAggFuncMin     TableColumnAggFunc = "min"
+	TableColumnAggFuncSum     TableColumnAggFunc = "sum"
+)
+
+// Defines values for TimeseriesStyleSymbol.
+const (
+	TimeseriesStyleSymbolCircle   TimeseriesStyleSymbol = "circle"
+	TimeseriesStyleSymbolDiamond  TimeseriesStyleSymbol = "diamond"
+	TimeseriesStyleSymbolNone     TimeseriesStyleSymbol = "none"
+	TimeseriesStyleSymbolRect     TimeseriesStyleSymbol = "rect"
+	TimeseriesStyleSymbolTriangle TimeseriesStyleSymbol = "triangle"
+)
+
+// Defines values for ValueMappingOp.
+const (
+	ValueMappingOpAny ValueMappingOp = "any"
+	ValueMappingOpEq  ValueMappingOp = "eq"
+	ValueMappingOpGt  ValueMappingOp = "gt"
+	ValueMappingOpGte ValueMappingOp = "gte"
+	ValueMappingOpLt  ValueMappingOp = "lt"
+	ValueMappingOpLte ValueMappingOp = "lte"
+)
+
+// ChartGridItemParams defines model for ChartGridItemParams.
+type ChartGridItemParams struct {
+	// ChartKind Chart visualization type
+	ChartKind *ChartGridItemParamsChartKind `json:"chartKind,omitempty"`
+
+	// ColumnMap Column-specific configurations
+	ColumnMap *map[string]MetricColumn `json:"columnMap,omitempty"`
+
+	// ConnectNulls Whether to connect null values in the chart
+	ConnectNulls *bool        `json:"connectNulls,omitempty"`
+	Legend       *ChartLegend `json:"legend,omitempty"`
+
+	// Metrics Metrics to display (max 10)
+	Metrics []MetricAlias `json:"metrics"`
+
+	// Query UQL query for the chart
+	Query string `json:"query"`
+
+	// TimeseriesMap Timeseries-specific styling
+	TimeseriesMap *map[string]TimeseriesStyle `json:"timeseriesMap,omitempty"`
+}
+
+// ChartGridItemParamsChartKind Chart visualization type
+type ChartGridItemParamsChartKind string
+
+// ChartLegend defines model for ChartLegend.
+type ChartLegend struct {
+	// MaxLength Maximum length for legend labels
+	MaxLength *int `json:"maxLength,omitempty"`
+
+	// Placement Legend placement
+	Placement *ChartLegendPlacement `json:"placement,omitempty"`
+
+	// Type Legend display type
+	Type *ChartLegendType `json:"type,omitempty"`
+
+	// Values Values to show in legend
+	Values *[]ChartLegendValues `json:"values,omitempty"`
+}
+
+// ChartLegendPlacement Legend placement
+type ChartLegendPlacement string
+
+// ChartLegendType Legend display type
+type ChartLegendType string
+
+// ChartLegendValues defines model for ChartLegend.Values.
+type ChartLegendValues string
+
 // Dashboard defines model for Dashboard.
 type Dashboard struct {
 	// CreatedAt Dashboard creation timestamp (Unix milliseconds)
 	CreatedAt *float64 `json:"createdAt,omitempty"`
 
+	// GridMaxWidth Maximum width for grid items
+	GridMaxWidth *int `json:"gridMaxWidth,omitempty"`
+
+	// GridQuery Global query filter applied to all grid items
+	GridQuery *string `json:"gridQuery,omitempty"`
+
 	// Id Dashboard unique identifier
 	Id int64 `json:"id"`
+
+	// MinInterval Minimum time interval in milliseconds
+	MinInterval *float64 `json:"minInterval,omitempty"`
 
 	// Name Dashboard name
 	Name string `json:"name"`
@@ -100,6 +243,27 @@ type Dashboard struct {
 
 	// ProjectId Project ID this dashboard belongs to
 	ProjectId int64 `json:"projectId"`
+
+	// TableColumnMap Column configuration for table metrics
+	TableColumnMap *map[string]TableColumn `json:"tableColumnMap,omitempty"`
+
+	// TableGrouping Grouping columns for the table
+	TableGrouping *[]string `json:"tableGrouping,omitempty"`
+
+	// TableMetrics Metrics used in the dashboard table
+	TableMetrics *[]MetricAlias `json:"tableMetrics,omitempty"`
+
+	// TableQuery Query for the dashboard table
+	TableQuery *string `json:"tableQuery,omitempty"`
+
+	// TemplateId Template ID if dashboard was created from a template
+	TemplateId *string `json:"templateId,omitempty"`
+
+	// TimeOffset Time offset in milliseconds
+	TimeOffset *float64 `json:"timeOffset,omitempty"`
+
+	// TooltipsConnected Whether tooltips are connected across charts
+	TooltipsConnected *bool `json:"tooltipsConnected,omitempty"`
 
 	// UpdatedAt Dashboard last update timestamp (Unix milliseconds)
 	UpdatedAt *float64 `json:"updatedAt,omitempty"`
@@ -140,6 +304,152 @@ type ErrorMonitorParams struct {
 
 	// Query Optional filter query for errors
 	Query *string `json:"query,omitempty"`
+}
+
+// GaugeColumn defines model for GaugeColumn.
+type GaugeColumn struct {
+	// AggFunc Aggregation function for gauge display
+	AggFunc *GaugeColumnAggFunc `json:"aggFunc,omitempty"`
+
+	// Unit Unit for the gauge value
+	Unit *string `json:"unit,omitempty"`
+}
+
+// GaugeColumnAggFunc Aggregation function for gauge display
+type GaugeColumnAggFunc string
+
+// GaugeGridItemParams defines model for GaugeGridItemParams.
+type GaugeGridItemParams struct {
+	// ColumnMap Column-specific configurations
+	ColumnMap *map[string]GaugeColumn `json:"columnMap,omitempty"`
+
+	// Metrics Metrics to display
+	Metrics []MetricAlias `json:"metrics"`
+
+	// Query UQL query for the gauge
+	Query string `json:"query"`
+
+	// Template Template for gauge display
+	Template *string `json:"template,omitempty"`
+
+	// ValueMappings Value-to-text/color mappings
+	ValueMappings *[]ValueMapping `json:"valueMappings,omitempty"`
+}
+
+// GridItem defines model for GridItem.
+type GridItem struct {
+	// CreatedAt Creation timestamp (Unix milliseconds)
+	CreatedAt *float64 `json:"createdAt,omitempty"`
+
+	// DashId Dashboard ID this item belongs to
+	DashId int64 `json:"dashId"`
+
+	// DashKind Dashboard kind (grid or table section)
+	DashKind GridItemDashKind `json:"dashKind"`
+
+	// Description Item description
+	Description *string `json:"description,omitempty"`
+
+	// Height Height in grid units
+	Height *int `json:"height,omitempty"`
+
+	// Id Grid item unique identifier
+	Id int64 `json:"id"`
+
+	// Params Type-specific parameters
+	Params *GridItem_Params `json:"params,omitempty"`
+
+	// RowId Grid row ID (for grid items)
+	RowId *int64 `json:"rowId,omitempty"`
+
+	// Title Item title
+	Title string `json:"title"`
+
+	// Type Grid item type
+	Type GridItemType `json:"type"`
+
+	// UpdatedAt Last update timestamp (Unix milliseconds)
+	UpdatedAt *float64 `json:"updatedAt,omitempty"`
+
+	// Width Width in grid units (0-24)
+	Width *int `json:"width,omitempty"`
+
+	// XAxis X position in grid
+	XAxis *int `json:"xAxis,omitempty"`
+
+	// YAxis Y position in grid
+	YAxis *int `json:"yAxis,omitempty"`
+}
+
+// GridItemDashKind Dashboard kind (grid or table section)
+type GridItemDashKind string
+
+// GridItem_Params Type-specific parameters
+type GridItem_Params struct {
+	union json.RawMessage
+}
+
+// GridItemType Grid item type
+type GridItemType string
+
+// GridRow defines model for GridRow.
+type GridRow struct {
+	// CreatedAt Creation timestamp (Unix milliseconds)
+	CreatedAt *float64 `json:"createdAt,omitempty"`
+
+	// DashId Dashboard ID this row belongs to
+	DashId int64 `json:"dashId"`
+
+	// Description Row description
+	Description *string `json:"description,omitempty"`
+
+	// Expanded Whether the row is expanded
+	Expanded *bool `json:"expanded,omitempty"`
+
+	// Id Grid row unique identifier
+	Id int64 `json:"id"`
+
+	// Index Row position/order
+	Index int `json:"index"`
+
+	// Items Grid items in this row
+	Items *[]GridItem `json:"items,omitempty"`
+
+	// Title Row title
+	Title string `json:"title"`
+
+	// UpdatedAt Last update timestamp (Unix milliseconds)
+	UpdatedAt *float64 `json:"updatedAt,omitempty"`
+}
+
+// HeatmapGridItemParams defines model for HeatmapGridItemParams.
+type HeatmapGridItemParams struct {
+	// Metric Metric name for heatmap
+	Metric string `json:"metric"`
+
+	// Query UQL query for the heatmap
+	Query string `json:"query"`
+
+	// Unit Unit for the metric
+	Unit *string `json:"unit,omitempty"`
+}
+
+// MetricAlias defines model for MetricAlias.
+type MetricAlias struct {
+	// Alias Metric alias
+	Alias string `json:"alias"`
+
+	// Name Metric name
+	Name string `json:"name"`
+}
+
+// MetricColumn defines model for MetricColumn.
+type MetricColumn struct {
+	// Color Color for the column (hex format)
+	Color *string `json:"color,omitempty"`
+
+	// Unit Unit for the metric column
+	Unit *string `json:"unit,omitempty"`
 }
 
 // MetricDefinition defines model for MetricDefinition.
@@ -359,6 +669,81 @@ type RepeatInterval struct {
 // RepeatIntervalStrategy Repeat interval strategy
 type RepeatIntervalStrategy string
 
+// TableColumn defines model for TableColumn.
+type TableColumn struct {
+	// AggFunc Aggregation function for table display
+	AggFunc *TableColumnAggFunc `json:"aggFunc,omitempty"`
+
+	// Color Color for the column (hex format)
+	Color *string `json:"color,omitempty"`
+
+	// SparklineDisabled Whether sparkline visualization is disabled
+	SparklineDisabled *bool `json:"sparklineDisabled,omitempty"`
+
+	// Unit Unit for the column values
+	Unit *string `json:"unit,omitempty"`
+}
+
+// TableColumnAggFunc Aggregation function for table display
+type TableColumnAggFunc string
+
+// TableGridItemParams defines model for TableGridItemParams.
+type TableGridItemParams struct {
+	// ColumnMap Column-specific configurations
+	ColumnMap *map[string]TableColumn `json:"columnMap,omitempty"`
+
+	// DenseTable Whether to use dense table layout
+	DenseTable *bool `json:"denseTable,omitempty"`
+
+	// ItemsPerPage Number of items per page
+	ItemsPerPage *int `json:"itemsPerPage,omitempty"`
+
+	// Metrics Metrics to display (max 10)
+	Metrics []MetricAlias `json:"metrics"`
+
+	// Query UQL query for the table
+	Query string `json:"query"`
+}
+
+// TimeseriesStyle defines model for TimeseriesStyle.
+type TimeseriesStyle struct {
+	// Color Line color (hex format)
+	Color *string `json:"color,omitempty"`
+
+	// LineWidth Line width in pixels
+	LineWidth *float32 `json:"lineWidth,omitempty"`
+
+	// Opacity Opacity (0-10)
+	Opacity *int `json:"opacity,omitempty"`
+
+	// Symbol Symbol type for data points
+	Symbol *TimeseriesStyleSymbol `json:"symbol,omitempty"`
+
+	// SymbolSize Symbol size in pixels
+	SymbolSize *int `json:"symbolSize,omitempty"`
+}
+
+// TimeseriesStyleSymbol Symbol type for data points
+type TimeseriesStyleSymbol string
+
+// ValueMapping defines model for ValueMapping.
+type ValueMapping struct {
+	// Color Color for this mapping (hex format)
+	Color *string `json:"color,omitempty"`
+
+	// Op Comparison operator
+	Op *ValueMappingOp `json:"op,omitempty"`
+
+	// Text Text to display for this mapping
+	Text *string `json:"text,omitempty"`
+
+	// Value Value to compare against
+	Value *float32 `json:"value,omitempty"`
+}
+
+// ValueMappingOp Comparison operator
+type ValueMappingOp string
+
 // ChannelId defines model for ChannelId.
 type ChannelId = int64
 
@@ -386,6 +771,53 @@ type NotFound = Error
 // Unauthorized defines model for Unauthorized.
 type Unauthorized = Error
 
+// UpdateDashboardGridJSONBody defines parameters for UpdateDashboardGrid.
+type UpdateDashboardGridJSONBody struct {
+	// GridQuery Global query filter for grid items
+	GridQuery *string `json:"gridQuery,omitempty"`
+}
+
+// CreateGridRowJSONBody defines parameters for CreateGridRow.
+type CreateGridRowJSONBody struct {
+	// Description Row description
+	Description *string `json:"description,omitempty"`
+
+	// Expanded Whether the row is expanded
+	Expanded *bool `json:"expanded,omitempty"`
+
+	// Title Row title
+	Title *string `json:"title,omitempty"`
+}
+
+// UpdateDashboardTableJSONBody defines parameters for UpdateDashboardTable.
+type UpdateDashboardTableJSONBody struct {
+	// Name Dashboard name
+	Name           *string                 `json:"name,omitempty"`
+	TableColumnMap *map[string]TableColumn `json:"tableColumnMap,omitempty"`
+	TableMetrics   *[]MetricAlias          `json:"tableMetrics,omitempty"`
+
+	// TableQuery Table query
+	TableQuery *string `json:"tableQuery,omitempty"`
+}
+
+// CreateGridItemJSONRequestBody defines body for CreateGridItem for application/json ContentType.
+type CreateGridItemJSONRequestBody = GridItem
+
+// UpdateDashboardGridJSONRequestBody defines body for UpdateDashboardGrid for application/json ContentType.
+type UpdateDashboardGridJSONRequestBody UpdateDashboardGridJSONBody
+
+// UpdateGridItemJSONRequestBody defines body for UpdateGridItem for application/json ContentType.
+type UpdateGridItemJSONRequestBody = GridItem
+
+// CreateGridRowJSONRequestBody defines body for CreateGridRow for application/json ContentType.
+type CreateGridRowJSONRequestBody CreateGridRowJSONBody
+
+// UpdateGridRowJSONRequestBody defines body for UpdateGridRow for application/json ContentType.
+type UpdateGridRowJSONRequestBody = GridRow
+
+// UpdateDashboardTableJSONRequestBody defines body for UpdateDashboardTable for application/json ContentType.
+type UpdateDashboardTableJSONRequestBody UpdateDashboardTableJSONBody
+
 // CreateMonitorJSONRequestBody defines body for CreateMonitor for application/json ContentType.
 type CreateMonitorJSONRequestBody = MonitorInput
 
@@ -397,6 +829,120 @@ type CreateNotificationChannelJSONRequestBody = NotificationChannelInput
 
 // UpdateNotificationChannelJSONRequestBody defines body for UpdateNotificationChannel for application/json ContentType.
 type UpdateNotificationChannelJSONRequestBody = NotificationChannelInput
+
+// AsChartGridItemParams returns the union data inside the GridItem_Params as a ChartGridItemParams
+func (t GridItem_Params) AsChartGridItemParams() (ChartGridItemParams, error) {
+	var body ChartGridItemParams
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromChartGridItemParams overwrites any union data inside the GridItem_Params as the provided ChartGridItemParams
+func (t *GridItem_Params) FromChartGridItemParams(v ChartGridItemParams) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeChartGridItemParams performs a merge with any union data inside the GridItem_Params, using the provided ChartGridItemParams
+func (t *GridItem_Params) MergeChartGridItemParams(v ChartGridItemParams) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsTableGridItemParams returns the union data inside the GridItem_Params as a TableGridItemParams
+func (t GridItem_Params) AsTableGridItemParams() (TableGridItemParams, error) {
+	var body TableGridItemParams
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromTableGridItemParams overwrites any union data inside the GridItem_Params as the provided TableGridItemParams
+func (t *GridItem_Params) FromTableGridItemParams(v TableGridItemParams) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeTableGridItemParams performs a merge with any union data inside the GridItem_Params, using the provided TableGridItemParams
+func (t *GridItem_Params) MergeTableGridItemParams(v TableGridItemParams) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsHeatmapGridItemParams returns the union data inside the GridItem_Params as a HeatmapGridItemParams
+func (t GridItem_Params) AsHeatmapGridItemParams() (HeatmapGridItemParams, error) {
+	var body HeatmapGridItemParams
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromHeatmapGridItemParams overwrites any union data inside the GridItem_Params as the provided HeatmapGridItemParams
+func (t *GridItem_Params) FromHeatmapGridItemParams(v HeatmapGridItemParams) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeHeatmapGridItemParams performs a merge with any union data inside the GridItem_Params, using the provided HeatmapGridItemParams
+func (t *GridItem_Params) MergeHeatmapGridItemParams(v HeatmapGridItemParams) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+// AsGaugeGridItemParams returns the union data inside the GridItem_Params as a GaugeGridItemParams
+func (t GridItem_Params) AsGaugeGridItemParams() (GaugeGridItemParams, error) {
+	var body GaugeGridItemParams
+	err := json.Unmarshal(t.union, &body)
+	return body, err
+}
+
+// FromGaugeGridItemParams overwrites any union data inside the GridItem_Params as the provided GaugeGridItemParams
+func (t *GridItem_Params) FromGaugeGridItemParams(v GaugeGridItemParams) error {
+	b, err := json.Marshal(v)
+	t.union = b
+	return err
+}
+
+// MergeGaugeGridItemParams performs a merge with any union data inside the GridItem_Params, using the provided GaugeGridItemParams
+func (t *GridItem_Params) MergeGaugeGridItemParams(v GaugeGridItemParams) error {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+
+	merged, err := runtime.JSONMerge(t.union, b)
+	t.union = merged
+	return err
+}
+
+func (t GridItem_Params) MarshalJSON() ([]byte, error) {
+	b, err := t.union.MarshalJSON()
+	return b, err
+}
+
+func (t *GridItem_Params) UnmarshalJSON(b []byte) error {
+	err := t.union.UnmarshalJSON(b)
+	return err
+}
 
 // AsMetricMonitorParams returns the union data inside the Monitor_Params as a MetricMonitorParams
 func (t Monitor_Params) AsMetricMonitorParams() (MetricMonitorParams, error) {
@@ -607,6 +1153,60 @@ type ClientInterface interface {
 	// GetDashboard request
 	GetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// CloneDashboard request
+	CloneDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateGridItemWithBody request with any body
+	CreateGridItemWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateGridItem(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateDashboardGridWithBody request with any body
+	UpdateDashboardGridWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateDashboardGrid(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardGridJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteGridItem request
+	DeleteGridItem(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateGridItemWithBody request with any body
+	UpdateGridItemWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateGridItem(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, body UpdateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PinDashboard request
+	PinDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ResetDashboard request
+	ResetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateGridRowWithBody request with any body
+	CreateGridRowWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	CreateGridRow(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteGridRow request
+	DeleteGridRow(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateGridRowWithBody request with any body
+	UpdateGridRowWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateGridRow(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, body UpdateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveGridRowDown request
+	MoveGridRowDown(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveGridRowUp request
+	MoveGridRowUp(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateDashboardTableWithBody request with any body
+	UpdateDashboardTableWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	UpdateDashboardTable(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UnpinDashboard request
+	UnpinDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetDashboardYAML request
 	GetDashboardYAML(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error)
 
@@ -690,6 +1290,246 @@ func (c *Client) DeleteDashboard(ctx context.Context, projectId ProjectId, dashb
 
 func (c *Client) GetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CloneDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCloneDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGridItemWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGridItemRequestWithBody(c.Server, projectId, dashboardId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGridItem(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGridItemRequest(c.Server, projectId, dashboardId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDashboardGridWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDashboardGridRequestWithBody(c.Server, projectId, dashboardId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDashboardGrid(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardGridJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDashboardGridRequest(c.Server, projectId, dashboardId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteGridItem(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteGridItemRequest(c.Server, projectId, dashboardId, gridItemId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateGridItemWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateGridItemRequestWithBody(c.Server, projectId, dashboardId, gridItemId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateGridItem(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, body UpdateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateGridItemRequest(c.Server, projectId, dashboardId, gridItemId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PinDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPinDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) ResetDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewResetDashboardRequest(c.Server, projectId, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGridRowWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGridRowRequestWithBody(c.Server, projectId, dashboardId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) CreateGridRow(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateGridRowRequest(c.Server, projectId, dashboardId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) DeleteGridRow(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteGridRowRequest(c.Server, projectId, dashboardId, rowId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateGridRowWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateGridRowRequestWithBody(c.Server, projectId, dashboardId, rowId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateGridRow(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, body UpdateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateGridRowRequest(c.Server, projectId, dashboardId, rowId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MoveGridRowDown(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveGridRowDownRequest(c.Server, projectId, dashboardId, rowId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) MoveGridRowUp(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveGridRowUpRequest(c.Server, projectId, dashboardId, rowId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDashboardTableWithBody(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDashboardTableRequestWithBody(c.Server, projectId, dashboardId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UpdateDashboardTable(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardTableJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDashboardTableRequest(c.Server, projectId, dashboardId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) UnpinDashboard(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUnpinDashboardRequest(c.Server, projectId, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -1037,6 +1877,700 @@ func NewGetDashboardRequest(server string, projectId ProjectId, dashboardId Dash
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCloneDashboardRequest generates requests for CloneDashboard
+func NewCloneDashboardRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/clone", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateGridItemRequest calls the generic CreateGridItem builder with application/json body
+func NewCreateGridItemRequest(server string, projectId ProjectId, dashboardId DashboardId, body CreateGridItemJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateGridItemRequestWithBody(server, projectId, dashboardId, "application/json", bodyReader)
+}
+
+// NewCreateGridItemRequestWithBody generates requests for CreateGridItem with any type of body
+func NewCreateGridItemRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/grid", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUpdateDashboardGridRequest calls the generic UpdateDashboardGrid builder with application/json body
+func NewUpdateDashboardGridRequest(server string, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardGridJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateDashboardGridRequestWithBody(server, projectId, dashboardId, "application/json", bodyReader)
+}
+
+// NewUpdateDashboardGridRequestWithBody generates requests for UpdateDashboardGrid with any type of body
+func NewUpdateDashboardGridRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/grid", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteGridItemRequest generates requests for DeleteGridItem
+func NewDeleteGridItemRequest(server string, projectId ProjectId, dashboardId DashboardId, gridItemId int64) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "gridItemId", runtime.ParamLocationPath, gridItemId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/grid/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateGridItemRequest calls the generic UpdateGridItem builder with application/json body
+func NewUpdateGridItemRequest(server string, projectId ProjectId, dashboardId DashboardId, gridItemId int64, body UpdateGridItemJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateGridItemRequestWithBody(server, projectId, dashboardId, gridItemId, "application/json", bodyReader)
+}
+
+// NewUpdateGridItemRequestWithBody generates requests for UpdateGridItem with any type of body
+func NewUpdateGridItemRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, gridItemId int64, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "gridItemId", runtime.ParamLocationPath, gridItemId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/grid/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewPinDashboardRequest generates requests for PinDashboard
+func NewPinDashboardRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/pinned", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewResetDashboardRequest generates requests for ResetDashboard
+func NewResetDashboardRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/reset", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateGridRowRequest calls the generic CreateGridRow builder with application/json body
+func NewCreateGridRowRequest(server string, projectId ProjectId, dashboardId DashboardId, body CreateGridRowJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateGridRowRequestWithBody(server, projectId, dashboardId, "application/json", bodyReader)
+}
+
+// NewCreateGridRowRequestWithBody generates requests for CreateGridRow with any type of body
+func NewCreateGridRowRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/rows", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteGridRowRequest generates requests for DeleteGridRow
+func NewDeleteGridRowRequest(server string, projectId ProjectId, dashboardId DashboardId, rowId int64) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "rowId", runtime.ParamLocationPath, rowId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/rows/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateGridRowRequest calls the generic UpdateGridRow builder with application/json body
+func NewUpdateGridRowRequest(server string, projectId ProjectId, dashboardId DashboardId, rowId int64, body UpdateGridRowJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateGridRowRequestWithBody(server, projectId, dashboardId, rowId, "application/json", bodyReader)
+}
+
+// NewUpdateGridRowRequestWithBody generates requests for UpdateGridRow with any type of body
+func NewUpdateGridRowRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, rowId int64, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "rowId", runtime.ParamLocationPath, rowId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/rows/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMoveGridRowDownRequest generates requests for MoveGridRowDown
+func NewMoveGridRowDownRequest(server string, projectId ProjectId, dashboardId DashboardId, rowId int64) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "rowId", runtime.ParamLocationPath, rowId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/rows/%s/down", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewMoveGridRowUpRequest generates requests for MoveGridRowUp
+func NewMoveGridRowUpRequest(server string, projectId ProjectId, dashboardId DashboardId, rowId int64) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithLocation("simple", false, "rowId", runtime.ParamLocationPath, rowId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/rows/%s/up", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateDashboardTableRequest calls the generic UpdateDashboardTable builder with application/json body
+func NewUpdateDashboardTableRequest(server string, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardTableJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateDashboardTableRequestWithBody(server, projectId, dashboardId, "application/json", bodyReader)
+}
+
+// NewUpdateDashboardTableRequestWithBody generates requests for UpdateDashboardTable with any type of body
+func NewUpdateDashboardTableRequestWithBody(server string, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/table", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewUnpinDashboardRequest generates requests for UnpinDashboard
+func NewUnpinDashboardRequest(server string, projectId ProjectId, dashboardId DashboardId) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "projectId", runtime.ParamLocationPath, projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithLocation("simple", false, "dashboardId", runtime.ParamLocationPath, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/metrics/%s/dashboards/%s/unpinned", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1617,6 +3151,60 @@ type ClientWithResponsesInterface interface {
 	// GetDashboardWithResponse request
 	GetDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardResponse, error)
 
+	// CloneDashboardWithResponse request
+	CloneDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*CloneDashboardResponse, error)
+
+	// CreateGridItemWithBodyWithResponse request with any body
+	CreateGridItemWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGridItemResponse, error)
+
+	CreateGridItemWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGridItemResponse, error)
+
+	// UpdateDashboardGridWithBodyWithResponse request with any body
+	UpdateDashboardGridWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardGridResponse, error)
+
+	UpdateDashboardGridWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardGridJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardGridResponse, error)
+
+	// DeleteGridItemWithResponse request
+	DeleteGridItemWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, reqEditors ...RequestEditorFn) (*DeleteGridItemResponse, error)
+
+	// UpdateGridItemWithBodyWithResponse request with any body
+	UpdateGridItemWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateGridItemResponse, error)
+
+	UpdateGridItemWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, body UpdateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGridItemResponse, error)
+
+	// PinDashboardWithResponse request
+	PinDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*PinDashboardResponse, error)
+
+	// ResetDashboardWithResponse request
+	ResetDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*ResetDashboardResponse, error)
+
+	// CreateGridRowWithBodyWithResponse request with any body
+	CreateGridRowWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGridRowResponse, error)
+
+	CreateGridRowWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGridRowResponse, error)
+
+	// DeleteGridRowWithResponse request
+	DeleteGridRowWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*DeleteGridRowResponse, error)
+
+	// UpdateGridRowWithBodyWithResponse request with any body
+	UpdateGridRowWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateGridRowResponse, error)
+
+	UpdateGridRowWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, body UpdateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGridRowResponse, error)
+
+	// MoveGridRowDownWithResponse request
+	MoveGridRowDownWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*MoveGridRowDownResponse, error)
+
+	// MoveGridRowUpWithResponse request
+	MoveGridRowUpWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*MoveGridRowUpResponse, error)
+
+	// UpdateDashboardTableWithBodyWithResponse request with any body
+	UpdateDashboardTableWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardTableResponse, error)
+
+	UpdateDashboardTableWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardTableJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardTableResponse, error)
+
+	// UnpinDashboardWithResponse request
+	UnpinDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*UnpinDashboardResponse, error)
+
 	// GetDashboardYAMLWithResponse request
 	GetDashboardYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardYAMLResponse, error)
 
@@ -1750,6 +3338,18 @@ type GetDashboardResponse struct {
 	HTTPResponse *http.Response
 	JSON200      *struct {
 		Dashboard Dashboard `json:"dashboard"`
+
+		// GridMetrics List of unique metric names used in grid items
+		GridMetrics *[]string `json:"gridMetrics,omitempty"`
+
+		// GridRows Grid rows with their items
+		GridRows *[]GridRow `json:"gridRows,omitempty"`
+
+		// TableItems Grid items in the table section
+		TableItems *[]GridItem `json:"tableItems,omitempty"`
+
+		// YamlUrl URL to fetch dashboard YAML representation
+		YamlUrl *string `json:"yamlUrl,omitempty"`
 	}
 	JSON401 *Unauthorized
 	JSON403 *Forbidden
@@ -1767,6 +3367,389 @@ func (r GetDashboardResponse) Status() string {
 
 // StatusCode returns HTTPResponse.StatusCode
 func (r GetDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CloneDashboardResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		Dashboard Dashboard `json:"dashboard"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CloneDashboardResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CloneDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateGridItemResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridItem GridItem `json:"gridItem"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateGridItemResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateGridItemResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateDashboardGridResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *BadRequest
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateDashboardGridResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateDashboardGridResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteGridItemResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridItem GridItem `json:"gridItem"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteGridItemResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteGridItemResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateGridItemResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridItem GridItem `json:"gridItem"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateGridItemResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateGridItemResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type PinDashboardResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r PinDashboardResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PinDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type ResetDashboardResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r ResetDashboardResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ResetDashboardResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type CreateGridRowResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridRow GridRow `json:"gridRow"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateGridRowResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateGridRowResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type DeleteGridRowResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridItem GridItem `json:"gridItem"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteGridRowResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteGridRowResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateGridRowResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridRow GridRow `json:"gridRow"`
+	}
+	JSON400 *BadRequest
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateGridRowResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateGridRowResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MoveGridRowDownResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridRow GridRow `json:"gridRow"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r MoveGridRowDownResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MoveGridRowDownResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type MoveGridRowUpResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON200      *struct {
+		GridRow GridRow `json:"gridRow"`
+	}
+	JSON401 *Unauthorized
+	JSON403 *Forbidden
+	JSON404 *NotFound
+	JSON500 *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r MoveGridRowUpResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MoveGridRowUpResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UpdateDashboardTableResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON400      *BadRequest
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateDashboardTableResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateDashboardTableResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+type UnpinDashboardResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON401      *Unauthorized
+	JSON403      *Forbidden
+	JSON404      *NotFound
+	JSON500      *InternalServerError
+}
+
+// Status returns HTTPResponse.Status
+func (r UnpinDashboardResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UnpinDashboardResponse) StatusCode() int {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.StatusCode
 	}
@@ -2144,6 +4127,180 @@ func (c *ClientWithResponses) GetDashboardWithResponse(ctx context.Context, proj
 	return ParseGetDashboardResponse(rsp)
 }
 
+// CloneDashboardWithResponse request returning *CloneDashboardResponse
+func (c *ClientWithResponses) CloneDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*CloneDashboardResponse, error) {
+	rsp, err := c.CloneDashboard(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCloneDashboardResponse(rsp)
+}
+
+// CreateGridItemWithBodyWithResponse request with arbitrary body returning *CreateGridItemResponse
+func (c *ClientWithResponses) CreateGridItemWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGridItemResponse, error) {
+	rsp, err := c.CreateGridItemWithBody(ctx, projectId, dashboardId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGridItemResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateGridItemWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGridItemResponse, error) {
+	rsp, err := c.CreateGridItem(ctx, projectId, dashboardId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGridItemResponse(rsp)
+}
+
+// UpdateDashboardGridWithBodyWithResponse request with arbitrary body returning *UpdateDashboardGridResponse
+func (c *ClientWithResponses) UpdateDashboardGridWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardGridResponse, error) {
+	rsp, err := c.UpdateDashboardGridWithBody(ctx, projectId, dashboardId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDashboardGridResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateDashboardGridWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardGridJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardGridResponse, error) {
+	rsp, err := c.UpdateDashboardGrid(ctx, projectId, dashboardId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDashboardGridResponse(rsp)
+}
+
+// DeleteGridItemWithResponse request returning *DeleteGridItemResponse
+func (c *ClientWithResponses) DeleteGridItemWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, reqEditors ...RequestEditorFn) (*DeleteGridItemResponse, error) {
+	rsp, err := c.DeleteGridItem(ctx, projectId, dashboardId, gridItemId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteGridItemResponse(rsp)
+}
+
+// UpdateGridItemWithBodyWithResponse request with arbitrary body returning *UpdateGridItemResponse
+func (c *ClientWithResponses) UpdateGridItemWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateGridItemResponse, error) {
+	rsp, err := c.UpdateGridItemWithBody(ctx, projectId, dashboardId, gridItemId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateGridItemResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateGridItemWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, gridItemId int64, body UpdateGridItemJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGridItemResponse, error) {
+	rsp, err := c.UpdateGridItem(ctx, projectId, dashboardId, gridItemId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateGridItemResponse(rsp)
+}
+
+// PinDashboardWithResponse request returning *PinDashboardResponse
+func (c *ClientWithResponses) PinDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*PinDashboardResponse, error) {
+	rsp, err := c.PinDashboard(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePinDashboardResponse(rsp)
+}
+
+// ResetDashboardWithResponse request returning *ResetDashboardResponse
+func (c *ClientWithResponses) ResetDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*ResetDashboardResponse, error) {
+	rsp, err := c.ResetDashboard(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseResetDashboardResponse(rsp)
+}
+
+// CreateGridRowWithBodyWithResponse request with arbitrary body returning *CreateGridRowResponse
+func (c *ClientWithResponses) CreateGridRowWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateGridRowResponse, error) {
+	rsp, err := c.CreateGridRowWithBody(ctx, projectId, dashboardId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGridRowResponse(rsp)
+}
+
+func (c *ClientWithResponses) CreateGridRowWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body CreateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateGridRowResponse, error) {
+	rsp, err := c.CreateGridRow(ctx, projectId, dashboardId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateGridRowResponse(rsp)
+}
+
+// DeleteGridRowWithResponse request returning *DeleteGridRowResponse
+func (c *ClientWithResponses) DeleteGridRowWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*DeleteGridRowResponse, error) {
+	rsp, err := c.DeleteGridRow(ctx, projectId, dashboardId, rowId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteGridRowResponse(rsp)
+}
+
+// UpdateGridRowWithBodyWithResponse request with arbitrary body returning *UpdateGridRowResponse
+func (c *ClientWithResponses) UpdateGridRowWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateGridRowResponse, error) {
+	rsp, err := c.UpdateGridRowWithBody(ctx, projectId, dashboardId, rowId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateGridRowResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateGridRowWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, body UpdateGridRowJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGridRowResponse, error) {
+	rsp, err := c.UpdateGridRow(ctx, projectId, dashboardId, rowId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateGridRowResponse(rsp)
+}
+
+// MoveGridRowDownWithResponse request returning *MoveGridRowDownResponse
+func (c *ClientWithResponses) MoveGridRowDownWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*MoveGridRowDownResponse, error) {
+	rsp, err := c.MoveGridRowDown(ctx, projectId, dashboardId, rowId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveGridRowDownResponse(rsp)
+}
+
+// MoveGridRowUpWithResponse request returning *MoveGridRowUpResponse
+func (c *ClientWithResponses) MoveGridRowUpWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, rowId int64, reqEditors ...RequestEditorFn) (*MoveGridRowUpResponse, error) {
+	rsp, err := c.MoveGridRowUp(ctx, projectId, dashboardId, rowId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveGridRowUpResponse(rsp)
+}
+
+// UpdateDashboardTableWithBodyWithResponse request with arbitrary body returning *UpdateDashboardTableResponse
+func (c *ClientWithResponses) UpdateDashboardTableWithBodyWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDashboardTableResponse, error) {
+	rsp, err := c.UpdateDashboardTableWithBody(ctx, projectId, dashboardId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDashboardTableResponse(rsp)
+}
+
+func (c *ClientWithResponses) UpdateDashboardTableWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, body UpdateDashboardTableJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDashboardTableResponse, error) {
+	rsp, err := c.UpdateDashboardTable(ctx, projectId, dashboardId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDashboardTableResponse(rsp)
+}
+
+// UnpinDashboardWithResponse request returning *UnpinDashboardResponse
+func (c *ClientWithResponses) UnpinDashboardWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*UnpinDashboardResponse, error) {
+	rsp, err := c.UnpinDashboard(ctx, projectId, dashboardId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUnpinDashboardResponse(rsp)
+}
+
 // GetDashboardYAMLWithResponse request returning *GetDashboardYAMLResponse
 func (c *ClientWithResponses) GetDashboardYAMLWithResponse(ctx context.Context, projectId ProjectId, dashboardId DashboardId, reqEditors ...RequestEditorFn) (*GetDashboardYAMLResponse, error) {
 	rsp, err := c.GetDashboardYAML(ctx, projectId, dashboardId, reqEditors...)
@@ -2462,12 +4619,805 @@ func ParseGetDashboardResponse(rsp *http.Response) (*GetDashboardResponse, error
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
 		var dest struct {
 			Dashboard Dashboard `json:"dashboard"`
+
+			// GridMetrics List of unique metric names used in grid items
+			GridMetrics *[]string `json:"gridMetrics,omitempty"`
+
+			// GridRows Grid rows with their items
+			GridRows *[]GridRow `json:"gridRows,omitempty"`
+
+			// TableItems Grid items in the table section
+			TableItems *[]GridItem `json:"tableItems,omitempty"`
+
+			// YamlUrl URL to fetch dashboard YAML representation
+			YamlUrl *string `json:"yamlUrl,omitempty"`
 		}
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
 			return nil, err
 		}
 		response.JSON200 = &dest
 
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCloneDashboardResponse parses an HTTP response from a CloneDashboardWithResponse call
+func ParseCloneDashboardResponse(rsp *http.Response) (*CloneDashboardResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CloneDashboardResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Dashboard Dashboard `json:"dashboard"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateGridItemResponse parses an HTTP response from a CreateGridItemWithResponse call
+func ParseCreateGridItemResponse(rsp *http.Response) (*CreateGridItemResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateGridItemResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridItem GridItem `json:"gridItem"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateDashboardGridResponse parses an HTTP response from a UpdateDashboardGridWithResponse call
+func ParseUpdateDashboardGridResponse(rsp *http.Response) (*UpdateDashboardGridResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateDashboardGridResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteGridItemResponse parses an HTTP response from a DeleteGridItemWithResponse call
+func ParseDeleteGridItemResponse(rsp *http.Response) (*DeleteGridItemResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteGridItemResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridItem GridItem `json:"gridItem"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateGridItemResponse parses an HTTP response from a UpdateGridItemWithResponse call
+func ParseUpdateGridItemResponse(rsp *http.Response) (*UpdateGridItemResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateGridItemResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridItem GridItem `json:"gridItem"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParsePinDashboardResponse parses an HTTP response from a PinDashboardWithResponse call
+func ParsePinDashboardResponse(rsp *http.Response) (*PinDashboardResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PinDashboardResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseResetDashboardResponse parses an HTTP response from a ResetDashboardWithResponse call
+func ParseResetDashboardResponse(rsp *http.Response) (*ResetDashboardResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ResetDashboardResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateGridRowResponse parses an HTTP response from a CreateGridRowWithResponse call
+func ParseCreateGridRowResponse(rsp *http.Response) (*CreateGridRowResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateGridRowResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridRow GridRow `json:"gridRow"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteGridRowResponse parses an HTTP response from a DeleteGridRowWithResponse call
+func ParseDeleteGridRowResponse(rsp *http.Response) (*DeleteGridRowResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteGridRowResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridItem GridItem `json:"gridItem"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateGridRowResponse parses an HTTP response from a UpdateGridRowWithResponse call
+func ParseUpdateGridRowResponse(rsp *http.Response) (*UpdateGridRowResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateGridRowResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridRow GridRow `json:"gridRow"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMoveGridRowDownResponse parses an HTTP response from a MoveGridRowDownWithResponse call
+func ParseMoveGridRowDownResponse(rsp *http.Response) (*MoveGridRowDownResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MoveGridRowDownResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridRow GridRow `json:"gridRow"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMoveGridRowUpResponse parses an HTTP response from a MoveGridRowUpWithResponse call
+func ParseMoveGridRowUpResponse(rsp *http.Response) (*MoveGridRowUpResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MoveGridRowUpResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			GridRow GridRow `json:"gridRow"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateDashboardTableResponse parses an HTTP response from a UpdateDashboardTableWithResponse call
+func ParseUpdateDashboardTableResponse(rsp *http.Response) (*UpdateDashboardTableResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateDashboardTableResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest BadRequest
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Forbidden
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 500:
+		var dest InternalServerError
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON500 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUnpinDashboardResponse parses an HTTP response from a UnpinDashboardWithResponse call
+func ParseUnpinDashboardResponse(rsp *http.Response) (*UnpinDashboardResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UnpinDashboardResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest Unauthorized
 		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
@@ -3181,70 +6131,108 @@ func ParseUpdateNotificationChannelResponse(rsp *http.Response) (*UpdateNotifica
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

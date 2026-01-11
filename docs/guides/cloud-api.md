@@ -4,6 +4,24 @@
 
 The provider supports both self-hosted Uptrace instances and the Uptrace cloud API at `api2.uptrace.dev`.
 
+## Feature Compatibility
+
+| Feature | Self-Hosted | Uptrace Cloud | Notes |
+|---------|-------------|---------------|-------|
+| **Monitor Resource** | ✅ Full Support | ✅ Full Support | Cloud normalizes queries to canonical UQL form. Use `lifecycle { ignore_changes = [params] }` if needed. |
+| **Dashboard Resource** | ✅ Full Support | ✅ Full Support | YAML-based dashboards work identically across both platforms. |
+| **Notification Channels** | ✅ Full Support | ✅ Full Support | All channel types (Slack, Telegram, Mattermost, Webhook) supported. |
+| **Data Sources** | ✅ Full Support | ✅ Full Support | Query individual monitors or filter by criteria. |
+| **Monitor `trend_agg_func`** | ⚠️ Optional | ✅ Required | Required for cloud API. Optional for self-hosted v2.0.2 and earlier. |
+| **Channel `priority` field** | ➖ Not Applicable | ❌ Not Functional | Cloud UI shows priority options but API currently rejects all values. |
+| **Import Support** | ✅ Full Support | ✅ Full Support | Import existing resources into Terraform state. |
+
+**Legend:**
+- ✅ **Full Support** - Feature works as expected
+- ⚠️ **Optional** - Feature available but not required
+- ❌ **Not Functional** - Feature not yet working (API limitation)
+- ➖ **Not Applicable** - Feature not available for this platform
+
 ## Cloud-Specific Fields
 
 ### Notification Channels

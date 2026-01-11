@@ -49,6 +49,9 @@ override.tf.json
 dist/
 *.zip
 
+# Task runner checksums
+.task/
+
 # Testing
 .test/
 terraform-provider-uptrace.log

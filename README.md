@@ -2,12 +2,13 @@
 
 A Terraform provider for managing [Uptrace](https://uptrace.dev/) monitoring resources - monitors, dashboards, and notification channels.
 
+[![OpenTofu Registry](https://img.shields.io/badge/OpenTofu-Registry-blue?logo=opentofu)](https://search.opentofu.org/provider/riccap/uptrace)
 [![Tests](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml/badge.svg)](https://github.com/riccap/terraform-provider-uptrace/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/riccap/terraform-provider-uptrace/branch/main/graph/badge.svg)](https://codecov.io/gh/riccap/terraform-provider-uptrace)
 [![Go Report Card](https://goreportcard.com/badge/github.com/riccap/terraform-provider-uptrace)](https://goreportcard.com/report/github.com/riccap/terraform-provider-uptrace)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> This provider is in early development 🐛. Any feedback is welcome (just create an issue)! Many of the features still need thorough manual testing.
+> This provider is in early development. Any feedback is welcome (just create an issue)! Many of the features still need thorough manual testing.
 
 ## Features
 
@@ -69,12 +70,14 @@ task build
 
 ### Installation
 
+**OpenTofu** (recommended):
+
 ```hcl
 terraform {
   required_providers {
     uptrace = {
-      source  = "registry.terraform.io/riccap/uptrace"
-      version = "~> 0.1"
+      source  = "riccap/uptrace"
+      version = "~> 0.3"
     }
   }
 }
@@ -85,6 +88,21 @@ provider "uptrace" {
   project_id = var.uptrace_project_id
 }
 ```
+
+**Terraform** (pending registry approval - use GitHub releases):
+
+```hcl
+terraform {
+  required_providers {
+    uptrace = {
+      source  = "github.com/riccap/terraform-provider-uptrace"
+      version = "~> 0.3"
+    }
+  }
+}
+```
+
+See [OpenTofu Registry](https://search.opentofu.org/provider/riccap/uptrace) for full documentation.
 
 ### Configuration
 
@@ -207,8 +225,10 @@ resource "uptrace_dashboard" "api_overview" {
 
 ## Documentation
 
+- **[OpenTofu Registry Docs](https://search.opentofu.org/provider/riccap/uptrace)** - Official provider documentation
 - **[Getting Started Guide](docs/guides/getting-started.md)** - Complete introduction with examples
 - **[Best Practices Guide](docs/guides/best-practices.md)** - Production recommendations
+- **[Cloud API Guide](docs/guides/cloud-api.md)** - Uptrace Cloud configuration
 - **[Resource Documentation](docs/)** - Detailed resource and data source reference
 - **[Example Configurations](examples/)** - Real-world usage examples
 
